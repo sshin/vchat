@@ -40,11 +40,13 @@ $(document).ready(function() {
 
     var $controlTime = $('#video-controller-time');
     $controlTime.on('click', function() {
+        var videoId = $('#video-content').attr('data-id');
         var min = $('#video-control-minutes').val();
         var sec = $('#video-control-seconds').val();
         if (!min) min = 0;
         if (!sec) sec = 0;
         var data = {
+            videoId: videoId,
             startAt: {
                 min: min,
                 sec: sec
@@ -80,9 +82,8 @@ function playVideo(data) {
     if (typeof data['startAt'] !== 'undefined') {
         startAt = '&start=' + data['startAt'];
     }
-    var videoId = data['link'].split('=');
+    var videoId = data['videoId'];
     var $videoContent = $('#video-content');
-    videoId = videoId[1];
     $videoContent.attr('data-id', videoId);
     $videoContent.html('<iframe width="600" height="338" src="https://www.youtube.com/embed/' 
                     + videoId  
@@ -93,7 +94,7 @@ function restartVideo(data) {
     if (typeof data.startAt !== 'undefined') {
         var startAt = (parseInt(data.startAt['min']) * 60) + parseInt(data.startAt['sec']);
         var $videoContent = $('#video-content');
-        var videoId = $videoContent.attr('data-id');
+        var videoId = data['videoId'];
         $videoContent.html('<iframe width="600" height="338" src="https://www.youtube.com/embed/' 
                         + videoId  
                         + '?rel=0&amp;controls=0&amp;showinfo=0&autoplay=1&start=' + startAt + '" frameborder="0"></iframe>');

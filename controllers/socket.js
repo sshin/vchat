@@ -85,8 +85,6 @@ class SocketController {
      */
     newVideoSubmit(data) {
         // TODO: Update this logic to be more powerful. Temporary now.
-        var youtubePrefix = 'https://youtube.com/watch?v=';
-
         if (!data['link'].startsWith('https://www.youtube.com/watch?v=') 
             && !data['link'].startsWith('https://youtu.be/')) {
             this._logger.log('Invalid video link: ' + data['link']);
@@ -98,6 +96,7 @@ class SocketController {
             // So the link to embeded format.
             let link = data['link'].split('/');
             link = link[link.length -1];
+            let id = link;
 
             if (link.indexOf('?t=') >= 0) {
                 // This link contains start time..so change the format!
@@ -112,13 +111,13 @@ class SocketController {
                 } else {
                     startAt = parseInt(startAt[0]);
                 }
-                link = link[0];
+                id = link[0];
                 data['startAt'] = startAt;
             }
 
-            data['link'] = youtubePrefix + link;
+            data['videoId'] = id;
         } else {
-            // It's not same...that's why we have some duplicated codes.
+            // Look closely! Not a duplicated code!
             let id = data['link'].split('/');
             id = id[id.length - 1].replace('watch?v=', '');
             
@@ -139,8 +138,10 @@ class SocketController {
                 data['startAt'] = startAt;
             } 
 
-            data['link'] = youtubePrefix + id;
+            data['videoId'] = id;
         }
+
+        delete data['link'];
 
         // TODO: And probably verify given link is a real youtube video?
         data['message'] = 'Queued new video!';
