@@ -1,0 +1,59 @@
+<html>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Welcome to vChat</title>
+        <script src='http://vchat.nullcannull-dev.net/libs/jquery.min.js'></script>
+        <script src='http://vchat.nullcannull-dev.net/libs/angular.min.js'></script>
+        <link href='http://vchat.nullcannull-dev.net/frontend/css/global.css' rel='stylesheet' type='text/css' />
+        <script src='http://vchat.nullcannull-dev.net/frontend/js/global.js'></script>
+        <link href='http://vchat.nullcannull-dev.net/frontend/css/vchat.css' rel='stylesheet' type='text/css' />
+        <script src='http://vchat.nullcannull-dev.net/frontend/js/vchat.js'></script>
+        <script src="http://vchat-socket.nullcannull-dev.net/socket.io/socket.io.js"></script>
+    </head>
+    <body>
+        <div id="app-container" class="full-width">
+            <div id="app-inner-container" class="full-width">
+                <div id="app-content-container" class="center-div full-width">
+                    <div id="video-wrapper" class="center-div full-width">
+                        <div id="video-content"></div>
+                    </div>
+                    <div id="users-wrapper"></div>
+                    <div id="chat-box-wrapper" class="center-div full-width">
+                        <div id="chat-box">
+                            <div id="chat-messages"></div>
+                        </div>
+                    </div>
+                    <div id="chat-input-wrapper">
+                        <div class="form-item full-width">Start Chatting...</div>
+                        <input id="chat-input" class="full-width" />
+                        <div id="user-name-wrapper">
+                            <div>
+                                Username: <span id="user-name">test</span>
+                            </div>
+                        </div>
+                        <div id="video-controller-wrapper">
+                            <div>Control this video...</div>
+                            <div id="video-controller-time-wrapper">
+                                <label for="video-control-minutes">Minutes</label>
+                                <input id="video-control-minutes" />
+                                <label for="video-control-seconds">Second</label>
+                                <input id="video-control-seconds" />
+                                <div>
+                                    <button id="video-controller-time" class="full-width text-center form-item">Play at this time</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="video-link-wrapper">
+                            <div class="form-item full-width">Copy and paste youtube link here...</div>
+                            <input id="video-input" class="full-width" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+
+
+

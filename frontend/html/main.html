@@ -1,0 +1,63 @@
+<html>
+<head>
+	 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Welcome to vChat</title>
+    <script src='http://vchat.nullcannull-dev.net/libs/jquery.min.js'></script>
+	<script src='http://vchat.nullcannull-dev.net/libs/angular.min.js'></script>
+    <link href='http://vchat.nullcannull-dev.net/frontend/css/global.css' rel='stylesheet' type='text/css' />
+    <script src='http://vchat.nullcannull-dev.net/frontend/js/global.js'></script>
+    <link href='http://vchat.nullcannull-dev.net/frontend/css/main.css' rel='stylesheet' type='text/css' />
+    <script src='http://vchat.nullcannull-dev.net/frontend/js/main.js'></script>
+</head>
+<body>
+    <div id="app-container" class="full-width">
+        <div id="app-inner-container" class="full-width">
+            <div id="app-content-container" class="center-div full-width">
+                <div id="public-chat-rooms-container">
+                    <div id="todays-most-liked-chat-rooms-wrapper">
+                        <div>Today's most liked vChat rooms.</div>
+                        <div id="todays-most-liked-chat-rooms"></div>
+                    </div>
+                    <div id="random-chat-rooms-wrapper">
+                        <div>Some random public vChat rooms.</div>
+                        <div id="random-chat-rooms"></div>
+                    </div>
+                </div>
+                <div id="public-room-search">
+                    <div class="form-item">Search for public vChat rooms</div>
+                    <select id="public-room-search-category">
+                        <option value="none">Select a category</option>
+                    </select>
+                    <input class="form-item" placeholder="Type in name" />
+                    <button id="public-room-search" class="full-width text-center form-item">Search</button>
+                </div>
+                <div id="private-rooms-search-wrapper">
+                    <div>Enter private vChat room</div>
+                    <label for="private-room-search-name">Room</label>
+                    <input id="private-room-search-name" placeholder="Name of  private room" />
+                    <label for="private-room-search-password">Password</label>
+                    <input id="private-room-search-password" type="password" placeholder="Password of private room" maxlength="16" />
+                    <button id="private-room-search" class="full-width text-center form-item">Search</button>
+                </div>
+                <div id="create-new-chat-room-wrapper">
+                    <div id="create-new-chat-room-form">
+                        <div class="form-item">Category (required)</div>
+                        <select id="new-chat-room-category" class="form-item">
+                            <option value="none">Select a category</option>
+                        </select>
+                        <div class='form-item'>Name</div>
+                        <input id="new-chat-room-name" class='form-item' maxlength="64">
+                        <div id="new-chat-room-type" class='clickable form-item create-new-public-room' data-value="public">Public Room</div>
+                        <div class='form-item'>Password (Required for a private room)</div>
+                        <input id="new-chat-room-password" class='form-item' type="password" maxlength="16" />
+                        <div class='form-item'>Check Password</div>
+                        <input id="new-chat-room-password-verify" class='form-item' type="password" maxlength="16" />
+                    </div>
+                    <button id="private-room-create" class="form-item text-center full-width">Create new Room!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

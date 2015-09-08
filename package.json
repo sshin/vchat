@@ -1,0 +1,28 @@
+{
+	"name": "vchat-dev",
+	"dependencies": {
+		"async": "latest",
+		"express": "4.0",
+		"bcryptjs": "latest",
+		"body-parser": "latest",
+		"cheerio": "latest",
+		"connect": "latest",
+		"connect-multiparty": "latest",
+		"connect-redis": "latest",
+		"cookie-parser": "latest",
+		"entities": "latest",
+		"express": "latest",
+		"express-session": "latest",
+		"jade": "latest",
+		"mysql": "latest",
+		"request": "latest",
+		"socket.io": "latest",
+		"entities": "latest",
+		"redis": "latest",
+		"time": "latest",
+		"request": "latest",
+		"cron": "latest",
+		"body-parser": "latest"
+	}
+}
+

@@ -1,0 +1,35 @@
+#video-wrapper {
+    width: 600px;
+    height: 338px;
+    border: 1px solid black;
+}
+
+#chat-box-wrapper {
+    margin-top: 5px;
+    width: 600px;
+    max-height: 400px;
+    height: 100%;
+    border: 1px solid black;
+    overflow-y: scroll;
+}
+
+#chat-messages {
+    padding: 5px;
+}
+
+.chat-message {
+    margin-top: 3px;
+}
+
+.system-message-blue {
+    color: #0091ea;
+}
+
+.system-message-red {
+    color: #f44336;
+}
+
+#video-controller-wrapper {
+    margin-top: 15px;
+}
+
