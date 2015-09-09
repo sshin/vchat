@@ -28,14 +28,14 @@ class Model {
      *
      */
     getConnection(callback) {
-        this._dbPool.getConnection(function(err, connection) {
+        this._dbPool.getConnection((err, connection) => {
             if (err) {
                 this._logger.error('Cannot get DB connection.');
                 throw err;
             }
             
             callback(connection);
-        }.bind(this));
+        });
     }
 
     /*
@@ -53,8 +53,8 @@ class Model {
             params = [];
         }
 
-        this.getConnection(function(connection) {
-            connection.query(query, params, function(err, rows) {
+        this.getConnection((connection) => {
+            connection.query(query, params, (err, rows) => {
                 connection.release();
 
                 if (err) {
@@ -63,8 +63,8 @@ class Model {
                 }
 
                 callback(rows);
-            }.bind(this));
-        }.bind(this));
+            });
+        });
     }
 
     /*

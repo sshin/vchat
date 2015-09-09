@@ -21,16 +21,20 @@ app.use(session({
 	resave: true,
 	saveUninitialized: true
 }));
+var server = app.listen(20000, () => {
+	console.log('Server started on port %d', server.address().port);
+});
+
 
 /* database and redis initiate */
 var pool = require('./models/db_pool');
 
 
 /* libs */
-app.get('/libs/:file', function(req, res) {
+app.get('/libs/:file', (req, res) => {
 	var path = 'libs/' + req.params.file;
 	
-	fs.exists(path, function(exists) {
+	fs.exists(path, (exists) => {
 		if (exists) {
 			res.sendFile(path, {root: './'});
 		} else {
@@ -40,10 +44,10 @@ app.get('/libs/:file', function(req, res) {
 });
 
 /* assets */
-app.get('/assets/:type/:file', function(req, res) {
+app.get('/assets/:type/:file', (req, res) => {
 	var path = 'assets/' + req.params.type + '/' + req.params.file;
 	
-	fs.exists(path, function(exists) {
+	fs.exists(path, (exists) => {
 		if (exists) {
 			res.sendFile(path, {root: './'});
 		} else {
@@ -53,10 +57,10 @@ app.get('/assets/:type/:file', function(req, res) {
 });
 
 /* frontend */
-app.get('/frontend/:type/:file', function(req, res) {
+app.get('/frontend/:type/:file', (req, res) => {
     var path = 'frontend/' + req.params.type + '/' + req.params.file;
 
-    fs.exists(path, function(exists) {
+    fs.exists(path, (exists) => {
         if (exists) {
             res.sendFile(path, {root: './'});
         } else {
@@ -74,10 +78,5 @@ app.use('/vChat/:room', require('./api/vchat'));
 app.use('/api/room', require('./api/room'));
 app.use('/api/category', require('./api/category'));
 
-
-
-var server = app.listen(20000, function(){
-	console.log('Server started on port %d', server.address().port);
-});
 
 

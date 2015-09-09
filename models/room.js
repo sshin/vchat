@@ -12,7 +12,7 @@ class Room extends Model {
      */
     getMostLikedRooms(callback) {
         // TODO: This is temporary....
-        this._redis.get('test-1', function(data) {
+        this._redis.get('test-1', (data) => {
             callback([data]);
         });
     }
@@ -57,7 +57,7 @@ class Room extends Model {
             where: {
                 hash: hash
             }
-        }, function(rows) {
+        }, (rows) => {
             callback(rows.length > 0);
         });
     }

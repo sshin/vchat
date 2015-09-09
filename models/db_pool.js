@@ -12,10 +12,10 @@ var pool = mysql.createPool({
 
 var redis = require('redis');
 var redisClient = redis.createClient();
-redisClient.select(10, function() {
-    console.log('Selecting Redis database 10 for vChat: App');
+redisClient.select(10, () => {
+        console.log('Selecting Redis database 10 for vChat: App');
 });
-redisClient.on('error', function(err) {
+redisClient.on('error', (err) => {
     console.log('Redis Error: ' + err);
 });
 

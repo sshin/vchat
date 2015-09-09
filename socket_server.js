@@ -5,13 +5,13 @@ var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
 var credentials = require('credentials');
-var server = app.listen(21000, function() {
+var server = app.listen(21000, () => {    
     console.log('Socket server started and listening on port %d', server.address().port);
 });
 var io = require('socket.io').listen(server);
 
 /* What ever... */
-app.get('/', function(req, res) {
+app.get('/', (req, res) => {
     res.send('vChat socket server.');
 });
 
@@ -19,24 +19,24 @@ app.get('/', function(req, res) {
 /* Socket Handler */
 var redis = require('redis');
 var redisClient = redis.createClient();
-redisClient.select(10, function(){
+redisClient.select(10, () => {
     console.log('Selecting Redis database 10 for vChat: socket');
 });
-redisClient.on('error', function(err) {
+redisClient.on('error', (err) => {
     console.log('Redis Error: ' + err);
 });
 var socketCtrlRedisClient = redis.createClient();
-socketCtrlRedisClient.select(10, function() {
+socketCtrlRedisClient.select(10, () => {
     console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient');
 });
-socketCtrlRedisClient.on('error', function(err) {
+socketCtrlRedisClient.on('error', (err) => {
     console.log('Redis Error: ' + err);
 });
 var socketCtrlRedisClient2 = redis.createClient();
-socketCtrlRedisClient2.select(10, function() {
+socketCtrlRedisClient2.select(10, () => {
     console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient2');
 });
-socketCtrlRedisClient2.on('error', function(err) {
+socketCtrlRedisClient2.on('error', (err) => {
     console.log('Redis Error: ' + err);
 });
 
@@ -63,20 +63,20 @@ io.sockets.on('connection', function(socket) {
 
     var socketCtrl = new SocketController(io, socketCtrlRedisClient, socketCtrlRedisClient2, socket);
 
-    socket.on('client-chat-send', function(data) {
+    socket.on('client-chat-send', (data) => {
         socketCtrl.chatFromClient(data);
     });
 
-    socket.on('new-video-submit', function(data) {
+    socket.on('new-video-submit', (data) => {
         socketCtrl.newVideoSubmit(data);
     });
     
-    socket.on('control-video', function(data) {
+    socket.on('control-video', (data) => {
         socketCtrl.controlVideo(data);
     });
     
     
-    socket.on('disconnect', function() {
+    socket.on('disconnect', () => {
     /* Remove all event handlers that are socket specific.
      * e.g., 
      *

@@ -30,7 +30,7 @@ class SocketController {
      */
     _init() {
         // TODO: Change the logic for generating user name.
-        this._redisCtrl.getRoom(this._roomHash, function(data) {
+        this._redisCtrl.getRoom(this._roomHash, (data) => {
             this._user['name'] = 'vChat User ' + this._socket['id'];
             this._socket.emit('username-update', {username: this._user['name']});
             this._redisCtrl.addUserToRoom(this._roomHash, this._user);
@@ -39,7 +39,7 @@ class SocketController {
                 chatClass: this._systemMessageClass['blue'],
                 message: 'entered the vChat room.'
             });
-        }.bind(this)); 
+        }); 
     }
 
     /*

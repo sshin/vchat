@@ -20,7 +20,7 @@ class RedisAppModel {
      * Get from Redis.
      */
     get(key, callback) {
-        this._redisClient.get(key, function(err, data) {
+        this._redisClient.get(key, (err, data) => {
             if (err) {
                 this.logger.redisError('Error on get for key: ' + key);
                 throw new Error('Redis Error');
@@ -34,7 +34,7 @@ class RedisAppModel {
      * Execute zrevrange. (Get data from desnding order sorted set)
      */
     zrevrange(key, start, end, callback) {
-        this._redisClient.zrevrange(key, start, end, function(err, data) {
+        this._redisClient.zrevrange(key, start, end, (err, data) => {
             if (err) {
                 this.logger.redisError('Error on zrevrange for key: ' +key);
                 throw new Error('Redis Error');
@@ -48,7 +48,7 @@ class RedisAppModel {
      * Execute zcard. (Get count of elements for key in Sorted Set)
      */
     zcard(key, callback) {
-        this._redisClient.zcard(key, function(err, data) {
+        this._redisClient.zcard(key, (err, data) => {
             if (err) {
                 this.logger.redisError('Error on zcard for key: ' + key);
                 throw new Error('Redis Error');

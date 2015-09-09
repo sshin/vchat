@@ -23,7 +23,7 @@ class SocketRedisController {
      * If this user is the first user of the room, create new Redis entries.
      */
     addUserToRoom(roomHash, user) {
-        this.getRoom(roomHash, function(data) {
+        this.getRoom(roomHash, (data) => {
             if (!data) {
                 // This user is the first user of the room.
                 let room = new Room();
@@ -31,38 +31,38 @@ class SocketRedisController {
                     where: {
                         hash: roomHash
                     }
-                }, function(data) {
+                }, (data) => {
                     let roomData = data[0];
                     roomData['users'] = {};
                     roomData['users'][user['id']] = user;
                     roomData['usersCount'] = 1;
-                    this.setRoom(roomHash, roomData, function() {
+                    this.setRoom(roomHash, roomData, () => {
                         this._updatevChatData(data, true);
-                    }.bind(this));
-                }.bind(this));
+                    });
+                });
             } else {
                 if (!data['users'].hasOwnProperty(user['id'])) {
                     data['users'][user['id']] = user;
                     data['usersCount'] = parseInt(data['usersCount']) + 1;
                 }
-                this.setRoom(roomHash, data, function() {
+                this.setRoom(roomHash, data, () => {
                     this._updatevChatData(data, true);
-                }.bind(this));
+                });
             }
-        }.bind(this));
+        });
     }
 
     /* 
      * Remove user from room and update all associated Redis entries. 
      */
     removeUserFromRoom(roomHash, user) {
-        this.getRoom(roomHash, function(data) {
+        this.getRoom(roomHash, (data) => {
             delete data['users'][user['id']];
             data['usersCount'] = parseInt(data['usersCount']) - 1;
-            this.setRoom(roomHash, data, function() {
+            this.setRoom(roomHash, data, () => {
                 this._updatevChatData(data, false);
-            }.bind(this));
-        }.bind(this));
+            });
+        });
     }
 
     getRoom(roomHash, callback) {
@@ -70,7 +70,7 @@ class SocketRedisController {
     }
 
     setRoom(roomHash, data, callback) {
-        this._set(this._redisRoomsClient, roomHash, data, function() {
+        this._set(this._redisRoomsClient, roomHash, data, () => {
             if (typeof callback !== 'undefined') callback();
         });
     }
@@ -83,26 +83,26 @@ class SocketRedisController {
         if (typeof userAdded === 'undefined') userAdded = false;
 
         async.waterfall([
-            function(callback) {
-                this._get(this._redisDataClient, Constants.roomsCount, function(data) {
+            (callback) => {
+                this._get(this._redisDataClient, Constants.roomsCount, (data) => {
                     let count = parseInt(data);
                     count = userAdded ? count+1 : count-1;
-                    this._set(this._redisDataClient, Constants.roomsCount, ''+count, function() {
+                    this._set(this._redisDataClient, Constants.roomsCount, ''+count, () => {
                         callback();
                     });
-                }.bind(this));
-            }.bind(this),
-            function(callback) {
+                });
+            },
+            (callback) => {
                 let key = isPublic ? Constants.publicRoomsCount : Constants.privateRoomsCount;
-                this._get(this._redisDataClient, key, function(data) {
+                this._get(this._redisDataClient, key, (data) => {
                     let count = parseInt(data);
                     count = userAdded ? count+1 : count-1;
-                    this._set(this._redisDataClient, key, ''+count, function() {
+                    this._set(this._redisDataClient, key, ''+count, () => {
                         callback();
                     });
-                }.bind(this));
-            }.bind(this)
-        ], function() {
+                });
+            }
+        ], () => {
             // Done!!!
         });
     }
@@ -110,7 +110,7 @@ class SocketRedisController {
 
     /***** Wrapper methods to abstract error handling *****/
     _get(client, key, callback) {
-        client.get(key, function(err, data) {
+        client.get(key, (err, data) => {
             if (err) {
                 this._logger.redisError('Cannot get on RedisController');
             } else {
@@ -122,7 +122,7 @@ class SocketRedisController {
 
                 callback(val);
             }
-        }.bind(this));
+        });
     }
 
     _set(client, key, data, callback) {

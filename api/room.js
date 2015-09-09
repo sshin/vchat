@@ -4,19 +4,19 @@ var router = express.Router();
 var Room = require('../models/room').Room;
 
 
-router.get('/', function(req, res) {
+router.get('/', (req, res) => {
     var func = req.query.get;
     var room = new Room();
 
     switch(func) {
         case 'mostlikedrooms':
-            room.getMostLikedRooms(function(rooms) {
-                res.send({state: 200, response: rooms});
+            room.getMostLikedRooms((rooms) => {
+                res.send({state: 200, response: rooms})
             });
             break;
         case 'randomrooms':
-            room.getRandomPublicRooms(function(rooms) {
-                res.send({state: 200, response: rooms});
+            room.getRandomPublicRooms((rooms) => {
+                res.send({state: 200, response: rooms})
             });
         default:
             res.send({state: 200, response: 'okay'});
@@ -28,7 +28,7 @@ router.get('/', function(req, res) {
 /*
  * Create new chat room.
  */
-router.post('/', function(req, res) {
+router.post('/', (req, res) => {
     var params = req.body;
     var errors = [];
 
@@ -54,8 +54,8 @@ router.post('/', function(req, res) {
     var room = new Room();
 
     async.waterfall([
-        function(callback) {
-            room.checkRoomExist(params['hash'], function(exist) {
+        (callback) => {
+            room.checkRoomExist(params['hash'], (exist) => {
                 if (exist) {
                     callback(true);
                 } else {
@@ -63,7 +63,7 @@ router.post('/', function(req, res) {
                 }
             });
         }
-    ], function(err) {
+    ], (err) => {
         if (err) {
            res.send({state: 400, response: 'name exist'});
         } else {
@@ -75,7 +75,7 @@ router.post('/', function(req, res) {
 
             // TODO: hash password using bcrypt later.
            
-            room.insert(params, function() {
+            room.insert(params, () => {
                res.send({state: 200, response: 'okay'});
             });
         }
