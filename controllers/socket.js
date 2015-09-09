@@ -10,17 +10,19 @@ class SocketController {
      * Find a way to handle errors.
      */
 
-    constructor(io, redisClient, redisClient2, socket) {
+    constructor(io, redisClient, redisClient2, redisClient3, socket) {
         this._io = io;
-        this._redisCtrl = new SocketRedisController(redisClient, redisClient2);
         this._roomHash = this._getRoomHash(socket);
+        this._redisCtrl = new SocketRedisController(redisClient, redisClient2, 
+                redisClient3, this._roomHash);
         this._user = {id: socket.id};
         this._socket = socket;
         this._socket.join(this._roomHash);
         this._logger = new Logger();
         this._systemMessageClass = {
-            blue: 'system-message-blue',
-            red: 'system-message-red'
+            info: 'system-message-info',
+            warning: 'system-message-warning',
+            action: 'system-message-action'
         };
         this._init();
     }
@@ -36,7 +38,7 @@ class SocketController {
             this._redisCtrl.addUserToRoom(this._roomHash, this._user);
             this._broadcastToRoom('new-user-entered', {
                 username: this._user['name'],
-                chatClass: this._systemMessageClass['blue'],
+                chatClass: this._systemMessageClass['info'],
                 message: 'entered the vChat room.'
             });
         }); 
@@ -49,7 +51,7 @@ class SocketController {
     leave() {
         this._broadcastToRoom('user-left', {
             message: '[' + this._user['name'] + '] has left the vChat room.',
-            chatClass: this._systemMessageClass['red']
+            chatClass: this._systemMessageClass['warning']
         });
         this._redisCtrl.removeUserFromRoom(this._roomHash, this._user);
     }
@@ -107,7 +109,10 @@ class SocketController {
                     // Format of t=1m33s..
                     let min = startAt[0];
                     let sec = startAt[1].replace('s', '');
-                    startAt = (parseInt(min) * 60) + parseInt(sec);
+                    startAt = {
+                        min: min,
+                        sec: sec
+                    };
                 } else {
                     startAt = parseInt(startAt[0]);
                 }
@@ -130,7 +135,10 @@ class SocketController {
                     // Format of t=1m33s..
                     let min = startAt[0];
                     let sec = startAt[1].replace('s', '');
-                    startAt = (parseInt(min) * 60) + parseInt(sec);
+                    startAt = {
+                        min: min,
+                        sec: sec
+                    }
                 } else {
                     startAt = parseInt(startAt[0]);
                 }
@@ -144,17 +152,26 @@ class SocketController {
         delete data['link'];
 
         // TODO: And probably verify given link is a real youtube video?
-        data['message'] = 'Queued new video!';
-        this._broadcastInRoom('new-video-queued', data);
-
-       // TODO: Queue it into something. Just broadcasting for testing.
-       delete data['username'];
-       this._broadcastInRoom('new-video-to-play', data); 
+        this._redisCtrl.queueVideo(data, () => {
+            // Callback for when queueing is done.
+            data['message'] = 'queued new video!';
+            data['chatClass'] = this._systemMessageClass['info'];
+            this._broadcastInRoom('new-video-queued', data)
+        }, (nextVideo) => {
+            // This will be executed if there is no video currently playing.
+            this._broadcastInRoom('new-video-to-play', nextVideo);
+        });
     }
 
     controlVideo(data) {
-        if (typeof data.startAt !== 'undefined') {
-            this._broadcastInRoom('current-video-start-at', data);
+        data['chatClass'] = this._systemMessageClass['action'];
+        if (data['action'] == 'playNext') {
+            this._redisCtrl.playNextVideo((nextVideo) => {
+                data['nextVideo'] = nextVideo;
+                this._broadcastInRoom('control-video', data);
+            });
+        } else {
+            this._broadcastInRoom('control-video', data);
         }
     }
 

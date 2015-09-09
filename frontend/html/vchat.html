@@ -10,6 +10,7 @@
         <link href='http://vchat.nullcannull-dev.net/frontend/css/vchat.css' rel='stylesheet' type='text/css' />
         <script src='http://vchat.nullcannull-dev.net/frontend/js/vchat.js'></script>
         <script src="http://vchat-socket.nullcannull-dev.net/socket.io/socket.io.js"></script>
+        <script src="https://www.youtube.com/player_api"></script>
     </head>
     <body>
         <div id="app-container" class="full-width">
@@ -24,25 +25,49 @@
                             <div id="chat-messages"></div>
                         </div>
                     </div>
-                    <div id="chat-input-wrapper">
-                        <div class="form-item full-width">Start Chatting...</div>
-                        <input id="chat-input" class="full-width" />
-                        <div id="user-name-wrapper">
-                            <div>
-                                Username: <span id="user-name">test</span>
-                            </div>
+                    <div id="user-input-wrapper" class="center-div">
+                        <div class="form-item full-width">
+                            Start Chatting as [<span id="user-name">test</span>]
+                            <input id="chat-input" class="full-width" />
                         </div>
                         <div id="video-controller-wrapper">
                             <div>Control this video...</div>
-                            <div id="video-controller-time-wrapper">
-                                <label for="video-control-minutes">Minutes</label>
-                                <input id="video-control-minutes" />
-                                <label for="video-control-seconds">Second</label>
-                                <input id="video-control-seconds" />
-                                <div>
-                                    <button id="video-controller-time" class="full-width text-center form-item">Play at this time</button>
-                                </div>
-                            </div>
+                            <table id="video-controller">
+                                <tr>
+                                    <th>Pause / Resume</th>
+                                    <th>Play next</th>
+                                    <th>Goto</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div id="video-resume-pause-wrapper">
+                                            <button id="video-pause" class="text-center form-item">
+                                                <img class="control-button-image" src="http://vchat.nullcannull-dev.net/assets/images/pause_button.png">
+                                            </button>
+                                            <button id="video-resume" class="text-center form-item">
+                                                <img class="control-button-image" src="http://vchat.nullcannull-dev.net/assets/images/play_button.png">
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div id="video-play-next-wrapper">
+                                            <button id="video-play-next" class="text-center form-item">
+                                                <img class="control-button-image" src="http://vchat.nullcannull-dev.net/assets/images/play_next_button.png">
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div id="video-time-controller-wrapper">
+                                            <input id="video-control-minutes" class="video-control-time-input" maxlength="2"/>
+                                            <strong> : </strong>
+                                            <input id="video-control-seconds" class="video-control-time-input" maxlength="2"/>
+                                            <div>
+                                                <button id="video-controller-time" class="full-width text-center form-item">Play</button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
                         <div id="video-link-wrapper">
                             <div class="form-item full-width">Copy and paste youtube link here...</div>

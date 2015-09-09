@@ -25,6 +25,7 @@ redisClient.select(10, () => {
 redisClient.on('error', (err) => {
     console.log('Redis Error: ' + err);
 });
+// For room related works.
 var socketCtrlRedisClient = redis.createClient();
 socketCtrlRedisClient.select(10, () => {
     console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient');
@@ -32,6 +33,7 @@ socketCtrlRedisClient.select(10, () => {
 socketCtrlRedisClient.on('error', (err) => {
     console.log('Redis Error: ' + err);
 });
+// For data related works.
 var socketCtrlRedisClient2 = redis.createClient();
 socketCtrlRedisClient2.select(10, () => {
     console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient2');
@@ -39,6 +41,15 @@ socketCtrlRedisClient2.select(10, () => {
 socketCtrlRedisClient2.on('error', (err) => {
     console.log('Redis Error: ' + err);
 });
+// For video related works.
+var socketCtrlRedisClient3 = redis.createClient();
+socketCtrlRedisClient3.select(10, () => {
+    console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient3');
+});
+socketCtrlRedisClient3.on('error', (err) => {
+    console.log('Redis Error: ' + err);
+});
+
 
 
 /*** Clear Redis entries during testing ***/
@@ -46,7 +57,7 @@ redisClient.set('APP total:rooms', '0');
 redisClient.set('APP total:public_rooms', '0');
 redisClient.set('APP total:private_rooms', '0');
 redisClient.del('test-1');
-
+redisClient.del('VIDEO test-1');
 
 
 var SocketController = require('./controllers/socket').SocketController;
@@ -61,7 +72,9 @@ var SocketController = require('./controllers/socket').SocketController;
  */
 io.sockets.on('connection', function(socket) {
 
-    var socketCtrl = new SocketController(io, socketCtrlRedisClient, socketCtrlRedisClient2, socket);
+    var socketCtrl = new SocketController(io, 
+        socketCtrlRedisClient, socketCtrlRedisClient2, socketCtrlRedisClient3,
+        socket);
 
     socket.on('client-chat-send', (data) => {
         socketCtrl.chatFromClient(data);
@@ -74,8 +87,8 @@ io.sockets.on('connection', function(socket) {
     socket.on('control-video', (data) => {
         socketCtrl.controlVideo(data);
     });
-    
-    
+
+ 
     socket.on('disconnect', () => {
     /* Remove all event handlers that are socket specific.
      * e.g., 

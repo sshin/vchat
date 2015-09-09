@@ -2,12 +2,14 @@
     width: 600px;
     height: 338px;
     border: 1px solid black;
+    pointer-events: none;
+    box-shadow: 1px 3px 6px 4px rgba(0, 0, 0, 0.6);
 }
 
 #chat-box-wrapper {
-    margin-top: 5px;
+    margin-top: 15px;
     width: 600px;
-    max-height: 400px;
+    max-height: 338px;
     height: 100%;
     border: 1px solid black;
     overflow-y: scroll;
@@ -21,15 +23,55 @@
     margin-top: 3px;
 }
 
-.system-message-blue {
+.system-message-info {
     color: #0091ea;
 }
 
-.system-message-red {
+.system-message-warning {
     color: #f44336;
 }
 
-#video-controller-wrapper {
-    margin-top: 15px;
+.system-message-action {
+    color: #0a7e07;
 }
+
+#user-input-wrapper {
+    width: 600px;
+}
+
+#video-controller-wrapper {
+    margin-top: 10px;
+}
+
+#video-controller {
+    margin-top: 5px;
+}
+
+#video-resume,
+#video-pause {
+    margin-right: 10px;
+    padding: 3px;
+}
+
+.control-button-image {
+    width: 43px;
+}
+
+#video-time-controller-wrapper {
+    margin-left: 10px;
+    margin-top: 11px;
+}
+
+#video-control-minutes {
+    text-align: right;
+}
+
+.video-control-time-input {
+    width: 30px;    
+}
+
+#video-link-wrapper {
+    margin-top: 10px;
+}
+
 

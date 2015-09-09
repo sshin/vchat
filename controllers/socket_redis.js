@@ -12,9 +12,11 @@ class SocketRedisController {
      * Find a way to handle errors.
      */
 
-    constructor(redisClient, redisClient2) {
+    constructor(redisClient, redisClient2, redisClient3, roomHash) {
         this._redisRoomsClient = redisClient;
         this._redisDataClient = redisClient2;
+        this._redisVideoClient = redisClient3;
+        this._videoKey = Constants.redisVideoKeyPrefix + roomHash;
         this._logger = new Logger();
     }
 
@@ -62,6 +64,15 @@ class SocketRedisController {
             this.setRoom(roomHash, data, () => {
                 this._updatevChatData(data, false);
             });
+
+            // If no user left in the room, remove the entry. It's a memory sucker.
+            if (data['usersCount'] === 0) {
+                let videoData = {
+                    currentVideo: null,
+                    queue: []
+                };
+                this._redisVideoClient.del(this._videoKey);
+            }
         });
     }
 
@@ -72,6 +83,62 @@ class SocketRedisController {
     setRoom(roomHash, data, callback) {
         this._set(this._redisRoomsClient, roomHash, data, () => {
             if (typeof callback !== 'undefined') callback();
+        });
+    }
+
+
+    /***** Video related methods *****/
+    /* 
+     * Queue new video into Redis. If it is very first for the room,
+     * create a new entry in Redis.
+     * If there is no video currently playing, then play the first one in queue.
+     */
+    queueVideo(videoData, callback, playVideoCallback) {
+        // TODO: Maybe implement real queue, instead of using Array.
+        this._get(this._redisVideoClient, this._videoKey, (data) => {
+            if (data == null) {
+                // Very first video.
+                let newData = {
+                    currentVideo: null,
+                    queue: [videoData]
+                };
+                this._set(this._redisVideoClient, this._videoKey, newData, () => {
+                    // Since this is the very first video, it must playNextVideo.
+                    callback();
+                    this.playNextVideo(playVideoCallback);
+                });
+            } else {
+                data.queue.push(videoData);
+                if (data.currentVideo == null) {
+                    // No video currently playing, so set and play next video.
+                    let nextVideo = data.queue.shift();
+                    data.currentVideo = nextVideo;
+                    this._set(this._redisVideoClient, this._videoKey, data, () => {
+                        callback();
+                        this.playNextVideo(playVideoCallback);
+                    });
+                } else {
+                    this._set(this._redisVideoClient, this._videoKey, data, () => {
+                        callback();
+                    });
+                }
+            }
+        });
+    }
+
+    /* Play the next video from the queue. */
+    playNextVideo(callback) {
+        this._get(this._redisVideoClient, this._videoKey, (data) => {
+            let videoData = data;
+            let nextVideo = videoData.queue.shift();
+            if (nextVideo) {
+                videoData.currentVideo = nextVideo;
+                this._set(this._redisVideoClient, this._videoKey, videoData, () => {
+                    if (typeof callback === 'function') callback(nextVideo);
+                });
+            } else {
+                // TODO: No more videos...
+            }
         });
     }
    
