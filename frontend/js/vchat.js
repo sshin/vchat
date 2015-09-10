@@ -90,9 +90,9 @@ $(document).ready(function() {
     });
 
     $('#video-play-next').on('click', function() {
-        // Only emit when we have a video playing.
+        // Only emit when we have a video.
         // TODO: Change this emit to only happen for when queue.length > 0
-        if (isPlayerPlaying()) {
+        if (hasVideo()) {
             var data = {
                 username: $username.text(),
                 action: 'playNext'
@@ -297,5 +297,8 @@ function _getPlayerState() {
     return state;
 }
 
-
+function hasVideo() {
+    var videoData = player.getVideoData();
+    return videoData['video_id'] !== null;
+}
 
