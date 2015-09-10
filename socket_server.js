@@ -88,6 +88,14 @@ io.sockets.on('connection', function(socket) {
         socketCtrl.controlVideo(data);
     });
 
+    socket.on('get-current-play-time-for-new-user', (data) => {
+        socketCtrl.getCurrentPlayTimeForNewUser(data);
+    });
+
+    socket.on('current-play-time-for-new-user', (data) =>{
+        socketCtrl.playCurrentVideoForNewUser(data);
+    });
+
  
     socket.on('disconnect', () => {
     /* Remove all event handlers that are socket specific.

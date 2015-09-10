@@ -57,6 +57,10 @@
     width: 43px;
 }
 
+.controller-header {
+    text-align: left;
+}
+
 #video-time-controller-wrapper {
     margin-left: 10px;
     margin-top: 11px;

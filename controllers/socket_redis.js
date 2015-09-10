@@ -88,6 +88,18 @@ class SocketRedisController {
 
 
     /***** Video related methods *****/
+    /*
+     * See if there is a video currently playing, and return video id if so.
+     */
+    checkVideoPlaying(callback) {
+        this._get(this._redisVideoClient, this._videoKey, (data) => {
+            if (data !== null && data.currentVideo !== null) {
+                callback(data.currentVideo['videoId']);
+            }
+        });
+    }
+
+
     /* 
      * Queue new video into Redis. If it is very first for the room,
      * create a new entry in Redis.
@@ -137,7 +149,7 @@ class SocketRedisController {
                     if (typeof callback === 'function') callback(nextVideo);
                 });
             } else {
-                // TODO: No more videos...
+                callback(null);
             }
         });
     }

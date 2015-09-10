@@ -1,10 +1,11 @@
 /***** youtube api *****/
 
 var player;
+var socket;
 
 $(document).ready(function() {
 
-    var socket = io.connect('http://vchat-socket.nullcannull-dev.net');
+    socket = io.connect('http://vchat-socket.nullcannull-dev.net');
     var $username = $('#user-name');
     var $chatInput = $('#chat-input');
     var $videoInput = $('#video-input');
@@ -18,7 +19,9 @@ $(document).ready(function() {
     socket.on('new-video-queued', updateChat);
     socket.on('new-video-to-play', loadVideo);
     socket.on('control-video', controlVideo);
-
+    socket.on('get-current-play-time-for-new-user', getCurrentPlayTimeForNewUser);
+    socket.on('no-more-video', noMoreVideo);
+    
 
     /***** Regular events *****/
     $chatInput.on('keypress', function(e) {
@@ -66,7 +69,7 @@ $(document).ready(function() {
 
     $('#video-resume').on('click', function() {
         // Only emit if video is currently paused.
-        if (getPlayerState() == 'paused') {
+        if (isPlayerPaused()) {
             var data = {
                 username: $username.text(),
                 action: 'resume'
@@ -77,7 +80,7 @@ $(document).ready(function() {
 
     $('#video-pause').on('click', function() {
         // Only emit if video is currently playing.
-        if (getPlayerState() == 'playing') {
+        if (isPlayerPlaying()) {
             var data = {
                 username: $username.text(),
                 action: 'pause'
@@ -89,7 +92,7 @@ $(document).ready(function() {
     $('#video-play-next').on('click', function() {
         // Only emit when we have a video playing.
         // TODO: Change this emit to only happen for when queue.length > 0
-        if (getPlayerState() == 'playing') {
+        if (isPlayerPlaying()) {
             var data = {
                 username: $username.text(),
                 action: 'playNext'
@@ -118,9 +121,18 @@ function updateUserName(data) {
 }
 
 function loadVideo(data) {
+    var message, chatClass; 
+    if (data['currentVideo']) {
+        message = 'You will be synced with the current video.';
+        chatClass = 'system-message-info';
+    } else {
+        message = 'Next video will be played shortly.';
+        chatClass = 'system-message-warning';
+    }
+
     updateChat({
-        message: 'Next video will be played shortly.',
-        chatClass: 'system-message-warning'
+        message: message,
+        chatClass: chatClass
     });
 
     var videoData = {
@@ -133,9 +145,15 @@ function loadVideo(data) {
         } else {
             videoData['startSeconds'] = (parseInt(data.startAt['min']) * 60) + parseInt(data.startAt['sec']);
         }
+    } else if (typeof data['startSeconds'] !== 'undefined') {
+        videoData['startSeconds'] = data['startSeconds'];
     }
-    
+
     player.loadVideoById(videoData);
+
+    if (typeof data['isPlaying'] !== 'undefined' && !data['isPlaying']) {
+        player.pauseVideo();
+    }
 }
 
 function controlVideo(data) {
@@ -181,6 +199,11 @@ function controlVideo(data) {
     });
 }
 
+function noMoreVideo(data) {
+    data['message'] = 'No more videos to play.';
+    updateChat(data);
+}
+
 function _appendToChatBox(data) {
     var $chatBox = $('#chat-messages');
     var classes ='chat-message';
@@ -188,6 +211,12 @@ function _appendToChatBox(data) {
 
     $chatBox.append('<div class="' + classes + '">' + data['message']  + '</div>');
     $('#chat-box-wrapper').scrollTop($chatBox.height());
+}
+
+function getCurrentPlayTimeForNewUser(data) {
+    data['startAt'] = parseInt(player.getCurrentTime());
+    data['isPlaying'] = isPlayerPlaying;
+    socket.emit('current-play-time-for-new-user', data);
 }
 
 /***** Youtube API Handlers *****/
@@ -216,10 +245,13 @@ function onYouTubePlayerAPIReady() {
 function onPlayerReady(event) {
 /* Play video if video_id has value. */
     console.log('Youtube Player is ready.');
-
+    
     if (player.getVideoData().video_id !== null) {
         player.playVideo();
     }
+
+    socket.emit('get-current-play-time-for-new-user');
+
 }
 
 function onPlayerStateChange(event) {
@@ -229,7 +261,15 @@ function onPlayerStateChange(event) {
     }
 }
 
-function getPlayerState() {
+function isPlayerPlaying() {
+    return _getPlayerState() == 'playing';
+}
+
+function isPlayerPaused() {
+    return _getPlayerState() == 'paused';
+}
+
+function _getPlayerState() {
     var state = '';
     switch(player.getPlayerState()) {
         case 0:

@@ -28,7 +28,7 @@ class SocketController {
     }
 
     /* 
-     * Generate user name, and save it to Redis 
+     * Generate user name, and save it to Redis.
      */
     _init() {
         // TODO: Change the logic for generating user name.
@@ -41,7 +41,48 @@ class SocketController {
                 chatClass: this._systemMessageClass['info'],
                 message: 'entered the vChat room.'
             });
-        }); 
+        });
+    }
+
+    getCurrentPlayTimeForNewUser(data) {
+        this._redisCtrl.checkVideoPlaying((videoId) => {
+            if (videoId) {
+                let sockets = this._io.sockets.adapter.rooms[this._roomHash];
+                for (var key in sockets) {
+                    // Just sending one emit is fine enough...
+                    if (sockets[key] === true) {
+                        let data = {
+                            videoId: videoId,
+                            socketId: this._socket.id
+                        }
+                        try {
+                            // It's possible that this user(socket) left the room,
+                            // right after we got the socket id.
+                            this._io.sockets.connected[key].emit('get-current-play-time-for-new-user', data);
+                            break;
+                        } catch(err) {
+                            // Continue looping..
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /*
+     * Play the video for new user.
+     */
+    playCurrentVideoForNewUser(data) {
+        data['currentVideo'] = true;
+        data['startAt'] = parseInt(data['startAt']) + 1;
+        let socketId = data['socketId'];
+        delete data['socketId'];
+        try {
+            // Make sure new user is still connected.
+            this._io.sockets.connected[socketId].emit('new-video-to-play', data);
+        } catch(err) {
+            // Welp.
+        }
     }
 
     /*
@@ -167,8 +208,14 @@ class SocketController {
         data['chatClass'] = this._systemMessageClass['action'];
         if (data['action'] == 'playNext') {
             this._redisCtrl.playNextVideo((nextVideo) => {
-                data['nextVideo'] = nextVideo;
-                this._broadcastInRoom('control-video', data);
+                if (nextVideo !== null) { 
+                    data['nextVideo'] = nextVideo;
+                    this._broadcastInRoom('control-video', data);
+                } else {
+                    this._broadcastInRoom('no-more-video', {
+                        chatClass: this._systemMessageClass['warning']
+                    });
+                }
             });
         } else {
             this._broadcastInRoom('control-video', data);
