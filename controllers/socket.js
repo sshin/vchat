@@ -19,7 +19,7 @@ class SocketController {
         this._socket = socket;
         this._socket.join(this._roomHash);
         this._logger = new Logger();
-        this._systemMessageClass = {
+        this._systemMessageType = {
             info: 'system-message-info',
             warning: 'system-message-warning',
             action: 'system-message-action'
@@ -38,7 +38,7 @@ class SocketController {
             this._redisCtrl.addUserToRoom(this._roomHash, this._user);
             this._broadcastToRoom('new-user-entered', {
                 username: this._user['name'],
-                chatClass: this._systemMessageClass['info'],
+                chatClass: this._systemMessageType['info'],
                 message: 'entered the vChat room.'
             });
         });
@@ -89,7 +89,7 @@ class SocketController {
     leave() {
         this._broadcastToRoom('user-left', {
             message: '[' + this._user['name'] + '] has left the vChat room.',
-            chatClass: this._systemMessageClass['warning']
+            chatClass: this._systemMessageType['warning']
         });
         this._redisCtrl.removeUserFromRoom(this._roomHash, this._user);
     }
@@ -193,7 +193,7 @@ class SocketController {
         this._redisCtrl.queueVideo(data, () => {
             // Callback for when queueing is done.
             data['message'] = 'queued new video!';
-            data['chatClass'] = this._systemMessageClass['info'];
+            data['chatClass'] = this._systemMessageType['info'];
             this._broadcastInRoom('new-video-queued', data)
         }, (nextVideo) => {
             // This will be executed if there is no video currently playing.
@@ -202,7 +202,7 @@ class SocketController {
     }
 
     controlVideo(data) {
-        data['chatClass'] = this._systemMessageClass['action'];
+        data['chatClass'] = this._systemMessageType['action'];
         if (data['action'] == 'playNext') {
             this._redisCtrl.playNextVideo((nextVideo) => {
                 if (nextVideo !== null) { 
@@ -210,7 +210,7 @@ class SocketController {
                     this._broadcastInRoom('control-video', data);
                 } else {
                     this._broadcastInRoom('no-more-video', {
-                        chatClass: this._systemMessageClass['warning']
+                        chatClass: this._systemMessageType['warning']
                     });
                 }
             });
