@@ -152,7 +152,10 @@ function loadVideo(data) {
     player.loadVideoById(videoData);
 
     if (typeof data['isPlaying'] !== 'undefined' && !data['isPlaying']) {
-        player.pauseVideo();
+        // This is hacky...need to find a better way to do this.
+        setTimeout(function() {
+            player.pauseVideo();
+        }, 1000);
     }
 }
 
@@ -215,7 +218,7 @@ function _appendToChatBox(data) {
 
 function getCurrentPlayTimeForNewUser(data) {
     data['startAt'] = parseInt(player.getCurrentTime());
-    data['isPlaying'] = isPlayerPlaying;
+    data['isPlaying'] = isPlayerPlaying();
     socket.emit('current-play-time-for-new-user', data);
 }
 
@@ -266,12 +269,17 @@ function isPlayerPlaying() {
 }
 
 function isPlayerPaused() {
-    return _getPlayerState() == 'paused';
+    var videoId = player.getVideoData()['video_id'];
+    return videoId !== null && 
+        (_getPlayerState() == 'paused' || _getPlayerState() == 'not_started');
 }
 
 function _getPlayerState() {
     var state = '';
     switch(player.getPlayerState()) {
+        case -1:
+            state = 'not_started';
+            break;
         case 0:
             state = 'ended';
             break;
