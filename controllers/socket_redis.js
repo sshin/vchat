@@ -65,12 +65,8 @@ class SocketRedisController {
                 this._updatevChatData(data, false);
             });
 
-            // If no user left in the room, remove the entry. It's a memory sucker.
+            // If no user left in the room, remove the video entry. It's a memory sucker.
             if (data['usersCount'] === 0) {
-                let videoData = {
-                    currentVideo: null,
-                    queue: []
-                };
                 this._redisVideoClient.del(this._videoKey);
             }
         });

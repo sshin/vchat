@@ -133,7 +133,6 @@ class SocketController {
 
         if (data['link'].startsWith('https://youtu.be/')) {
             // This link is provided by Share menu.
-            // So the link to embeded format.
             let link = data['link'].split('/');
             link = link[link.length -1];
             let id = link;
