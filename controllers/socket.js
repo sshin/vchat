@@ -138,52 +138,29 @@ class SocketController {
             link = link[link.length -1];
             let id = link;
 
-            if (link.indexOf('?t=') >= 0) {
-                // This link contains start time..so change the format!
+            if (link.indexOf('?') >= 0) {
+                // This link contains additional parameters.
                 link = link.split('?');
-                link[1] = link[1].replace('t=', '');
-                let startAt = link[1].split('m');
-                if (startAt.length > 1) {
-                    // Format of t=1m33s..
-                    let min = startAt[0];
-                    let sec = startAt[1].replace('s', '');
-                    startAt = {
-                        min: min,
-                        sec: sec
-                    };
-                } else {
-                    startAt = parseInt(startAt[0]);
-                }
                 id = link[0];
-                data['startAt'] = startAt;
-            }
 
+                // Now lets see if this link contains start time.
+                link = link[1].split('&');
+                let startAt = this._getStartAt(link, 0);
+                if (startAt !== null) data['startAt'] = startAt;
+            }
             data['videoId'] = id;
         } else {
-            // Look closely! Not a duplicated code!
-            let id = data['link'].split('/');
-            id = id[id.length - 1].replace('watch?v=', '');
+            // Handle https://youtube.com/watch?v= url.
+            let link = data['link'].split('/');
+            link = link[link.length - 1].replace('watch?v=', '');
+            link = link.split('&');
+            let id = link[0];
             
-            if (id.indexOf('&t=') >= 0) {
-                let link = id.split('&');
-                id = link[0];
-                link[1] = link[1].replace('t=', '');
-                let startAt = link[1].split('m');
-                if (startAt.length > 1) {
-                    // Format of t=1m33s..
-                    let min = startAt[0];
-                    let sec = startAt[1].replace('s', '');
-                    startAt = {
-                        min: min,
-                        sec: sec
-                    }
-                } else {
-                    startAt = parseInt(startAt[0]);
-                }
-                link = link[0];
-                data['startAt'] = startAt;
+            if (link.length > 1) {
+                // This link contains additional parameters.
+                let startAt = this._getStartAt(link, 1);
+                if (startAt !== null) data['startAt'] = startAt;
             } 
-
             data['videoId'] = id;
         }
 
@@ -199,6 +176,34 @@ class SocketController {
             // This will be executed if there is no video currently playing.
             this._broadcastInRoom('new-video-to-play', nextVideo);
         });
+    }
+
+    _getStartAt(link, start) {
+        let time;
+        for (var i = start; i < link.length; i++) {
+            if (link[i].startsWith('t=')) {
+                time = link[i].replace('t=', '');
+                break;
+            }
+        }
+        if (typeof time !== 'undefined') {
+            let startAt = time.split('m');
+            if (startAt.length > 1) {
+                // Format of t=1m33s..
+                let min = startAt[0];
+                let sec = startAt[1].replace('s', '');
+                startAt = {
+                    min: min,
+                    sec: sec
+                };
+            } else {
+                startAt = parseInt(startAt[0]);
+            }
+            return startAt;
+        } else {
+            return null;
+        }
+
     }
 
     controlVideo(data) {
