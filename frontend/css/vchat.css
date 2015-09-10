@@ -23,6 +23,10 @@
     margin-top: 3px;
 }
 
+#chat-input {
+    margin-top: 5px;
+}
+
 .system-message-info {
     color: #0091ea;
 }

@@ -6,7 +6,6 @@ var socket;
 $(document).ready(function() {
 
     socket = io.connect('http://vchat-socket.nullcannull-dev.net');
-    var $username = $('#user-name');
     var $chatInput = $('#chat-input');
     var $videoInput = $('#video-input');
     var $controlTime = $('#video-controller-time');
@@ -27,7 +26,7 @@ $(document).ready(function() {
     $chatInput.on('keypress', function(e) {
         if (e.which == 13) {
             var data = {
-                username: $username.text(),
+                username: _getUserName(),
                 message: $chatInput.val()
             };
 
@@ -39,7 +38,7 @@ $(document).ready(function() {
     $videoInput.on('keypress', function(e) {
         if (e.which == 13) {
             var data = {
-                username: $username.text(),
+                username: _getUserName(),
                 link: $videoInput.val()
             };
 
@@ -56,7 +55,7 @@ $(document).ready(function() {
             if (!min || /[^0-9]/.test(min)) min = 0;
             if (!sec || /[^0-9]/.test(sec)) sec = 0;
             var data = {
-                username: $username.text(),
+                username: _getUserName(),
                 action: 'startAt',
                 startAt: {
                     min: min,
@@ -71,7 +70,7 @@ $(document).ready(function() {
         // Only emit if video is currently paused.
         if (isPlayerPaused()) {
             var data = {
-                username: $username.text(),
+                username: getUserName(),
                 action: 'resume'
             };
             socket.emit('control-video', data);
@@ -82,7 +81,7 @@ $(document).ready(function() {
         // Only emit if video is currently playing.
         if (isPlayerPlaying()) {
             var data = {
-                username: $username.text(),
+                username: _getUserName(),
                 action: 'pause'
             };
             socket.emit('control-video', data);
@@ -94,13 +93,17 @@ $(document).ready(function() {
         // TODO: Change this emit to only happen for when queue.length > 0
         if (hasVideo()) {
             var data = {
-                username: $username.text(),
+                username: _getUserName(),
                 action: 'playNext'
             }
             socket.emit('control-video', data);
         }
     });
 });
+
+function _getUserName() {
+    return $('#user-name').val();
+}
 
 function updateChat(data) {
 /* Put message on chat box. */
@@ -117,7 +120,7 @@ function updateChat(data) {
 }
 
 function updateUserName(data) {
-    $('#user-name').text(data['username']);
+    $('#user-name').val(data['username']);
 }
 
 function loadVideo(data) {
