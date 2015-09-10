@@ -69,9 +69,6 @@ class SocketController {
         });
     }
 
-    /*
-     * Play the video for new user.
-     */
     playCurrentVideoForNewUser(data) {
         data['currentVideo'] = true;
         data['startAt'] = parseInt(data['startAt']) + 1;

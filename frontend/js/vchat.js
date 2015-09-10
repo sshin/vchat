@@ -261,6 +261,11 @@ function onPlayerStateChange(event) {
 /* When current video ends, try to load next video on queue from server. */
     if (event.data == 0) {
         console.log('Current video ended.');
+        updateChat({
+            message: 'Video ended. Replaying current video.',
+            chatClass: 'system-message-info'
+        });
+        player.playVideo();
     }
 }
 
