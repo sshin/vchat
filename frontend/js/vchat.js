@@ -238,7 +238,8 @@ function onYouTubePlayerAPIReady() {
             rel: 0, // Don't show related videos when video ends.
             disablekb: 1, // Disable keyboard control.
             modestbranding: 1, // Don't show YouTube logo while playing.
-            showinfo: 0
+            showinfo: 0,
+            iv_load_policy: 3 // Don't show any annotations.
         },
         events: {
             'onReady': onPlayerReady,
