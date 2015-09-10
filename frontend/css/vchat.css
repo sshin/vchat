@@ -3,7 +3,7 @@
     height: 338px;
     border: 1px solid black;
     pointer-events: none;
-    box-shadow: 1px 3px 6px 4px rgba(0, 0, 0, 0.6);
+    box-shadow: 0px 2px 6px 4px rgba(0, 0, 0, 0.6);
 }
 
 #chat-box-wrapper {
