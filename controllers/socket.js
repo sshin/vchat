@@ -1,5 +1,6 @@
 var express = require('express');
 var Logger = require('../app_modules/logger').Logger;
+var Constants = require('../app_modules/constants');
 var SocketRedisController = require('../controllers/socket_redis').SocketRedisController;
 
 
@@ -8,16 +9,19 @@ class SocketController {
      * SocketController for vchat-socket server.
      * Never throw errros in this controller because we don't want to restart socket server.
      * Find a way to handle errors.
+     *
+     * NOTE: This controller is socket & room specific, and binded with SicketRedisController.
      */
 
     constructor(io, redisClient, redisClient2, redisClient3, socket) {
         this._io = io;
         this._roomHash = this._getRoomHash(socket);
+        this._roomKey = Constants.redisRoomKeyPrefix + this._roomHash;
         this._redisCtrl = new SocketRedisController(redisClient, redisClient2, 
                 redisClient3, this._roomHash);
         this._user = {id: socket.id};
         this._socket = socket;
-        this._socket.join(this._roomHash);
+        this._socket.join(this._roomKey);
         this._logger = new Logger();
         this._systemMessageType = {
             info: 'system-message-info',
@@ -31,11 +35,10 @@ class SocketController {
      * Generate user name, and save it to Redis.
      */
     _init() {
-        // TODO: Change the logic for generating user name.
-        this._redisCtrl.getRoom(this._roomHash, (data) => {
+        this._redisCtrl.getRoom((data) => {
             this._user['name'] = 'vChat User ' + this._socket['id'];
             this._socket.emit('username-update', {username: this._user['name']});
-            this._redisCtrl.addUserToRoom(this._roomHash, this._user);
+            this._redisCtrl.addUserToRoom(this._user);
             this._broadcastToRoom('new-user-entered', {
                 username: this._user['name'],
                 chatClass: this._systemMessageType['info'],
@@ -47,7 +50,7 @@ class SocketController {
     getCurrentPlayTimeForNewUser(data) {
         this._redisCtrl.checkVideoPlaying((videoId) => {
             if (videoId) {
-                let sockets = this._io.sockets.adapter.rooms[this._roomHash];
+                let sockets = this._io.sockets.adapter.rooms[this._roomKey];
                 for (var key in sockets) {
                     // Just sending one emit is fine enough...
                     if (sockets[key] === true) {
@@ -91,15 +94,19 @@ class SocketController {
             message: '[' + this._user['name'] + '] has left the vChat room.',
             chatClass: this._systemMessageType['warning']
         });
-        this._redisCtrl.removeUserFromRoom(this._roomHash, this._user);
+        this._redisCtrl.removeUserFromRoom(this._user);
     }
 
     getRoomHash() {
         return this._roomHash;
     }
 
+    getRoomKey() {
+        return this._roomKey;
+    }
+
     getSocketId() {
-        return this._socketId;
+        return this._socket.id;
     }
 
     /* 
@@ -227,14 +234,14 @@ class SocketController {
      * Broadcast to all in room. 
      */
     _broadcastInRoom(eventName, data) {
-        this._io.sockets.in(this._roomHash).emit(eventName, data);
+        this._io.sockets.in(this._roomKey).emit(eventName, data);
     }
 
     /* 
      * Broadcast to all except message sender in room. 
      */
     _broadcastToRoom(eventName, data) {
-        this._socket.broadcast.to(this._roomHash).emit(eventName, data);
+        this._socket.broadcast.to(this._roomKey).emit(eventName, data);
     }
 }
 
