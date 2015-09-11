@@ -70,7 +70,7 @@ $(document).ready(function() {
         // Only emit if video is currently paused.
         if (isPlayerPaused()) {
             var data = {
-                username: getUserName(),
+                username: _getUserName(),
                 action: 'resume'
             };
             socket.emit('control-video', data);
