@@ -15,69 +15,77 @@
     <body>
         <div id="app-container" class="full-width">
             <div id="app-inner-container" class="full-width">
-                <div id="app-content-container" class="center-div full-width">
-                    <div id="video-wrapper" class="center-div full-width">
-                        <div id="video-content"></div>
-                    </div>
-                    <div id="users-wrapper"></div>
-                    <div id="chat-box-wrapper" class="center-div full-width">
-                        <div id="chat-box">
-                            <div id="chat-messages"></div>
-                        </div>
-                    </div>
-                    <div id="user-input-wrapper" class="center-div">
-                        <div class="form-item full-width">
-                            Start Chatting as [ <input id="user-name" /> ]
-                            <input id="chat-input" class="full-width" />
-                        </div>
-                        <div id="video-controller-wrapper">
-                            <div>Control this video...</div>
-                            <table id="video-controller">
-                                <tr>
-                                    <th class="controller-header">Pause</th>
-                                    <th class="controller-header">Resume</th>
-                                    <th class="controller-header">Play next</th>
-                                    <th class="controller-header">Goto</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="video-resume-pause-wrapper">
-                                            <button id="video-pause" class="text-center form-item">
-                                                <img class="control-button-image" src="http://vchat.nullcannull-dev.net/assets/images/pause_button.png">
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="video-resume-pause-wrapper">
-                                            <button id="video-resume" class="text-center form-item">
-                                                <img class="control-button-image" src="http://vchat.nullcannull-dev.net/assets/images/play_button.png">
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div id="video-play-next-wrapper">
-                                            <button id="video-play-next" class="text-center form-item">
-                                                <img class="control-button-image" src="http://vchat.nullcannull-dev.net/assets/images/play_next_button.png">
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div id="video-time-controller-wrapper">
-                                            <input id="video-control-minutes" class="video-control-time-input" maxlength="2"/>
-                                            <strong> : </strong>
-                                            <input id="video-control-seconds" class="video-control-time-input" maxlength="2"/>
-                                            <div>
-                                                <button id="video-controller-time" class="full-width text-center form-item">Play</button>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div id="video-link-wrapper">
-                            <div class="form-item full-width">Copy and paste youtube link here...</div>
-                            <input id="video-input" class="full-width" />
-                        </div>
+                <div id="vchat-content-container" class="center-div full-width">
+                    <table id="vchat-wrapper">
+                        <tr>
+							<td colspan="2">
+								<div id="video-wrapper" class="center-div full-width">
+									<div id="video-content"></div>
+								</div>
+							</td>
+							<td rowspan="2">
+								<div id="users-wrapper"></div>
+								<div id="chat-box-wrapper" class="center-div full-width">
+									<div id="chat-box">
+										<div id="chat-messages"></div>
+									</div>
+								</div>
+								<div id="user-input-wrapper" class="center-div">
+									<div class="form-item full-width">
+                                        <div style="margin-left: 10px;">[ <input id="user-name" /> ]</div>
+                                        <input id="chat-input" class="full-width" />
+									</div>
+								</div>
+							</td>
+                        </tr>
+                        <tr>
+							<td>
+                                <div id="video-controller-container" class="center-div">
+                                        <div id="video-controller-wrapper">
+	    								<table id="video-controller">
+                                            <tr>
+                                                <td>
+										    		<div id="video-time-controller-wrapper">
+											    		<input id="video-control-minutes" class="video-control-time-input" maxlength="2"/>
+												    	<strong> : </strong>
+													    <input id="video-control-seconds" class="video-control-time-input" maxlength="2"/>
+                                                        <div>
+    														<button id="video-controller-time" class="full-width text-center form-item">Play</button>
+	    												</div>
+		    										</div>
+			    								</td>
+
+	    										<td>
+		    										<div class="video-resume-pause-wrapper">
+			    										<button id="video-pause" class="text-center form-item">
+				    										<img class="control-button-image" src="http://vchat.nullcannull-dev.net/assets/images/pause_button.png">
+					    								</button>
+						    						</div>
+							    				</td>
+								    			<td>
+									    			<div class="video-resume-pause-wrapper">
+										    			<button id="video-resume" class="text-center form-item">
+											    			<img class="control-button-image" src="http://vchat.nullcannull-dev.net/assets/images/play_button.png">
+												    	</button>
+    												</div>
+	    										</td>
+		    									<td>
+			    									<div id="video-play-next-wrapper">
+				    									<button id="video-play-next" class="text-center form-item">
+					    									<img class="control-button-image" src="http://vchat.nullcannull-dev.net/assets/images/play_next_button.png">
+						    							</button>
+							    					</div>
+								    			</td>
+                                            </tr>
+					    				</table>
+                                    </div>
+                                </div>
+							</td>
+                        </tr>
+                    </table>
+                    <div id="video-link-wrapper">
+                        <div class="form-item full-width">Copy and paste youtube link here...</div>
+                        <input id="video-input" class="full-width" />
                     </div>
                 </div>
             </div>

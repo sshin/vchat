@@ -31,4 +31,8 @@
     display: none;
 }
 
+td, th {
+    vertical-align: top;
+}
+
 

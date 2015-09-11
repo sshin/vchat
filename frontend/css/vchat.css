@@ -1,16 +1,20 @@
+#vchat-content-container {
+    width: 1140px;
+    margin-top: 100px;
+}
+
 #video-wrapper {
-    width: 600px;
-    height: 338px;
-    border: 1px solid black;
+    width: 800px;
+    height: 450px;
+    border: 2px solid black;
     pointer-events: none;
     box-shadow: 0px 2px 6px 4px rgba(0, 0, 0, 0.6);
 }
 
 #chat-box-wrapper {
-    margin-top: 15px;
-    width: 600px;
-    max-height: 338px;
-    height: 100%;
+    margin-left: 10px;
+    width: 300px;
+    height: 452px;
     border: 1px solid black;
     overflow-y: scroll;
 }
@@ -23,8 +27,15 @@
     margin-top: 3px;
 }
 
+#user-name {
+    width: 285px;
+}
+
 #chat-input {
+    margin-left: 10px;
     margin-top: 5px;
+    width: 303px;
+    height: 35px;
 }
 
 .system-message-info {
@@ -41,6 +52,10 @@
 
 #user-input-wrapper {
     width: 600px;
+}
+
+#video-controller-container {
+    width: 400px;
 }
 
 #video-controller-wrapper {
@@ -66,8 +81,12 @@
 }
 
 #video-time-controller-wrapper {
-    margin-left: 10px;
-    margin-top: 11px;
+    margin-top: 5px;
+    margin-right: 15px;
+}
+
+#video-controller-time {
+    height: 27px;
 }
 
 #video-control-minutes {
@@ -80,6 +99,7 @@
 
 #video-link-wrapper {
     margin-top: 10px;
+    width: 800px;
 }
 
 

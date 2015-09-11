@@ -27,10 +27,27 @@ $(document).ready(function() {
         if (e.which == 13) {
             var data = {
                 username: _getUserName(),
-                message: $chatInput.val()
+                message: $.trim($chatInput.val())
             };
 
-            socket.emit('client-chat-send', data);
+            if (data['message'].toLowerCase() == 'what is current video?') {
+                var videoData = player.getVideoData();
+                if (videoData['video_id'] !== null) {
+                    updateChat({
+                        html: true,
+                        message: 'Name of the video is <a href="' + player.getVideoUrl()
+                                 + '" target="_blacnk">' + videoData['title']  + '</a>',
+                        chatClass: 'system-message-info'
+                    });
+                } else {
+                    updateChat({
+                        message: 'There is no video playing.',
+                        chatClass: 'system-message-info'
+                    });
+                }
+            } else if (data['message'] !== '') {
+                socket.emit('client-chat-send', data);
+            }
             $chatInput.val('');
        }
     });
@@ -215,8 +232,31 @@ function _appendToChatBox(data) {
     var classes ='chat-message';
     if (typeof data['chatClass'] !== 'undefined') classes += ' ' + data['chatClass'];
 
+    if (typeof data['html'] !== 'undefined' && data['html'] == true) {
+        // No action here.
+    } else {
+        data['message'] = _escapeHTML(data['message']);
+    }
+
     $chatBox.append('<div class="' + classes + '">' + data['message']  + '</div>');
     $('#chat-box-wrapper').scrollTop($chatBox.height());
+}
+
+/* undersocre.js escape function  */
+function _escapeHTML(string) {
+    var entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '`': '&#x60;',
+        '/': '&#x2F;'
+    };
+    
+    return String(string).replace(/[&<>"'\/]/g, function(s) {
+              return entityMap[s];
+           });
 }
 
 function getCurrentPlayTimeForNewUser(data) {
@@ -229,8 +269,8 @@ function getCurrentPlayTimeForNewUser(data) {
 function onYouTubePlayerAPIReady() {
 /* API setup. */
     player = new YT.Player('video-content', {
-        width: '600',
-        height: '338',
+        width: '800',
+        height: '450',
         videoId: '',
         playerVars: {
             autoplay: 1, // Autoplay when vidoe is loaded.
