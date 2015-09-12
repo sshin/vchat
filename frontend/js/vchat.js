@@ -2,13 +2,18 @@
 
 var player;
 var socket;
+var roombeat;
 
 $(document).ready(function() {
 
     socket = io.connect('http://vchat-socket.nullcannull-dev.net');
+    roombeat = io.connect('http://vchat-roombeat.nullcannull-dev.net');
     var $chatInput = $('#chat-input');
     var $videoInput = $('#video-input');
     var $controlTime = $('#video-controller-time');
+
+    /***** Roombeat *****/
+    roombeat.on('roombeat', respondRoombeat);
 
     /***** Socket events *****/
     socket.on('new-user-entered', updateChat);
@@ -30,7 +35,7 @@ $(document).ready(function() {
                 message: $.trim($chatInput.val())
             };
 
-            if (data['message'].toLowerCase() == 'what is current video?') {
+            if (data['message'].toLowerCase() == 'what is the current video?') {
                 var videoData = player.getVideoData();
                 if (videoData['video_id'] !== null) {
                     updateChat({
@@ -142,7 +147,7 @@ function updateUserName(data) {
 
 function loadVideo(data) {
     var message, chatClass; 
-    if (data['currentVideo']) {
+    if (typeof data['currentVideo'] !== 'undefined') {
         message = 'You will be synced with the current video.';
         chatClass = 'system-message-info';
     } else {
@@ -212,6 +217,16 @@ function controlVideo(data) {
 
             // TODO: Handle situation where no more next video.
             loadVideo(data['nextVideo']);
+            return;
+        case 'playNextFromQueue':
+            updateChat({
+                message: 'Playing next video from the queue.',
+                chatClass: 'system-message-info'
+            });
+            
+            setTimeout(function() {
+                loadVideo(data['nextVideo']);
+            }, 1500);
             return;
     }
 
@@ -306,10 +321,9 @@ function onPlayerStateChange(event) {
     if (event.data == 0) {
         console.log('Current video ended.');
         updateChat({
-            message: 'Video ended. Replaying current video.',
+            message: 'Video ended. If there is a video in the queue, it will be played shortly.',
             chatClass: 'system-message-info'
         });
-        player.playVideo();
     }
 }
 
@@ -321,6 +335,10 @@ function isPlayerPaused() {
     var videoId = player.getVideoData()['video_id'];
     return videoId !== null && 
         (_getPlayerState() == 'paused' || _getPlayerState() == 'not_started');
+}
+
+function isPlayerEnded() {
+    return _getPlayerState() == 'ended';
 }
 
 function _getPlayerState() {
@@ -339,7 +357,7 @@ function _getPlayerState() {
             state = 'paused';
             break;
         default:
-            state = 'notstarted';
+            state = 'not_started';
             break;
     }
 
@@ -349,5 +367,13 @@ function _getPlayerState() {
 function hasVideo() {
     var videoData = player.getVideoData();
     return videoData['video_id'] !== null;
+}
+
+function respondRoombeat() {
+    var data = {
+        videoId: player.getVideoData()['video_id'],
+        isVideoEnded: isPlayerEnded()
+    };
+    roombeat.emit('roombeat', data);
 }
 

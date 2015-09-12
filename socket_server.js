@@ -15,6 +15,40 @@ app.get('/', (req, res) => {
     res.send('vChat socket server.');
 });
 
+/*
+ * Roombeat!!
+ */
+var fork = require('child_process').fork;
+var child = fork('./roombeat.js');
+child.on('message', (message) => {
+    let data = JSON.parse(message);
+    if (data['videoEnded']) {
+        redisClient.get(data['videoKey'], (err, videoData) => {
+            if (err) throw err;
+            
+            videoData = JSON.parse(videoData);
+            if (videoData !== null && videoData.currentVideo != null &&
+                videoData.currentVideo['videoId'] == data['videoId']) {
+                let nextVideo = videoData.queue.shift();
+                videoData.currentVideo = nextVideo;
+
+                // Set to redis ASAP.
+                redisClient.set(data['videoKey'], JSON.stringify(videoData));
+                // Notify user to play next video.
+                if (typeof nextVideo !== 'undefined' && nextVideo !== null) {
+                    let controlVideo = {
+                        action: 'playNextFromQueue',
+                        nextVideo: nextVideo
+                    }
+                    io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
+                    console.log('Automatically playing the next video from the queue for room: ['
+                                + data['roomKey'] + ']');
+                }
+            }   
+        });
+    }
+});
+
 
 /* Socket Handler */
 var redis = require('redis');
@@ -58,6 +92,7 @@ redisClient.set('APP total:public_rooms', '0');
 redisClient.set('APP total:private_rooms', '0');
 redisClient.del('test-1');
 redisClient.del('VIDEO test-1');
+redisClient.del('VIDEO hello-test-world');
 
 
 var SocketController = require('./controllers/socket').SocketController;
