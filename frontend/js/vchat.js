@@ -323,7 +323,6 @@ function onPlayerReady(event) {
 function onPlayerStateChange(event) {
 /* When current video ends, try to load next video on queue from server. */
     if (event.data == 0) {
-        console.log('Current video ended.');
         updateChat({
             message: 'Video ended. If there is a video in the queue, it will be played shortly.',
             chatClass: 'system-message-info'
