@@ -150,6 +150,9 @@ function loadVideo(data) {
     if (typeof data['currentVideo'] !== 'undefined') {
         message = 'You will be synced with the current video.';
         chatClass = 'system-message-info';
+        // Add 0.5 for loading time..better than adding nothing.
+        var deltaTime = Math.ceil((new Date().getTime() - parseInt(data['timestamp']))/1000 + 0.5);
+        data['startAt'] = parseInt(data['startAt']) + deltaTime;
     } else {
         message = 'Next video will be played shortly.';
         chatClass = 'system-message-warning';
@@ -277,6 +280,7 @@ function _escapeHTML(string) {
 function getCurrentPlayTimeForNewUser(data) {
     data['startAt'] = parseInt(player.getCurrentTime());
     data['isPlaying'] = isPlayerPlaying();
+    data['timestamp'] = new Date().getTime();
     socket.emit('current-play-time-for-new-user', data);
 }
 

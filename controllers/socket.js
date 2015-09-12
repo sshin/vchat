@@ -74,7 +74,6 @@ class SocketController {
 
     playCurrentVideoForNewUser(data) {
         data['currentVideo'] = true;
-        data['startAt'] = parseInt(data['startAt']) + 1;
         let socketId = data['socketId'];
         delete data['socketId'];
         try {
