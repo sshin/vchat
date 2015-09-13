@@ -6,6 +6,22 @@ CONFIG['apiUrl'] = CONFIG.baseUrl + 'api/';
 
 /* APP Controller Class */
 function App() {
+    this.escapeHTML = function(string) {
+        /* undersocre.js escape function  */
+        var entityMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#x27;',
+            '`': '&#x60;',
+            '/': '&#x2F;'
+        };
+
+        return String(string).replace(/[&<>"'\/]/g, function (s) {
+            return entityMap[s];
+        });
+    }
 
     this._ajax = function(type, func, options) {
         var params = {

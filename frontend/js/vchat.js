@@ -4,14 +4,11 @@ var player;
 var socket;
 var roombeat;
 var numMessages = 0;
+var pauseAfterLoad = false;
 
 $(document).ready(function() {
-
     socket = io.connect('http://vchat-socket.nullcannull-dev.net');
     roombeat = io.connect('http://vchat-roombeat.nullcannull-dev.net');
-    var $chatInput = $('#chat-input');
-    var $videoInput = $('#video-input');
-    var $controlTime = $('#video-controller-time');
 
     /***** Roombeat *****/
     roombeat.on('roombeat', respondRoombeat);
@@ -26,103 +23,111 @@ $(document).ready(function() {
     socket.on('control-video', controlVideo);
     socket.on('get-current-play-time-for-new-user', getCurrentPlayTimeForNewUser);
     socket.on('no-more-video', noMoreVideo);
-    
+
 
     /***** Regular events *****/
-    $chatInput.on('keypress', function(e) {
-        if (e.which == 13) {
-            var data = {
-                username: _getUserName(),
-                message: $.trim($chatInput.val())
-            };
-
-            if (data['message'].toLowerCase() == 'what is the current video?') {
-                var videoData = player.getVideoData();
-                if (videoData['video_id'] !== null) {
-                    updateChat({
-                        html: true,
-                        message: 'Name of the video is <a href="' + player.getVideoUrl()
-                                 + '" target="_blacnk">' + videoData['title']  + '</a>',
-                        chatClass: 'system-message-info'
-                    });
-                } else {
-                    updateChat({
-                        message: 'There is no video playing.',
-                        chatClass: 'system-message-info'
-                    });
-                }
-            } else if (data['message'] !== '') {
-                socket.emit('client-chat-send', data);
-            }
-            $chatInput.val('');
-       }
-    });
-
-    $videoInput.on('keypress', function(e) {
-        if (e.which == 13) {
-            var data = {
-                username: _getUserName(),
-                link: $videoInput.val()
-            };
-
-            socket.emit('new-video-submit', data);
-            $videoInput.val('');
-        }
-    });
-
-    $controlTime.on('click', function() {
-        var videoId = player.getVideoData().video_id;
-        if (videoId !== null) {
-            var min = $('#video-control-minutes').val();
-            var sec = $('#video-control-seconds').val();
-            if (!min || /[^0-9]/.test(min)) min = 0;
-            if (!sec || /[^0-9]/.test(sec)) sec = 0;
-            var data = {
-                username: _getUserName(),
-                action: 'startAt',
-                startAt: {
-                    min: min,
-                    sec: sec
-                }
-            };
-            socket.emit('control-video', data);
-        }
-    });
-
-    $('#video-resume').on('click', function() {
-        // Only emit if video is currently paused.
-        if (isPlayerPaused()) {
-            var data = {
-                username: _getUserName(),
-                action: 'resume'
-            };
-            socket.emit('control-video', data);
-        }
-    });
-
-    $('#video-pause').on('click', function() {
-        // Only emit if video is currently playing.
-        if (isPlayerPlaying()) {
-            var data = {
-                username: _getUserName(),
-                action: 'pause'
-            };
-            socket.emit('control-video', data);
-        }
-    });
-
-    $('#video-play-next').on('click', function() {
-        // Only emit when we have a video.
-        // TODO: Change this emit to only happen for when queue.length > 0
-        if (hasVideo()) {
-            var data = {
-                username: _getUserName(),
-                action: 'playNext'
-            }
-            socket.emit('control-video', data);
-        }
-    });
+    $('#chat-input').on('keypress', _onChatInputSubmit);
+    $('#video-input').on('keypress', _onVideoSubmit);
+    $('.video-control-button').on('click', _onVideoControl);
 });
+
+function _onChatInputSubmit(e) {
+    var $chatInput = $('#chat-input');
+    if (e.which == 13) {
+        var data = {
+            username: _getUserName(),
+            message: $.trim($chatInput.val())
+        };
+
+        if (data['message'].toLowerCase() == 'what is the current video?') {
+            var videoData = player.getVideoData();
+            if (videoData['video_id'] !== null) {
+                updateChat({
+                    html: true,
+                    message: 'Name of the video is <a href="' + player.getVideoUrl()
+                    + '" target="_blank">' + videoData['title'] + '</a>',
+                    chatClass: 'system-message-info'
+                });
+            } else {
+                updateChat({
+                    message: 'There is no video playing.',
+                    chatClass: 'system-message-info'
+                });
+            }
+        } else if (data['message'] !== '') {
+            socket.emit('client-chat-send', data);
+        }
+        $chatInput.val('');
+    }
+}
+
+function _onVideoSubmit(e) {
+    var $videoInput = $('#video-input');
+    if (e.which == 13) {
+        var data = {
+            username: _getUserName(),
+            link: $videoInput.val()
+        };
+
+        socket.emit('new-video-submit', data);
+        $videoInput.val('');
+    }
+}
+
+function _onVideoControl(e) {
+    var id = $(e.currentTarget).attr('id');
+    switch(id) {
+        case 'video-controller-time':
+            var videoId = player.getVideoData().video_id;
+            if (videoId !== null) {
+                var min = $('#video-control-minutes').val();
+                var sec = $('#video-control-seconds').val();
+                if (!min || /[^0-9]/.test(min)) min = 0;
+                if (!sec || /[^0-9]/.test(sec)) sec = 0;
+                var data = {
+                    username: _getUserName(),
+                    action: 'startAt',
+                    startAt: {
+                        min: min,
+                        sec: sec
+                    }
+                };
+                socket.emit('control-video', data);
+            }
+            break;
+        case 'video-controller-pause':
+            // Only emit if video is currently playing.
+            if (isPlayerPlaying()) {
+                var data = {
+                    username: _getUserName(),
+                    action: 'pause'
+                };
+                socket.emit('control-video', data);
+            }
+            break;
+        case 'video-controller-resume':
+            // Only emit if video is currently paused.
+            if (isPlayerPaused()) {
+                var data = {
+                    username: _getUserName(),
+                    action: 'resume'
+                };
+                socket.emit('control-video', data);
+            }
+            break;
+        case 'video-controller-play-next':
+            // Only emit when we have a video.
+            // TODO: Change this emit to only happen for when queue.length > 0
+            if (hasVideo()) {
+                var data = {
+                    username: _getUserName(),
+                    action: 'playNext'
+                }
+                socket.emit('control-video', data);
+            }
+            break;
+    }
+}
 
 function _getUserName() {
     return $('#user-name').val();
@@ -150,7 +155,7 @@ function loadVideo(data) {
     // Ignore if no data was sent.
     if (typeof data === 'undefined') return;
 
-    var message, chatClass; 
+    var message, chatClass;
     if (typeof data['currentVideo'] !== 'undefined') {
         message = 'You will be synced with the current video.';
         chatClass = 'system-message-info';
@@ -184,10 +189,7 @@ function loadVideo(data) {
     player.loadVideoById(videoData);
 
     if (typeof data['isPlaying'] !== 'undefined' && !data['isPlaying']) {
-        // This is hacky...need to find a better way to do this.
-        setTimeout(function() {
-            player.pauseVideo();
-        }, 1000);
+        pauseAfterLoad = true;
     }
 }
 
@@ -230,7 +232,7 @@ function controlVideo(data) {
                 message: 'Playing next video from the queue.',
                 chatClass: 'system-message-info'
             });
-            
+
             setTimeout(function() {
                 loadVideo(data['nextVideo']);
             }, 1500);
@@ -262,7 +264,7 @@ function _appendToChatBox(data) {
     if (typeof data['html'] !== 'undefined' && data['html'] == true) {
         // No action here.
     } else {
-        data['message'] = _escapeHTML(data['message']);
+        data['message'] = app.escapeHTML(data['message']);
     }
 
     $chatBox.append('<div class="' + classes + '">' + data['message']  + '</div>');
@@ -272,23 +274,6 @@ function _appendToChatBox(data) {
     if (numMessages >= 30) {
         $('#chat-messages').children().first().remove();
     }
-}
-
-/* undersocre.js escape function  */
-function _escapeHTML(string) {
-    var entityMap = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#x27;',
-        '`': '&#x60;',
-        '/': '&#x2F;'
-    };
-    
-    return String(string).replace(/[&<>"'\/]/g, function(s) {
-              return entityMap[s];
-           });
 }
 
 function getCurrentPlayTimeForNewUser(data) {
@@ -325,13 +310,12 @@ function onYouTubePlayerAPIReady() {
 function onPlayerReady(event) {
 /* Play video if video_id has value. */
     console.log('Youtube Player is ready.');
-    
+
     if (player.getVideoData().video_id !== null) {
         player.playVideo();
     }
 
     socket.emit('get-current-play-time-for-new-user');
-
 }
 
 function onPlayerStateChange(event) {
@@ -341,24 +325,38 @@ function onPlayerStateChange(event) {
             // Currnet video ended. Are we going to display something?
             break;
         case 1:
+            // Started/Resumed playing.
+            if (pauseAfterLoad) {
+                player.pauseVideo();
+                pauseAfterLoad = false;
+            }
             setVideoInformation();
+            break;
+        case 2:
+            // Paused.
+            clearInterval(timer);
             break;
     }
 }
 
+/*
+ * Set video information and start timer.
+ */
 function setVideoInformation() {
     var videoData = player.getVideoData();
-    var duration = player.getDuration();
-    var durationMins = Math.floor(duration/60);
-    var durationSec = parseInt(duration - (durationMins * 60));
-    if (durationSec < 10) durationSec = '0' + durationSec;
-    var durationText = '' + durationMins + ':' + durationSec;
+    var durationText = _getFormattedTime(player.getDuration());
     var url = player.getVideoUrl();
-    $('#current-video-information').html(
-        '<div id="current-video-name">' + videoData['title']  + '</div>'
-        + '<div id="current-video-duration">Play time: ' + durationText  + '</div>'
-        + '<div id="currnet-video-youtube-link"><a href="' + url + '" target="_blank">Watch at YouTube</a></div>' 
-    );
+    $('#current-video-name').text(videoData['title']);
+    $('#current-video-duration').text(durationText);
+    $('#current-video-youtube-link').html('<a href="' + url + '" target="_blank">Watch at YouTube</a>');
+    $currentPlayTime.attr('data-seconds', player.getCurrentTime());
+}
+
+function _getFormattedTime(seconds) {
+    var min = Math.floor(seconds/60);
+    var sec = parseInt(seconds - (min * 60));
+    if (sec < 10) sec = '0' + sec;
+    return '' + min + ':' + sec;
 }
 
 function isPlayerPlaying() {
@@ -367,7 +365,7 @@ function isPlayerPlaying() {
 
 function isPlayerPaused() {
     var videoId = player.getVideoData()['video_id'];
-    return videoId !== null && 
+    return videoId !== null &&
         (_getPlayerState() == 'paused' || _getPlayerState() == 'not_started');
 }
 
