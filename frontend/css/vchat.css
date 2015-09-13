@@ -99,10 +99,13 @@
 
 #current-video-information {
     margin-left: 45px;
+    width: 300px;
+}
+
+#current-video-name {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    width: 300px;
 }
 
 #current-video-duration,

@@ -350,7 +350,9 @@ function setVideoInformation() {
     var videoData = player.getVideoData();
     var duration = player.getDuration();
     var durationMins = Math.floor(duration/60);
-    var durationText = '' + durationMins + ':' + (duration - (durationMins * 60));
+    var durationSec = parseInt(duration - (durationMins * 60));
+    if (durationSec < 10) durationSec = '0' + durationSec;
+    var durationText = '' + durationMins + ':' + durationSec;
     var url = player.getVideoUrl();
     $('#current-video-information').html(
         '<div id="current-video-name">' + videoData['title']  + '</div>'
