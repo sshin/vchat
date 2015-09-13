@@ -338,10 +338,7 @@ function onPlayerStateChange(event) {
 /* When current video ends, try to load next video on queue from server. */
     switch(event.data) {
         case 0:
-            updateChat({
-                message: 'Video ended. If there is a video in the queue, it will be played shortly.',
-                chatClass: 'system-message-info'
-            });
+            // Currnet video ended. Are we going to display something?
             break;
         case 1:
             setVideoInformation();
@@ -357,8 +354,8 @@ function setVideoInformation() {
     var url = player.getVideoUrl();
     $('#current-video-information').html(
         '<div id="current-video-name">' + videoData['title']  + '</div>'
-        + '<div id="current-video-duration">' + durationText  + '</div>'
-        + '<div id="currnet-video-youtube-link"><a href="' + url + '" target="_blank">' + url + '</a></div>' 
+        + '<div id="current-video-duration">Play time: ' + durationText  + '</div>'
+        + '<div id="currnet-video-youtube-link"><a href="' + url + '" target="_blank">Watch at YouTube</a></div>' 
     );
 }
 

@@ -105,10 +105,11 @@
     width: 300px;
 }
 
-#current-video-duration {
-    margin-left: 5px;
+#current-video-duration,
+#current-video-youtube-link {
     margin-top: 3px;
 }
+
 
 #video-link-wrapper {
     margin-top: 10px;
