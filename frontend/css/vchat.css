@@ -55,7 +55,7 @@
 }
 
 #video-controller-container {
-    width: 400px;
+    width: 660px;
 }
 
 #video-controller-wrapper {
@@ -95,6 +95,19 @@
 
 .video-control-time-input {
     width: 30px;    
+}
+
+#current-video-information {
+    margin-left: 45px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 300px;
+}
+
+#current-video-duration {
+    margin-left: 5px;
+    margin-top: 3px;
 }
 
 #video-link-wrapper {

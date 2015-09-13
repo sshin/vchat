@@ -3,6 +3,7 @@
 var player;
 var socket;
 var roombeat;
+var numMessages = 0;
 
 $(document).ready(function() {
 
@@ -146,6 +147,9 @@ function updateUserName(data) {
 }
 
 function loadVideo(data) {
+    // Ignore if no data was sent.
+    if (typeof data === 'undefined') return;
+
     var message, chatClass; 
     if (typeof data['currentVideo'] !== 'undefined') {
         message = 'You will be synced with the current video.';
@@ -245,7 +249,12 @@ function noMoreVideo(data) {
     updateChat(data);
 }
 
+/*
+ * Append given message to the chatbox.
+ * Chatbox will only contain 30 messages at most.
+ */
 function _appendToChatBox(data) {
+    if (numMessages < 30) numMessages++;
     var $chatBox = $('#chat-messages');
     var classes ='chat-message';
     if (typeof data['chatClass'] !== 'undefined') classes += ' ' + data['chatClass'];
@@ -258,6 +267,11 @@ function _appendToChatBox(data) {
 
     $chatBox.append('<div class="' + classes + '">' + data['message']  + '</div>');
     $('#chat-box-wrapper').scrollTop($chatBox.height());
+
+    // Remove the top message if there are more than 30 messages.
+    if (numMessages >= 30) {
+        $('#chat-messages').children().first().remove();
+    }
 }
 
 /* undersocre.js escape function  */
@@ -322,12 +336,30 @@ function onPlayerReady(event) {
 
 function onPlayerStateChange(event) {
 /* When current video ends, try to load next video on queue from server. */
-    if (event.data == 0) {
-        updateChat({
-            message: 'Video ended. If there is a video in the queue, it will be played shortly.',
-            chatClass: 'system-message-info'
-        });
+    switch(event.data) {
+        case 0:
+            updateChat({
+                message: 'Video ended. If there is a video in the queue, it will be played shortly.',
+                chatClass: 'system-message-info'
+            });
+            break;
+        case 1:
+            setVideoInformation();
+            break;
     }
+}
+
+function setVideoInformation() {
+    var videoData = player.getVideoData();
+    var duration = player.getDuration();
+    var durationMins = Math.floor(duration/60);
+    var durationText = '' + durationMins + ':' + (duration - (durationMins * 60));
+    var url = player.getVideoUrl();
+    $('#current-video-information').html(
+        '<div id="current-video-name">' + videoData['title']  + '</div>'
+        + '<div id="current-video-duration">' + durationText  + '</div>'
+        + '<div id="currnet-video-youtube-link"><a href="' + url + '" target="_blank">' + url + '</a></div>' 
+    );
 }
 
 function isPlayerPlaying() {
@@ -372,11 +404,17 @@ function hasVideo() {
     return videoData['video_id'] !== null;
 }
 
+/*
+ * Responds to roombeat if this socket is selected for roombeat :).
+ * Will only respond if current video is ended for now.
+ */
 function respondRoombeat() {
-    var data = {
-        videoId: player.getVideoData()['video_id'],
-        isVideoEnded: isPlayerEnded()
-    };
-    roombeat.emit('roombeat', data);
+    if (isPlayerEnded()) {
+        var data = {
+            videoId: player.getVideoData()['video_id'],
+            isVideoEnded: isPlayerEnded()
+        };
+        roombeat.emit('roombeat', data);
+    }
 }
 
