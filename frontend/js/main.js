@@ -11,12 +11,10 @@ function _setCategories() {
     app.get('category', {
         success: function(data) {
             var categories = data['categories'];
-            var $search = $('#public-room-search-category');
             var $create = $('#new-chat-room-category');
 
             for (var i = 0; i < categories.length; i++) {
                 var category = categories[i];
-                $search.append('<option value="' + category['type']  + '">' + category['name']  + '</option>');
                 $create.append('<option value="' + category['type']  + '">' + category['name']  + '</option>');
             }
         }
@@ -89,13 +87,18 @@ function _searchPrivateChatRoom() {
 
 function _changeType() {
     var $el = $('#new-chat-room-type');
+    var $password = $('#create-new-chat-room-password-wrapper');
 
     if ($el.attr('data-value') == 'public') {
         $el.text('Private Room');
         $el.attr('data-value', 'private');
+        $password.removeClass('hide');
+        $('#new-chat-room-password').val('');
+        $('#new-chat-room-password-verify').val('');
     } else {
         $el.text('Public Room');
         $el.attr('data-value', 'public');
+        $password.addClass('hide');
     }
 }
 
