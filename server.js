@@ -1,6 +1,5 @@
 
 /* app settings */
-var BASE_URL = 'http://vchat.nullcannull-dev.net/';
 var express = require('express');
 var app = express();
 var cookieParser = require('cookie-parser');

@@ -1,6 +1,5 @@
 
 /* app settings */
-var APP_URL = 'http://vchat.nullcannull-dev.net/';
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);

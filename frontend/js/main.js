@@ -1,14 +1,16 @@
 $(document).ready(function() {
     _setCategories();
-    _setTodaysMostLikedRooms();
-//     _setRandomPublicRooms();
+    //_setTodaysMostLikedRooms();
+    //_setRandomPublicRooms();
     $('#private-room-create').on('click', _createChatRoom);
+    $('#private-room-search').on('click', _searchPrivateChatRoom);
     $('#new-chat-room-type').on('click', _changeType);
 });
 
 function _setCategories() {
     app.get('category', {
-        success: function(categories) {
+        success: function(data) {
+            var categories = data['categories'];
             var $search = $('#public-room-search-category');
             var $create = $('#new-chat-room-category');
 
@@ -37,7 +39,7 @@ function _setTodaysMostLikedRooms() {
 
 function _setRandomPublicRooms() {
     app.get('room', {
-        data: {get: 'randomrooms'},
+        data: {get: 'randomRooms'},
         success: function(rooms) {
             console.log(rooms);
         }
@@ -51,19 +53,38 @@ function _createChatRoom() {
         name: $(prefix+'name').val(),
         type: $(prefix+'type').attr('data-value'),
         password: $(prefix+'password').val(),
-        verifyPassword: $(prefix+'password-verify').val()
+        verifyPassword: $(prefix+'password-verify').val(),
+        type: 'create'
     }
 
     app.post('room', {
-        success: function(response) {
-            console.log(response);
-        },
-        error: function(response) {
-            console.log(response);
-        },
-        data: data
+        data: data,
+        success: function(data) {
+            console.log('redirecting to ' + data['url']);
+            setTimeout(function () {
+                window.location.href = data['url'];
+            }, 1000);
+        }
     });
+}
 
+function _searchPrivateChatRoom() {
+    var data = {
+        name: $('#private-room-search-name').val(),
+        password: $('#private-room-search-password').val(),
+        type: 'searchPrivateRoom'
+    }
+
+    app.post('room', {
+        data: data,
+        success: function(data) {
+            // TODO: create dialog ?
+            console.log('redirecting to ' + data['url']);
+            setTimeout(function() {
+                window.location.href = data['url'];
+            }, 1000);
+        }
+    });
 }
 
 function _changeType() {

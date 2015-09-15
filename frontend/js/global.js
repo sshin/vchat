@@ -31,17 +31,16 @@ function App() {
 
         if (options['data']) params['data'] = options['data'];
         if (options['before']) params['beforeSend'] = options['before'];
-
-        $.ajax(params).done(function(response) {
-            console.log('(' + type + ')api request to: ' + func + '(response: ' + response['state'] +')');
-
-            if (response['state'] == '200') {
-                if (options['success']) options['success'](response.response);
+        if (options['success']) params['success'] = options['success'];
+        params['error'] = function(xhr, status, error) {
+            if (options['error']) {
+                options['error'](xhr.responseText);
             } else {
-                console.log('API request rejected due to an error.');
-                if (options['error']) options['error'](response.response);
+                console.log(xhr.responseText);
             }
-        });
+        }
+
+        $.ajax(params);
     };
 
     this.get = function(func, options) {

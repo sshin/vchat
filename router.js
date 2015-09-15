@@ -22,7 +22,7 @@ module.exports = (app) => {
 
     /* static pages */
     app.use('/', require('./api/main'));
-    app.use('/vChat/:room', require('./api/vchat'));
+    app.use('/vChat', require('./api/vchat'));
 
     /* api routing */
     app.use('/api/room', require('./api/room'));

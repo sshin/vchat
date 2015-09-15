@@ -5,7 +5,7 @@ var model = require('../models/category');
 router.get('/', (req, res) => {
     var category = new model.Category();
     category.getCategories((categories) => {
-        res.send({state: 200, response: categories})
+        res.send({categories: categories})
     });
 });
 
