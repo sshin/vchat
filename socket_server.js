@@ -58,7 +58,9 @@ socketCtrlRedisClient3.on('error', (err) => {
  */
 var child = childProcess.fork('./roombeat.js');
 var roombeatCtrl = new RoombeatController(redisClient, io);
-child.on('message', roombeatCtrl.currentVideoEnded);
+child.on('message', (message) => {
+    roombeatCtrl.currentVideoEnded(message)
+});
 
 
 /*** Clear Redis entries during testing ***/

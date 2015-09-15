@@ -5,10 +5,12 @@ var socket;
 var roombeat;
 var numMessages = 0;
 var pauseAfterLoad = false;
+var $currentPlayTime, timer;
 
 $(document).ready(function() {
     socket = io.connect('http://vchat-socket.nullcannull-dev.net');
     roombeat = io.connect('http://vchat-roombeat.nullcannull-dev.net');
+    $currentPlayTime = $('#current-play-time');
 
     /***** Roombeat *****/
     roombeat.on('roombeat', respondRoombeat);
@@ -320,6 +322,8 @@ function onPlayerReady(event) {
 
 function onPlayerStateChange(event) {
 /* When current video ends, try to load next video on queue from server. */
+    // Always clear interval on state change.
+    clearInterval(timer);
     switch(event.data) {
         case 0:
             // Currnet video ended. Are we going to display something?
@@ -334,7 +338,6 @@ function onPlayerStateChange(event) {
             break;
         case 2:
             // Paused.
-            clearInterval(timer);
             break;
     }
 }
@@ -349,7 +352,17 @@ function setVideoInformation() {
     $('#current-video-name').text(videoData['title']);
     $('#current-video-duration').text(durationText);
     $('#current-video-youtube-link').html('<a href="' + url + '" target="_blank">Watch at YouTube</a>');
-    $currentPlayTime.attr('data-seconds', player.getCurrentTime());
+    var currentTime = player.getCurrentTime();
+    $currentPlayTime.attr('data-seconds', currentTime);
+    _setTimer();
+    timer = setInterval(_setTimer,  1000);
+}
+
+function _setTimer() {
+    var time = parseInt($currentPlayTime.attr('data-seconds'));
+    var newTime = _getFormattedTime(time);
+    $currentPlayTime.attr('data-seconds', time + 1);
+    $currentPlayTime.text(newTime + ' / ');
 }
 
 function _getFormattedTime(seconds) {
@@ -409,7 +422,7 @@ function respondRoombeat() {
     if (isPlayerEnded()) {
         var data = {
             videoId: player.getVideoData()['video_id'],
-            isVideoEnded: isPlayerEnded()
+            isVideoEnded: true
         };
         roombeat.emit('roombeat', data);
     }
