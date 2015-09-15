@@ -8,45 +8,13 @@ var credentials = require('credentials');
 var server = app.listen(21000, () => {    
     console.log('Socket server started and listening on port %d', server.address().port);
 });
+var childProcess = require('child_process');
+var RoombeatController = require('./controllers/roombeat').RoombeatController;
 var io = require('socket.io').listen(server);
 
 /* What ever... */
 app.get('/', (req, res) => {
     res.send('vChat socket server.');
-});
-
-/*
- * Roombeat!!
- */
-var fork = require('child_process').fork;
-var child = fork('./roombeat.js');
-child.on('message', (message) => {
-    let data = JSON.parse(message);
-    if (data['videoEnded']) {
-        redisClient.get(data['videoKey'], (err, videoData) => {
-            if (err) throw err;
-            
-            videoData = JSON.parse(videoData);
-            if (videoData !== null && videoData.currentVideo != null &&
-                videoData.currentVideo['videoId'] == data['videoId']) {
-                let nextVideo = videoData.queue.shift();
-                videoData.currentVideo = nextVideo;
-
-                // Set to redis ASAP.
-                redisClient.set(data['videoKey'], JSON.stringify(videoData));
-                // Notify user to play next video.
-                if (typeof nextVideo !== 'undefined' && nextVideo !== null) {
-                    let controlVideo = {
-                        action: 'playNextFromQueue',
-                        nextVideo: nextVideo
-                    }
-                    io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
-                    console.log('Automatically playing the next video from the queue for room: ['
-                                + data['roomKey'] + ']');
-                }
-            }   
-        });
-    }
 });
 
 
@@ -84,6 +52,13 @@ socketCtrlRedisClient3.on('error', (err) => {
     console.log('Redis Error: ' + err);
 });
 
+
+/*
+ * Roombeat!!
+ */
+var child = childProcess.fork('./roombeat.js');
+var roombeatCtrl = new RoombeatController(redisClient, io);
+child.on('message', roombeatCtrl.currentVideoEnded);
 
 
 /*** Clear Redis entries during testing ***/
