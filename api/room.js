@@ -66,7 +66,7 @@ router.post('/', (req, res) => {
         case 'create':
             var errors = [];
 
-            params['name'] = String.prototype.trim.call(params['name']);
+            params['name'] = String.prototype.trim.apply(params['name']);
             if (params['category'] == 'none') errors.push('category');
             if (params['name'] == '') errors.push('name');
             if (params['type'] == '') errors.push('type');
