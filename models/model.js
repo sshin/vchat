@@ -39,7 +39,7 @@ class Model {
     }
 
     /*
-     * Get connection and excute query.
+     * Get connection and executes query.
      * Releases connection by itself.
      *
      * NOTE: This method seems like we expect 3 arguments,
@@ -120,9 +120,12 @@ class Model {
 
         if (typeof options.where !== 'undefined') {
             sql += ' WHERE ';
+            let count = 0;
             for (var key in options.where) {
+                if (count >= 1) sql += ' AND ';
                 sql += key + ' = ? ';
                 params.push(options.where[key]);
+                count++;
             }
         }
 

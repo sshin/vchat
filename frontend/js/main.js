@@ -4,6 +4,7 @@ $(document).ready(function() {
     //_setRandomPublicRooms();
     $('#private-room-create').on('click', _createChatRoom);
     $('#private-room-search').on('click', _searchPrivateChatRoom);
+    $('#public-room-search').on('click', _searchPublicChatRoom);
     $('#new-chat-room-type').on('click', _changeType);
 });
 
@@ -76,11 +77,30 @@ function _searchPrivateChatRoom() {
     app.post('room', {
         data: data,
         success: function(data) {
-            // TODO: create dialog ?
+            // TODO: Instead of having input fields on page, there should be a button that opens up
+            // a dialog which contains input fields. We should automatically redirect user to the
+            // private room if name and password matches.
             console.log('redirecting to ' + data['url']);
             setTimeout(function() {
                 window.location.href = data['url'];
             }, 1000);
+        }
+    });
+}
+
+function _searchPublicChatRoom() {
+    var data = {
+        name: $('#public-room-search-name').val(),
+        type: 'searchPublicRoom'
+    }
+
+    app.post('room', {
+        data: data,
+        success: function(data) {
+            // TODO:  Button and dialog same as private room search.
+            // However, instead of redirecting user to the room right away,
+            // we should list all rooms that contains the search keyword.
+            console.log(data);
         }
     });
 }

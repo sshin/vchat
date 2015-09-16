@@ -36,16 +36,16 @@ router.post('/', (req, res) => {
 
     switch(params['type']) {
         case 'searchPrivateRoom':
-            params['hash'] = params['name'].replace(/ /g, '-');
-            params['hash'] = params['hash'].toLowerCase();
+            var hash = String.prototype.trim.apply(params['name']).replace(/ /g, '-');
+            hash = hash.toLowerCase();
             room.select({
                 select: ['password'],
                 where: {
-                    hash: params['hash']
+                    hash: hash,
+                    private: 1
                 }
             }, (data) => {
                 if (data.length === 0) {
-                    res.status(400);
                     res.send({reason: 'no room'});
                 } else {
                     bcrypt.compare(params['password'], data[0]['password'], (err, matched) => {
@@ -56,12 +56,23 @@ router.post('/', (req, res) => {
                             if (typeof req.session.privateRooms === 'undefined') {
                                 req.session.privateRooms = {};
                             }
-                            req.session.privateRooms[params['hash']] = true;
-                            res.send({url: '' + Constants.appUrl + 'vChat/private/' + params['hash']});
+                            req.session.privateRooms[hash] = true;
+                            res.send({url: '' + Constants.appUrl + 'vChat/private/' + hash});
                         }
                     });
                 }
             });
+            break;
+        case 'searchPublicRoom':
+            var name = String.prototype.trim.apply(params['name']);
+            room.runQuery('SELECT name, hash FROM Room WHERE name LIKE ? AND private = 0',
+                ['%' + name + '%'], (data) => {
+                    if (data.length === 0) {
+                        res.send({reason: 'no room'})
+                    } else {
+                        res.send({rooms: data});
+                    }
+                });
             break;
         case 'create':
             var errors = [];
