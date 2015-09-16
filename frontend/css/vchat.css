@@ -67,7 +67,8 @@
 }
 
 #video-controller-resume,
-#video-controller-pause {
+#video-controller-pause,
+#video-controller-play-next {
     margin-right: 10px;
     padding: 3px;
 }
