@@ -71,6 +71,7 @@ router.post('/', (req, res) => {
         return;
       }
 
+      // Now all inputs are valid, try inserting into database.
       var createNewRoom = roomCtrl.createNewRoom(params);
       createNewRoom.then((hash) => {
         res.send({url: Constants.appUrl + 'vChat/' + hash});

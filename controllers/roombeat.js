@@ -17,7 +17,7 @@ class RoombeatController {
 
         videoData = JSON.parse(videoData);
         if (videoData !== null) {
-          // Only continue if we have video in queue.
+          // Only continue if we have a video in queue.
           if (videoData.queue.length === 0) return;
 
           let nextVideo = videoData.queue.shift();
@@ -25,7 +25,7 @@ class RoombeatController {
 
           // Set to redis ASAP.
           this._redisClient.set(data['videoKey'], JSON.stringify(videoData));
-          // Notify user to play next video.
+          // Notify users to play next video.
           let controlVideo = {
             action: 'playNextFromQueue',
             nextVideo: nextVideo

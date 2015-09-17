@@ -40,8 +40,15 @@ class RoomController {
     var name = String.prototype.trim.apply(params['name']);
     var room = new Room();
     var promise = new Promise((resolve, reject) => {
-      room.runQuery('SELECT name, hash FROM Room WHERE name LIKE ? AND private = 0',
-          ['%' + name + '%'], (data) => {
+      room.select({
+          select: ['name', 'hash'],
+          where: {
+            private: 0
+          },
+          like: {
+            name: '%' + name + '%'
+          }
+        }, (data) => {
             resolve(data);
           }
       );

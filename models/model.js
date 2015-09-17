@@ -118,16 +118,34 @@ class Model {
 
     if (typeof join !== 'undefined') sql += join['join'];
 
+    var where;
     if (typeof options.where !== 'undefined') {
-      sql += ' WHERE ';
+      where = '';
       let count = 0;
       for (var key in options.where) {
-        if (count >= 1) sql += ' AND ';
-        sql += key + ' = ? ';
+        if (count >= 1) where += ' AND ';
+        where += key + ' = ? ';
         params.push(options.where[key]);
         count++;
       }
     }
+
+    if (typeof options.like !== 'undefined') {
+      if (typeof where === 'undefined') {
+        where = '';
+      } else {
+        where += ' AND ';
+      }
+      let count = 0;
+      for (var key in options.like) {
+        if (count >= 1) where += ' AND ';
+        where += key + ' LIKE  ? ';
+        params.push(options.like[key]);
+        count++;
+      }
+    }
+
+    if (typeof where !== 'undefined') sql += 'WHERE ' + where;
 
     if (typeof options.order !== 'undefined') {
       sql += ' ORDER BY ' + options.order['column'] + ' ' + options.order['direction'];

@@ -47,6 +47,10 @@ class SocketController {
     });
   }
 
+  /*
+   * Check if there is a video currently playing, and if there is,
+   * then get the play time from one of the sockets in room.
+   */
   getCurrentPlayTimeForNewUser(data) {
     this._redisCtrl.checkVideoPlaying((videoId) => {
       if (videoId) {
@@ -80,7 +84,7 @@ class SocketController {
       // Make sure new user is still connected.
       this._io.sockets.connected[socketId].emit('new-video-to-play', data);
     } catch (err) {
-      // Welp.
+      // New user left the room so don't do anything..
     }
   }
 
@@ -183,6 +187,9 @@ class SocketController {
     });
   }
 
+  /*
+   * Parse start time from the link.
+   */
   _getStartAt(link, start) {
     let time;
     for (var i = start; i < link.length; i++) {
@@ -210,6 +217,9 @@ class SocketController {
     }
   }
 
+  /*
+   * Broadcast video control action in room.
+   */
   controlVideo(data) {
     data['chatClass'] = this._systemMessageType['action'];
     if (data['action'] == 'playNext') {
@@ -236,7 +246,7 @@ class SocketController {
   }
 
   /*
-   * Broadcast to all except message sender in room.
+   * Broadcast to all except the message sender in room.
    */
   _broadcastToRoom(eventName, data) {
     this._socket.broadcast.to(this._roomKey).emit(eventName, data);
