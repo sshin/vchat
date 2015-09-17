@@ -80,6 +80,7 @@ class Model {
    *          select: array of column names.
    *          join: object {type, table, condition, select}.
    *          where: object {column: value} or nothing.
+   *          like: object {column: value with %} or nothing.
    *          order: object {column, direction} or nothing.
    *          limit: number to limit result.
    *          offset: offset.
