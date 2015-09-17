@@ -1,123 +1,122 @@
 #vchat-content-container {
-    width: 1140px;
-    margin-top: 100px;
+  width: 1140px;
+  margin-top: 100px;
 }
 
 #video-wrapper {
-    width: 800px;
-    height: 450px;
-    border: 2px solid black;
-    pointer-events: none;
-    box-shadow: 0px 2px 6px 4px rgba(0, 0, 0, 0.6);
+  width: 800px;
+  height: 450px;
+  border: 2px solid black;
+  pointer-events: none;
+  box-shadow: 0px 2px 6px 4px rgba(0, 0, 0, 0.6);
 }
 
 #chat-box-wrapper {
-    margin-left: 10px;
-    width: 300px;
-    height: 452px;
-    border: 1px solid black;
-    overflow-y: scroll;
+  margin-left: 10px;
+  width: 300px;
+  height: 452px;
+  border: 1px solid black;
+  overflow-y: scroll;
 }
 
 #chat-messages {
-    padding: 5px;
+  padding: 5px;
 }
 
 .chat-message {
-    margin-top: 3px;
+  margin-top: 3px;
 }
 
 #user-name {
-    width: 285px;
+  width: 285px;
 }
 
 #chat-input {
-    margin-left: 10px;
-    margin-top: 5px;
-    width: 303px;
-    height: 35px;
+  margin-left: 10px;
+  margin-top: 5px;
+  width: 303px;
+  height: 35px;
 }
 
 .system-message-info {
-    color: #0091ea;
+  color: #0091ea;
 }
 
 .system-message-warning {
-    color: #f44336;
+  color: #f44336;
 }
 
 .system-message-action {
-    color: #0a7e07;
+  color: #0a7e07;
 }
 
 #user-input-wrapper {
-    width: 600px;
+  width: 600px;
 }
 
 #video-controller-container {
-    width: 660px;
+  width: 660px;
 }
 
 #video-controller-wrapper {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 #video-controller {
-    margin-top: 5px;
+  margin-top: 5px;
 }
 
 #video-controller-resume,
 #video-controller-pause,
 #video-controller-play-next {
-    margin-right: 10px;
-    padding: 3px;
+  margin-right: 10px;
+  padding: 3px;
 }
 
 .control-button-image {
-    width: 43px;
+  width: 43px;
 }
 
 .controller-header {
-    text-align: left;
+  text-align: left;
 }
 
 #video-time-controller-wrapper {
-    margin-top: 5px;
-    margin-right: 15px;
+  margin-top: 5px;
+  margin-right: 15px;
 }
 
 #video-controller-time {
-    height: 27px;
+  height: 27px;
 }
 
 #video-control-minutes {
-    text-align: right;
+  text-align: right;
 }
 
 .video-control-time-input {
-    width: 30px;    
+  width: 30px;
 }
 
 #current-video-information {
-    margin-left: 45px;
-    width: 300px;
+  margin-left: 45px;
+  width: 300px;
 }
 
 #current-video-name {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 #current-video-duration,
 #current-video-youtube-link {
-    margin-top: 3px;
+  margin-top: 3px;
 }
 
-
 #video-link-wrapper {
-    margin-top: 10px;
-    width: 800px;
+  margin-top: 10px;
+  width: 800px;
 }
 
 

@@ -1,11 +1,10 @@
-
 /* app settings */
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
 var credentials = require('credentials');
-var server = app.listen(21000, () => {    
-    console.log('Socket server started and listening on port %d', server.address().port);
+var server = app.listen(21000, () => {
+  console.log('Socket server started and listening on port %d', server.address().port);
 });
 var childProcess = require('child_process');
 var RoombeatController = require('./controllers/roombeat').RoombeatController;
@@ -13,7 +12,7 @@ var io = require('socket.io').listen(server);
 
 /* What ever... */
 app.get('/', (req, res) => {
-    res.send('vChat socket server.');
+  res.send('vChat socket server.');
 });
 
 
@@ -21,34 +20,34 @@ app.get('/', (req, res) => {
 var redis = require('redis');
 var redisClient = redis.createClient();
 redisClient.select(10, () => {
-    console.log('Selecting Redis database 10 for vChat: socket');
+  console.log('Selecting Redis database 10 for vChat: socket');
 });
 redisClient.on('error', (err) => {
-    console.log('Redis Error: ' + err);
+  console.log('Redis Error: ' + err);
 });
 // For room related works.
 var socketCtrlRedisClient = redis.createClient();
 socketCtrlRedisClient.select(10, () => {
-    console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient');
+  console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient');
 });
 socketCtrlRedisClient.on('error', (err) => {
-    console.log('Redis Error: ' + err);
+  console.log('Redis Error: ' + err);
 });
 // For data related works.
 var socketCtrlRedisClient2 = redis.createClient();
 socketCtrlRedisClient2.select(10, () => {
-    console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient2');
+  console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient2');
 });
 socketCtrlRedisClient2.on('error', (err) => {
-    console.log('Redis Error: ' + err);
+  console.log('Redis Error: ' + err);
 });
 // For video related works.
 var socketCtrlRedisClient3 = redis.createClient();
 socketCtrlRedisClient3.select(10, () => {
-    console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient3');
+  console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient3');
 });
 socketCtrlRedisClient3.on('error', (err) => {
-    console.log('Redis Error: ' + err);
+  console.log('Redis Error: ' + err);
 });
 
 
@@ -58,7 +57,7 @@ socketCtrlRedisClient3.on('error', (err) => {
 var child = childProcess.fork('./roombeat.js');
 var roombeatCtrl = new RoombeatController(redisClient, io);
 child.on('message', (message) => {
-    roombeatCtrl.currentVideoEnded(message)
+  roombeatCtrl.currentVideoEnded(message)
 });
 
 
@@ -81,34 +80,34 @@ var SocketController = require('./controllers/socket').SocketController;
  * And remove listeners for all socket specific functions on disconnect.
  *
  */
-io.sockets.on('connection', function(socket) {
+io.sockets.on('connection', function (socket) {
 
-    var socketCtrl = new SocketController(io, 
-        socketCtrlRedisClient, socketCtrlRedisClient2, socketCtrlRedisClient3,
-        socket);
+  var socketCtrl = new SocketController(io,
+      socketCtrlRedisClient, socketCtrlRedisClient2, socketCtrlRedisClient3,
+      socket);
 
-    socket.on('client-chat-send', (data) => {
-        socketCtrl.chatFromClient(data);
-    });
+  socket.on('client-chat-send', (data) => {
+    socketCtrl.chatFromClient(data);
+  });
 
-    socket.on('new-video-submit', (data) => {
-        socketCtrl.newVideoSubmit(data);
-    });
-    
-    socket.on('control-video', (data) => {
-        socketCtrl.controlVideo(data);
-    });
+  socket.on('new-video-submit', (data) => {
+    socketCtrl.newVideoSubmit(data);
+  });
 
-    socket.on('get-current-play-time-for-new-user', (data) => {
-        socketCtrl.getCurrentPlayTimeForNewUser(data);
-    });
+  socket.on('control-video', (data) => {
+    socketCtrl.controlVideo(data);
+  });
 
-    socket.on('current-play-time-for-new-user', (data) =>{
-        socketCtrl.playCurrentVideoForNewUser(data);
-    });
+  socket.on('get-current-play-time-for-new-user', (data) => {
+    socketCtrl.getCurrentPlayTimeForNewUser(data);
+  });
 
- 
-    socket.on('disconnect', () => {
+  socket.on('current-play-time-for-new-user', (data) => {
+    socketCtrl.playCurrentVideoForNewUser(data);
+  });
+
+
+  socket.on('disconnect', () => {
     /* Remove all event handlers that are socket specific.
      * e.g., 
      *
@@ -122,8 +121,8 @@ io.sockets.on('connection', function(socket) {
      * And on disconnect...
      * socket.removeListener('some-event', eventHandler)
      */
-        socketCtrl.leave();
-    });
+    socketCtrl.leave();
+  });
 
 });
 

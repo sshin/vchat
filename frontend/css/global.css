@@ -1,38 +1,38 @@
 #app-inner-container {
-    min-width: 1200px;
+  min-width: 1200px;
 }
 
 #app-content-container {
-    max-width: 800px;
+  max-width: 800px;
 }
 
 .full-width {
-    width: 100%;
+  width: 100%;
 }
 
 .center-div {
-    margin-left: auto;
-    margin-right: auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .text-center {
-    text-align: center;
+  text-align: center;
 }
 
 .clickable:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .form-item {
-    margin-top: 5px;
+  margin-top: 5px;
 }
 
 .hide {
-    display: none;
+  display: none;
 }
 
 td, th {
-    vertical-align: top;
+  vertical-align: top;
 }
 
 

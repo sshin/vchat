@@ -1,4 +1,3 @@
-
 /* app settings */
 var express = require('express');
 var app = express();
@@ -11,16 +10,16 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(session({
-	store: new RedisStore({
-		host: 'localhost', port: 6379, db: 9, ttl: 3600, secret: credentials.redisSecret
-	}), 
-	secret: credentials.sessionSecret,
-	key: credentials.sessionKey,
-	resave: true,
-	saveUninitialized: true
+  store: new RedisStore({
+    host: 'localhost', port: 6379, db: 9, ttl: 3600, secret: credentials.redisSecret
+  }),
+  secret: credentials.sessionSecret,
+  key: credentials.sessionKey,
+  resave: true,
+  saveUninitialized: true
 }));
 var server = app.listen(20000, () => {
-	console.log('Server started on port %d', server.address().port);
+  console.log('Server started on port %d', server.address().port);
 });
 
 
