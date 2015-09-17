@@ -35,8 +35,6 @@ function App() {
         params['error'] = function(xhr, status, error) {
             if (options['error']) {
                 options['error'](xhr.responseText);
-            } else {
-                console.log(xhr.responseText);
             }
         }
 

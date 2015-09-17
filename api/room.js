@@ -1,8 +1,8 @@
+
 var express = require('express');
 var async = require('async');
 var router = express.Router();
-var Room = require('../models/room').Room;
-var bcrypt = require('bcryptjs');
+var RoomController = require('../controllers/room').RoomController;
 var Constants = require('../app_modules/constants');
 
 
@@ -32,47 +32,24 @@ router.get('/', (req, res) => {
  */
 router.post('/', (req, res) => {
     var params = req.body;
-    var room = new Room();
+    var roomCtrl = new RoomController();
 
     switch(params['type']) {
         case 'searchPrivateRoom':
-            var hash = String.prototype.trim.apply(params['name']).replace(/ /g, '-');
-            hash = hash.toLowerCase();
-            room.select({
-                select: ['password'],
-                where: {
-                    hash: hash,
-                    private: 1
+            var searchPrivateRoom = roomCtrl.searchPrivateRoom(params);
+            searchPrivateRoom.then((hash) => {
+                if (typeof req.session.privateRooms === 'undefined') {
+                    req.session.privateRooms = {};
                 }
-            }, (data) => {
-                if (data.length === 0) {
-                    res.send({reason: 'no room'});
-                } else {
-                    bcrypt.compare(params['password'], data[0]['password'], (err, matched) => {
-                        if (!matched) {
-                            res.status(401);
-                            res.send({reason: 'wrong password'});
-                        } else {
-                            if (typeof req.session.privateRooms === 'undefined') {
-                                req.session.privateRooms = {};
-                            }
-                            req.session.privateRooms[hash] = true;
-                            res.send({url: '' + Constants.appUrl + 'vChat/private/' + hash});
-                        }
-                    });
-                }
-            });
+                req.session.privateRooms[hash] = true;
+                res.send({url: '' + Constants.appUrl + 'vChat/private/' + hash});
+            }).catch((data) => res.status(data['status']).send()); 
             break;
         case 'searchPublicRoom':
-            var name = String.prototype.trim.apply(params['name']);
-            room.runQuery('SELECT name, hash FROM Room WHERE name LIKE ? AND private = 0',
-                ['%' + name + '%'], (data) => {
-                    if (data.length === 0) {
-                        res.send({reason: 'no room'})
-                    } else {
-                        res.send({rooms: data});
-                    }
-                });
+            var searchPublicRoom = roomCtrl.searchPublicRoom(params);
+            searchPublicRoom.then((data) => {
+                res.send({rooms: data});
+            });
             break;
         case 'create':
             var errors = [];
@@ -95,45 +72,11 @@ router.post('/', (req, res) => {
                 return;
             }
 
-            params['hash'] = params['name'].replace(/ /g, '-');
-            params['hash'] = params['hash'].toLowerCase();
-
-            var room = new Room();
-
-            async.waterfall([
-                (callback) => {
-                    room.checkRoomExist(params['hash'], (exist) => {
-                        if (exist) {
-                            callback(true);
-                        } else {
-                            callback(null);
-                        }
-                    });
-                }
-            ], (err) => {
-                if (err) {
-                    res.status(400);
-                    res.send({reason: 'name exist'});
-                } else {
-                    params['category_id'] = params['category'];
-                    params['private'] = params['type'] == 'public' ? 0 : 1;
-                    delete params['verifyPassword'];
-                    delete params['category'];
-                    delete params['type'];
-
-                    if (params['password'] !== '') {
-                        bcrypt.hash(params['password'], 10, (err, hash) => {
-                            params['password'] = hash;
-                            room.insert(params, () => {
-                                res.send({url: Constants.appUrl + 'vChat/' + params['hash']});
-                            });
-                        });
-                    } else {
-                        room.insert(params, () => {
-                            res.send({url: Constants.appUrl + 'vChat/' + params['hash']});
-                        });
-                    }
-                }
+            var createNewRoom = roomCtrl.createNewRoom(params);
+            createNewRoom.then((hash) => {
+                res.send({url: Constants.appUrl + 'vChat/' + hash});
+            }).catch((data) => {
+                res.status(data['status']).send({errors: data['data']});
             });
             break;
     }

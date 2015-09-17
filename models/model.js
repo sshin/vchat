@@ -140,7 +140,7 @@ class Model {
         if (typeof options['offset'] !== 'undefined') {
             sql += ' OFFSET ' + options['offset'];
         }
-    
+        
         this.runQuery(sql, params, callback);
     }
 
