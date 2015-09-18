@@ -18,6 +18,10 @@ module.exports = (app) => {
     var path = 'frontend/' + req.params.type + '/' + req.params.file;
     _serveStaticFile(res, path);
   });
+  app.get('/frontend/js/components/:file', (req, res) => {
+    var path = 'frontend/js/components/' + req.params.file;
+    _serveStaticFile(res, path);
+  }); 
 
 
   /* static pages */
