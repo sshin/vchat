@@ -19,8 +19,7 @@ class RoomController {
             }
           }, (data) => {
             if (data.length === 0) {
-              console.log('empty');
-              resolve();
+              resolve(null);
             } else {
               bcrypt.compare(params['password'], data[0]['password'], (err, matched) => {
                 if (!matched) {

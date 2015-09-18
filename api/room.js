@@ -40,8 +40,13 @@ router.post('/', (req, res) => {
         if (typeof req.session.privateRooms === 'undefined') {
           req.session.privateRooms = {};
         }
-        req.session.privateRooms[hash] = true;
-        res.send({url: '' + Constants.appUrl + 'vChat/private/' + hash});
+        if (hash === null) {
+          res.status(404);
+          res.send();
+        } else {
+          req.session.privateRooms[hash] = true;
+          res.send({url: '' + Constants.appUrl + 'vChat/private/' + hash});
+        }
       }).catch((data) => res.status(data['status']).send());
       break;
     case 'searchPublicRoom':
