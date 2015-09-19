@@ -5,7 +5,6 @@ $(document).ready(function () {
   $('#private-room-create').on('click', _createChatRoom);
   $('#private-room-search').on('click', _searchPrivateChatRoom);
   $('#public-room-search').on('click', _searchPublicChatRoom);
-  $('#new-chat-room-type').on('click', _changeType);
 });
 
 function _setCategories() {
@@ -106,19 +105,5 @@ function _searchPublicChatRoom() {
 }
 
 function _changeType() {
-  var $el = $('#new-chat-room-type');
-  var $password = $('#create-new-chat-room-password-wrapper');
-
-  if ($el.attr('data-value') == 'public') {
-    $el.text('Private Room');
-    $el.attr('data-value', 'private');
-    $password.removeClass('hide');
-    $('#new-chat-room-password').val('');
-    $('#new-chat-room-password-verify').val('');
-  } else {
-    $el.text('Public Room');
-    $el.attr('data-value', 'public');
-    $password.addClass('hide');
-  }
 }
 
