@@ -11,7 +11,10 @@ class RoomController {
     hash = hash.toLowerCase();
     var room = new Room();
     var promise = new Promise((resolve, reject) => {
-      room.select({
+      if (hash.length === 0) {
+        reject({status: 400});
+      } else {
+        room.select({
             select: ['password'],
             where: {
               hash: hash,
@@ -30,7 +33,8 @@ class RoomController {
               });
             }
           }
-      );
+        );
+      }
     });
     return promise;
   }
@@ -39,18 +43,22 @@ class RoomController {
     var name = String.prototype.trim.apply(params['name']);
     var room = new Room();
     var promise = new Promise((resolve, reject) => {
-      room.select({
-          select: ['name', 'hash'],
-          where: {
-            private: 0
-          },
-          like: {
-            name: '%' + name + '%'
-          }
-        }, (data) => {
+      if (name.length === 0) {
+        reject({status: 400});
+      } else {
+        room.select({
+            select: ['name', 'hash'],
+            where: {
+              private: 0
+            },
+            like: {
+              name: '%' + name + '%'
+            }
+          }, (data) => {
             resolve(data);
           }
-      );
+        );
+      }
     });
     return promise;
   }
@@ -66,7 +74,7 @@ class RoomController {
           reject({status: 400, data: ['name exist']});
         } else {
           params['category_id'] = params['category'];
-          params['private'] = params['type'] == 'public' ? 0 : 1;
+          params['private'] = params['roomType'] == 'public' ? 0 : 1;
           delete params['verifyPassword'];
           delete params['category'];
           delete params['type'];

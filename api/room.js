@@ -53,7 +53,7 @@ router.post('/', (req, res) => {
       var searchPublicRoom = roomCtrl.searchPublicRoom(params);
       searchPublicRoom.then((data) => {
         res.send({rooms: data});
-      });
+      }).catch((data) => res.status(data['status']).send());
       break;
     case 'create':
       var errors = [];
@@ -65,8 +65,8 @@ router.post('/', (req, res) => {
 
       // If type is public, password can be empty.
       // If type is private, password is required.
-      if (params['type'] == 'private' && params['password'] == '' ||
-          params['password'] != params['verifyPassword']) {
+      if ((params['roomType'] == 'private' && params['password'].length === 0) ||
+          (params['password'] != params['verifyPassword'])) {
         errors.push('password');
       }
 
