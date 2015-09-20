@@ -34,7 +34,7 @@ function App() {
     if (options['success']) params['success'] = options['success'];
     params['error'] = function (xhr, status, error) {
       if (options['error']) {
-        options['error'](xhr.responseText);
+        options['error']($.parseJSON(xhr.responseText));
       }
     }
 
