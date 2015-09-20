@@ -57,6 +57,10 @@ function _onChatInputSubmit(e) {
         });
       }
     } else if (data['message'] !== '') {
+      if (/^http(s)?:\/\//.test(data['message']) === true) {
+        data['html'] = true;
+        data['link'] = true;
+      }
       socket.emit('client-chat-send', data);
     }
     $chatInput.val('');
@@ -138,6 +142,11 @@ function _getUserName() {
 function updateChat(data) {
   /* Put message on chat box. */
   var message = '';
+
+  if (typeof data['link'] !== 'undefined' && data['link'] === true) {
+    data['message'] = '<a href="' + data['message'] + '" target="_blank">' + data['message']
+                      + '</a>';
+  }
 
   if (typeof data['username'] !== 'undefined') {
     message += '[' + data['username'] + '] ';
@@ -263,7 +272,7 @@ function _appendToChatBox(data) {
   var classes = 'chat-message';
   if (typeof data['chatClass'] !== 'undefined') classes += ' ' + data['chatClass'];
 
-  if (typeof data['html'] !== 'undefined' && data['html'] == true) {
+  if (typeof data['html'] !== 'undefined' && data['html'] === true) {
     // No action here.
   } else {
     data['message'] = app.escapeHTML(data['message']);
@@ -349,8 +358,9 @@ function setVideoInformation() {
   var videoData = player.getVideoData();
   var durationText = _getFormattedTime(player.getDuration());
   var url = player.getVideoUrl();
-  $('#current-video-name').text(videoData['title']);
-  $('#current-video-name').attr('title', videoData['title']);
+  var $videoName = $('#current-video-name');
+  $videoName.text(videoData['title']);
+  $videoName.attr('title', videoData['title']);
   $('#current-video-duration').text(durationText);
   $('#current-video-youtube-link').html('<a href="' + url + '" target="_blank">Watch at YouTube</a>');
   var currentTime = player.getCurrentTime();
