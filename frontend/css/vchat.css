@@ -85,6 +85,7 @@
 #video-time-controller-wrapper {
   margin-top: 5px;
   margin-right: 15px;
+  width: 100px;
 }
 
 #video-controller-time {
@@ -96,7 +97,7 @@
 }
 
 .video-control-time-input {
-  width: 30px;
+  width: 42px;
 }
 
 #current-video-information {

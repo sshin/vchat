@@ -350,6 +350,7 @@ function setVideoInformation() {
   var durationText = _getFormattedTime(player.getDuration());
   var url = player.getVideoUrl();
   $('#current-video-name').text(videoData['title']);
+  $('#current-video-name').attr('title', videoData['title']);
   $('#current-video-duration').text(durationText);
   $('#current-video-youtube-link').html('<a href="' + url + '" target="_blank">Watch at YouTube</a>');
   var currentTime = player.getCurrentTime();
