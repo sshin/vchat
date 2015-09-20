@@ -78,8 +78,17 @@ router.post('/', (req, res) => {
 
       // Now all inputs are valid, try inserting into database.
       var createNewRoom = roomCtrl.createNewRoom(params);
-      createNewRoom.then((hash) => {
-        res.send({url: Constants.appUrl + 'vChat/' + hash});
+      createNewRoom.then((data) => {
+        let hash = data['hash'];
+        let path = 'vChat/';
+        if (data['private'] === 1) {
+          if (typeof req.session.privateRooms === 'undefined') {
+            req.session.privateRooms = {};
+          }
+          req.session.privateRooms[hash] = true;
+          path += 'private/';
+        }
+        res.send({url: Constants.appUrl + path + hash});
       }).catch((data) => {
         res.status(data['status']).send({errors: data['data']});
       });

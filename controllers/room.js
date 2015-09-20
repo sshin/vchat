@@ -77,18 +77,19 @@ class RoomController {
           params['private'] = params['roomType'] == 'public' ? 0 : 1;
           delete params['verifyPassword'];
           delete params['category'];
+          delete params['roomType'];
           delete params['type'];
 
           if (params['password'] !== '') {
             bcrypt.hash(params['password'], 10, (err, hash) => {
               params['password'] = hash;
               room.insert(params, () => {
-                resolve(params['hash']);
+                resolve(params);
               });
             });
           } else {
             room.insert(params, () => {
-              resolve(params['hash']);
+              resolve(params);
             });
           }
         }
