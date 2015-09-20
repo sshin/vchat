@@ -1,3 +1,48 @@
+body{
+	color: #263238;
+  background: url("http://vchat.nullcannull-dev.net/assets/images/body_background.gif");
+  overflow-y: scroll;
+  font-family: "RobotoDraft", "Roboto", sans-serif;
+}
+
+label {
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 2px;
+  font-weight: 700;
+}
+
+textarea, input {
+  display: block;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  height: 34px;
+  color: #555;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+
+textarea:focus, input:focus {
+    border-color: rgba(35, 155, 75, 0.8);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(35, 155, 75, 0.6);
+    outline: 0 none;
+}
+
+.white-background {
+  background-color: #ffffff;
+}
+
+.card-item {
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.card-item-title {
+  font-size: 23px;
+}
+
 #app-inner-container {
   min-width: 1200px;
 }
@@ -15,8 +60,12 @@
   margin-right: auto;
 }
 
-.text-center {
+.center-text {
   text-align: center;
+}
+
+.bold-text {
+  font-weight: bold;
 }
 
 .clickable:hover {
@@ -24,7 +73,7 @@
 }
 
 .form-item {
-  margin-top: 5px;
+  margin-top: 10px;
 }
 
 .hide {
@@ -35,4 +84,142 @@ td, th {
   vertical-align: top;
 }
 
+select {
+  padding: 5px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+.float-right {
+  float: right;
+}
+
+/** Tab **/
+.tabs-wrapper ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  text-align: left;
+}
+
+.tabs-wrapper ul li {
+  display: inline-block;
+  text-align: center;
+  min-width: 75px;
+  height: 35px;
+}
+
+.tab-text-wrapper {
+  padding-top: 10px;
+}
+
+.tabs-tab-buttons {
+  border-bottom: 1px solid #BDBDBD;
+}
+
+.tab-selected {
+  border-bottom: 2px solid #455A64;
+}
+
+.tabs-wrapper li:not(.tab-selected):hover {
+  cursor: pointer;
+  border-bottom: 2px solid #21c7a3;
+}
+
+
+/** Dialog **/
+.dialog-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.dialog-inner-wrapper {
+  width: 480px;
+  margin: 100px auto;
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0px 8px 30px #212121;
+}
+
+.dialog-content-header-wrapper {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  height: 42px;
+  border-bottom: 2px solid #BDBDBD;
+}
+
+.dialog-close {
+  position: relative;
+  top: -47px;
+  right: -3px;
+}
+
+
+/** Buttons **/
+.btn {
+  border-radius: 8px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 18px;
+  text-decoration: none;
+  display: inline-block;
+  padding: 6px 12px;
+  margin-bottom: 0px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid transparent;
+  margin-top: 15px;
+}
+
+.blue-btn {
+  background-color: #039be5;
+}
+
+.blue-btn:hover {
+  background-color: #01579b;
+}
+
+.purple-btn {
+  background: #673ab7;
+}
+
+.purple-btn:hover {
+    background-color: #311b92;
+}
+
+.red-btn {
+    background-color: #f4511e;
+}
+
+.red-btn:hover {
+    background-color: #bf360c;
+}
+
+.orange-btn {
+  background-color: #EF6C00;
+}
+
+.orange-btn:hover {
+  background-color: #E65100;
+}
+
+.green-btn {
+  background-color: #009688;
+}
+
+.green-btn:hover {
+  background-color: #00695c;
+}
 

@@ -1,3 +1,7 @@
+#main-page-container {
+  width: 480px;
+}
+
 #public-chat-rooms {
   margin-top: 15px;
 }
@@ -10,29 +14,18 @@
   margin-top: 15px;
 }
 
-#public-room-search {
-  width: 480px;
+#private-room-search-wrapper {
+  margin-top: 15px;
 }
 
-#private-rooms-search-wrapper {
-  margin-top: 25px;
-  width: 480px;
+#create-new-chat-room-dialog {
+  margin-top: 0;
 }
 
 #create-new-chat-room-wrapper {
   margin-top: 30px;
-  width: 480px;
 }
 
 #new-chat-room-type {
   color: white;
 }
-
-.create-new-public-room {
-  background-color: #009688;
-}
-
-.create-new-private-room {
-  background-color: #ff5252;
-}
-

@@ -14,52 +14,25 @@
 <div id="app-container" class="full-width">
   <div id="app-inner-container" class="full-width">
     <div id="app-content-container" class="center-div full-width">
-      <div id="public-chat-rooms-container">
-        <div id="todays-most-liked-chat-rooms-wrapper">
-          <div>Today's most liked vChat rooms.</div>
-          <div id="todays-most-liked-chat-rooms"></div>
+      <div id="main-page-container" class="center-div full-width">
+        <div id="public-chat-rooms-container">
+          <div id="todays-most-liked-chat-rooms-wrapper">
+            <div>Today's most liked vChats.</div>
+            <div id="todays-most-liked-chat-rooms"></div>
+          </div>
+          <div id="random-chat-rooms-wrapper">
+            <div>Some random public vChats.</div>
+            <div id="random-chat-rooms"></div>
+          </div>
         </div>
-        <div id="random-chat-rooms-wrapper">
-          <div>Some random public vChat rooms.</div>
-          <div id="random-chat-rooms"></div>
-        </div>
-      </div>
-      <div id="public-room-search-wrapper">
-        <div class="form-item">Search for public vChat rooms</div>
-        <div>
-          <label for="public-room-search-name">Room</label>
-          <input id="public-room-search-name" class="form-item" placeholder="Type in name"/>
-        </div>
-        <button id="public-room-search" class="full-width text-center form-item">Search</button>
-      </div>
-      <div id="private-rooms-search-wrapper">
-        <div>Enter private vChat room</div>
-        <div class="form-item">
-          <label for="private-room-search-name">Room</label>
-          <input id="private-room-search-name" placeholder="Name of private room"/>
-          <label for="private-room-search-password">Password</label>
-          <input id="private-room-search-password" type="password"
-                 placeholder="Password of private room" maxlength="16"/>
-          <button id="private-room-search" class="full-width text-center form-item">Enter</button>
-        </div>
-      </div>
-      <div id="create-new-chat-room-wrapper">
-        <div id="create-new-chat-room-form">
-          <div class="form-item">Category (required)</div>
-          <select id="new-chat-room-category" class="form-item">
-            <option value="none">Select a category</option>
-          </select>
-
-          <div class="form-item">Name</div>
-          <input id="new-chat-room-name" class="form-item" maxlength="64">
-          <div id="comp-new-chat-room-type"></div>  
-        </div>
-        <button id="private-room-create" class="form-item text-center full-width">Create new Room!</button>
+        <div id="comp-vchat-search"></div>
+        <div id="comp-create-new-chat-room"></div>
       </div>
     </div>
   </div>
 </div>
 <!-- Add all react components.  -->
-<script src="http://vchat.nullcannull-dev.net/frontend/js/components/main_components.js"></script>
+<script src="http://vchat.nullcannull-dev.net/frontend/js/components/app_components.js"></script>
+<script src="http://vchat.nullcannull-dev.net/frontend/js/components/main.js"></script>
 </body>
 </html>

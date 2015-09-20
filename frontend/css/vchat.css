@@ -9,6 +9,7 @@
   border: 2px solid black;
   pointer-events: none;
   box-shadow: 0px 2px 6px 4px rgba(0, 0, 0, 0.6);
+  border-radius: 2px;
 }
 
 #chat-box-wrapper {
