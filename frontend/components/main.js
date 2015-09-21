@@ -1,9 +1,13 @@
 var SearchChatRoom = React.createClass({
+  _alertBar: function() {
+    return this.refs['alertBar'];
+  },
+
   _searchPublicRoom: function() {
     var data = {
       name: this.refs['publicName'].getVal(),
       type: 'searchPublicRoom'
-    }
+    };
 
     app.post('room', {
       data: data,
@@ -11,7 +15,12 @@ var SearchChatRoom = React.createClass({
         // TODO: Instead of redirecting user to the room right away,
         // we should list all rooms that contains the search keyword.
         console.log(data);
-      }
+      },
+      error: function(data) {
+        if (!data['response']) {
+          this._alertBar().alert('Room not found');
+        }
+      }.bind(this)
     });
   },
 
@@ -29,7 +38,15 @@ var SearchChatRoom = React.createClass({
         setTimeout(function () {
           window.location.href = data['url'];
         }, 1000);
-      }
+      }, error: function(data) {
+        if (data['status'] == 401) {
+          this._alertBar().alert('Room name or password is incorrect');
+        } else {
+          if (!data['response']) {
+            this._alertBar().alert('Room not found')
+          }
+        }
+      }.bind(this)
     });
   },
 
@@ -55,6 +72,7 @@ var SearchChatRoom = React.createClass({
 
     return (
       <div id="vchat-search-wrapper" className="white-background card-item form-item">
+        <AlertBar ref="alertBar" />
         <div className="center-text card-item-title">Search/Enter vChats</div>
         <Tab tabs={tabs}>
           <div id="public-room-search-wrapper">
@@ -82,6 +100,10 @@ var SearchChatRoom = React.createClass({
 });
 
 var CreateNewChatRoom = React.createClass({
+  _alertBar: function() {
+    return this.refs['alertBar'];
+  },
+
   _createRoom: function() {
     var prefix = '#new-chat-room-';
     var data = {
@@ -102,19 +124,25 @@ var CreateNewChatRoom = React.createClass({
         }, 1000);
       },
       error: function(data) {
-        var errors = data.errors;
+        var errors = data.response.errors;
 
+        var message = [];
         for(var i = 0; i < errors.length; i++) {
           switch(errors[i]) {
             case 'category':
+              message.push('Category');
               break;
             case 'name':
+              message.push('Name');
               break;
             case 'password':
+              message.push('Password');
               break;
           }
         }
-      }
+        message = message.join(' / ');
+        this._alertBar().alert(message);
+      }.bind(this)
     });
   },
 
@@ -123,6 +151,7 @@ var CreateNewChatRoom = React.createClass({
       <div id="create-new-chat-room-wrapper" className="white-background card-item">
         <Dialog id="create-new-chat-room-dialog" buttonText="Create new vChat!"
                 header="Create new vChat!">
+          <AlertBar alertType="info" ref="alertBar" />
           <div id="create-new-chat-room-form" ref="createForm">
             <div>
               <label htmlFor="new-chat-room-category" className="form-item">Category (required)</label>

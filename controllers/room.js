@@ -55,7 +55,11 @@ class RoomController {
               name: '%' + name + '%'
             }
           }, (data) => {
-            resolve(data);
+            if (data.length === 0) {
+              resolve(null);
+            } else {
+              resolve(data);
+            }
           }
         );
       }

@@ -152,7 +152,7 @@ select {
   text-align: center;
   font-size: 22px;
   font-weight: 700;
-  height: 42px;
+  height: 47px;
   border-bottom: 1px solid #BDBDBD;
 }
 
@@ -160,6 +160,36 @@ select {
   position: relative;
   top: -47px;
   right: -3px;
+}
+
+
+/** Alert bar **/
+.alert-bar {
+  height: 67px;
+  margin-bottom: 10px;
+}
+
+.alert-bar.alert {
+  color: #ffffff;
+  background-color: #EC407A;
+  border-radius: 5px;
+}
+
+.alert-bar.info {
+  color: #ffffff;
+  background-color: #448AFF;
+  border-radius: 5px;
+}
+
+.alert-bar-text {
+  font-size: 25px;
+  padding-left: 10px;
+  margin-left: 65px;
+  margin-top: -48px;
+}
+
+.alert-icon-wrapper img {
+  width: 64px;
 }
 
 

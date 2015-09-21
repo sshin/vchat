@@ -3,6 +3,7 @@ var CONFIG = {
   chatServer: 'http://vhat-socket.nullcannull-dev.net'
 };
 CONFIG['apiUrl'] = CONFIG.baseUrl + 'api/';
+CONFIG['imageUrl'] = CONFIG.baseUrl + 'assets/images/';
 
 /* APP Controller Class */
 function App() {
@@ -32,9 +33,13 @@ function App() {
     if (options['data']) params['data'] = options['data'];
     if (options['before']) params['beforeSend'] = options['before'];
     if (options['success']) params['success'] = options['success'];
-    params['error'] = function (xhr, status, error) {
+    params['error'] = function (xhr) {
       if (options['error']) {
-        options['error']($.parseJSON(xhr.responseText));
+        var data = {status: xhr.status};
+        if (xhr.responseText !== '') {
+          data['response'] = $.parseJSON(xhr.responseText);
+        }
+        options['error'](data);
       }
     }
 

@@ -52,7 +52,11 @@ router.post('/', (req, res) => {
     case 'searchPublicRoom':
       var searchPublicRoom = roomCtrl.searchPublicRoom(params);
       searchPublicRoom.then((data) => {
-        res.send({rooms: data});
+        if (data === null) {
+          res.status(404).send();
+        } else {
+          res.send({rooms: data});
+        }
       }).catch((data) => res.status(data['status']).send());
       break;
     case 'create':
