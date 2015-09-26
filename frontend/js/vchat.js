@@ -272,11 +272,6 @@ function _appendToChatBox(data) {
   var classes = 'chat-message';
   if (typeof data['chatClass'] !== 'undefined') classes += ' ' + data['chatClass'];
 
-  // If this chat message is by current user itself, add background color.
-  if ((typeof data['username'] !== 'undefined') && data['username'] === $('#user-name').val()){
-    classes += ' ' + 'chat-self';
-  }
-
   if (typeof data['html'] !== 'undefined' && data['html'] === true) {
     // No action here.
   } else {
