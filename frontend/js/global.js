@@ -69,6 +69,15 @@ function App() {
       windows.location.href = CONFIG.baseUrl + url;
     }
   };
+
+  /** loggers **/
+  this.log = function(message) {
+    console.log('Log: ' + message);
+  };
+
+  this.error = function(message) {
+    console.error('Error: ' + message);
+  };
 }
 
 var app = new App();

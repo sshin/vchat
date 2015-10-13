@@ -118,11 +118,42 @@
 
 #video-link-wrapper {
   margin-top: 10px;
-  width: 800px;
 }
 
 .chat-self {
-  background-color: #B2DFDB;
+  background-color: #CFD8DC;
   padding: 5px;
 }
 
+#video-search-dialog-dialog > .dialog-inner-wrapper {
+  max-height: 560px;
+  width: 500px;
+  overflow-y: scroll;
+}
+
+#video-search-result {
+  margin-top: 15px;
+  padding: 5px;
+  width: 100%;
+}
+
+.video-search-result-item {
+  margin-top: 30px;
+}
+
+.video-search-result-item:hover {
+  cursor: pointer;
+}
+
+.video-search-result-title {
+  color: #0277BD;
+  font-weight: 700;
+}
+
+.video-search-result-thumbnail {
+  margin-top: 5px;
+}
+
+.video-search-result-thumbnail-image {
+  width: 477px;
+}

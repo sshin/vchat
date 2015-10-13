@@ -37,6 +37,17 @@ var Button = React.createClass({
  *  onKeyDown: Detect keydown event.
  */
 var InputField = React.createClass({
+  disableInput: function() {
+    var $el = this.getInputElement()
+    $el.attr('disabled', 'true');
+  },
+
+  enableInput: function() {
+    var $el = this.getInputElement()
+    $el.removeAttr('disabled');
+    $el.focus();
+  },
+
   getInputElement: function() {
     return $(this.refs['input'].getDOMNode());
   },
@@ -69,17 +80,21 @@ var InputField = React.createClass({
  *  children: React children. This is used for content.
  */
 var Dialog = React.createClass({
+  /**
+   * Open dialog and automatically focus first input.
+   */
   _openDialog: function() {
     var $el = $(this.refs['overlayWrapper'].getDOMNode());
 
     if ($el.hasClass('hide')) {
       $el.removeClass('hide');
+      $($el.find('.dialog-content :input:first')[0]).focus();
     } else {
       $el.addClass('hide');
     }
   },
 
-  _closeDialog: function() {
+  closeDialog: function() {
     var $el = $(this.refs['overlayWrapper'].getDOMNode());
     $el.addClass('hide');
   },
@@ -101,7 +116,7 @@ var Dialog = React.createClass({
                 {this.props.header}
               </div>
               <button className="dialog-close float-right btn red-btn"
-                      data-target={dialogId} onClick={this._closeDialog}>Close</button>
+                      data-target={dialogId} onClick={this.closeDialog}>Close</button>
             </div>
             <div className="dialog-content form-item">{this.props.children}</div>
           </div>
@@ -147,13 +162,6 @@ var Tab = React.createClass({
   },
 
   render: function() {
-    var tabs = [];
-    // Prepend tab- on id for name-spacing.
-    for (var i = 0; i < this.props.tabs.length; i++) {
-      this.props.tabs[i]['id'] = 'tab-' + this.props.tabs[i]['id'];
-      tabs.push(<TabItem data={this.props.tabs[i]} />);
-    }
-
     return (
       <div className="tabs-wrapper form-item">
         <div className="tabs-header-wrapper">

@@ -135,45 +135,49 @@ class SocketController {
    */
   newVideoSubmit(data) {
     // TODO: Update this logic to be more powerful. Temporary now.
-    if (!data['link'].startsWith('https://www.youtube.com/watch?v=')
-        && !data['link'].startsWith('https://youtu.be/')) {
-      this._logger.log('Invalid video link: ' + data['link']);
-      return;
-    }
-
-    if (data['link'].startsWith('https://youtu.be/')) {
-      // This link is provided by Share menu.
-      let link = data['link'].split('/');
-      link = link[link.length - 1];
-      let id = link;
-
-      if (link.indexOf('?') >= 0) {
-        // This link contains additional parameters.
-        link = link.split('?');
-        id = link[0];
-
-        // Now lets see if this link contains start time.
-        link = link[1].split('&');
-        let startAt = this._getStartAt(link, 0);
-        if (startAt !== null) data['startAt'] = startAt;
-      }
-      data['videoId'] = id;
+    if (typeof data['videoId'] !== 'undefined') {
+      // No action needed.
     } else {
-      // Handle https://youtube.com/watch?v= url.
-      let link = data['link'].split('/');
-      link = link[link.length - 1].replace('watch?v=', '');
-      link = link.split('&');
-      let id = link[0];
-
-      if (link.length > 1) {
-        // This link contains additional parameters.
-        let startAt = this._getStartAt(link, 1);
-        if (startAt !== null) data['startAt'] = startAt;
+      if (!data['link'].startsWith('https://www.youtube.com/watch?v=')
+        && !data['link'].startsWith('https://youtu.be/')) {
+        this._logger.log('Invalid video link: ' + data['link']);
+        return;
       }
-      data['videoId'] = id;
-    }
 
-    delete data['link'];
+      if (data['link'].startsWith('https://youtu.be/')) {
+        // This link is provided by Share menu.
+        let link = data['link'].split('/');
+        link = link[link.length - 1];
+        let id = link;
+
+        if (link.indexOf('?') >= 0) {
+          // This link contains additional parameters.
+          link = link.split('?');
+          id = link[0];
+
+          // Now lets see if this link contains start time.
+          link = link[1].split('&');
+          let startAt = this._getStartAt(link, 0);
+          if (startAt !== null) data['startAt'] = startAt;
+        }
+        data['videoId'] = id;
+      } else {
+        // Handle https://youtube.com/watch?v= url.
+        let link = data['link'].split('/');
+        link = link[link.length - 1].replace('watch?v=', '');
+        link = link.split('&');
+        let id = link[0];
+
+        if (link.length > 1) {
+          // This link contains additional parameters.
+          let startAt = this._getStartAt(link, 1);
+          if (startAt !== null) data['startAt'] = startAt;
+        }
+        data['videoId'] = id;
+      }
+
+      delete data['link'];
+    }
 
     // TODO: And probably verify given link is a real youtube video?
     this._redisCtrl.queueVideo(data, () => {
