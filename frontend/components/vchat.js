@@ -62,8 +62,6 @@ var VideoSearch = React.createClass({
   _renderSearchResult: function(resetSearch) {
     var title, videoId, thumbnail;
     var items = this._searchResults[this._index];
-    console.log(this._searchResults);
-    console.log(this._index);
     var $el = $($(this.refs['searchResult'].getDOMNode())[0]);
     $el.empty();
 
