@@ -14,10 +14,9 @@ class SocketRedisController {
    * NOTE: This controller is socket & room specific and it's binded with SocketController.
    */
 
-  constructor(redisClient, redisClient2, redisClient3, roomHash) {
+  constructor(redisClient, redisClient2, roomHash) {
     this._redisRoomsClient = redisClient;
-    this._redisDataClient = redisClient2;
-    this._redisVideoClient = redisClient3;
+    this._redisVideoClient = redisClient2;
     this._roomHash = roomHash;
     this._roomKey = Constants.redisRoomKeyPrefix + roomHash;
     this._videoKey = Constants.redisVideoKeyPrefix + roomHash;
@@ -43,7 +42,7 @@ class SocketRedisController {
           roomData['users'][user['id']] = user;
           roomData['usersCount'] = 1;
           this.setRoom(roomData, () => {
-            this._updatevChatData(data, true);
+            this._increaseRoomCount(roomData['private']);
           });
         });
       } else {
@@ -51,9 +50,7 @@ class SocketRedisController {
           data['users'][user['id']] = user;
           data['usersCount'] = parseInt(data['usersCount']) + 1;
         }
-        this.setRoom(data, () => {
-          this._updatevChatData(data, true);
-        });
+        this.setRoom(data);
       }
     });
   }
@@ -65,13 +62,13 @@ class SocketRedisController {
     this.getRoom((data) => {
       delete data['users'][user['id']];
       data['usersCount'] = parseInt(data['usersCount']) - 1;
-      this.setRoom(data, () => {
-        this._updatevChatData(data, false);
-      });
+      this.setRoom(data);
 
-      // If no user left in the room, remove the video entry. It's a memory sucker.
+      // If no user left in the room, empty out all redis keys.
       if (data['usersCount'] === 0) {
+        this._redisRoomsClient.del(this._roomKey);
         this._redisVideoClient.del(this._videoKey);
+        this._decreaseRoomCount(data['private']);
       }
     });
   }
@@ -86,6 +83,25 @@ class SocketRedisController {
     });
   }
 
+  _increaseRoomCount(isPrivate) {
+    var key = isPrivate ? Constants.privateRoomsCount : Constants.publicRoomsCount;
+    this._updateCount(key, 1);
+  }
+
+  _decreaseRoomCount(isPrivate) {
+    var key = isPrivate ? Constants.privateRoomsCount : Constants.publicRoomsCount;
+    this._updateCount(key, -1);
+  }
+
+  _updateCount(key, change) {
+    this._get(this._redisRoomsClient, key, (data) => {
+      let count = parseInt(data);
+      if (count == null || isNaN(count)) count = 0;
+      count = count + (change);
+      if (count < 0) count = 0;
+      this._redisRoomsClient.set(key, '' + count);
+    });
+  }
 
   /***** Video related methods *****/
   /*
@@ -153,39 +169,6 @@ class SocketRedisController {
       }
     });
   }
-
-  /*
-   * Update all associated data.
-   */
-  _updatevChatData(data, userAdded) {
-    var isPublic = data['private'] ? true : false;
-    if (typeof userAdded === 'undefined') userAdded = false;
-
-    async.waterfall([
-      (callback) => {
-        this._get(this._redisDataClient, Constants.roomsCount, (data) => {
-          let count = parseInt(data);
-          count = userAdded ? count + 1 : count - 1;
-          this._set(this._redisDataClient, Constants.roomsCount, '' + count, () => {
-            callback();
-          });
-        });
-      },
-      (callback) => {
-        let key = isPublic ? Constants.publicRoomsCount : Constants.privateRoomsCount;
-        this._get(this._redisDataClient, key, (data) => {
-          let count = parseInt(data);
-          count = userAdded ? count + 1 : count - 1;
-          this._set(this._redisDataClient, key, '' + count, () => {
-            callback();
-          });
-        });
-      }
-    ], () => {
-      // Done!!!
-    });
-  }
-
 
   /***** Wrapper methods to abstract error handling *****/
   _get(client, key, callback) {

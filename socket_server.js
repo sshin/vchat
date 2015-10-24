@@ -18,35 +18,20 @@ app.get('/', (req, res) => {
 
 /* Socket Handler */
 var redis = require('redis');
-var redisClient = redis.createClient();
-redisClient.select(10, () => {
-  console.log('Selecting Redis database 10 for vChat: socket');
-});
-redisClient.on('error', (err) => {
-  console.log('Redis Error: ' + err);
-});
 // For room related works.
 var socketCtrlRedisClient = redis.createClient();
-socketCtrlRedisClient.select(10, () => {
-  console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient');
+socketCtrlRedisClient.select(11, () => {
+  console.log('Selecting Redis database 11 for vChat: socket: socketCtrlRedisClient (room)');
 });
 socketCtrlRedisClient.on('error', (err) => {
   console.log('Redis Error: ' + err);
 });
-// For data related works.
+// For video related works.
 var socketCtrlRedisClient2 = redis.createClient();
-socketCtrlRedisClient2.select(10, () => {
-  console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient2');
+socketCtrlRedisClient2.select(12, () => {
+  console.log('Selecting Redis database 12 for vChat: socket: socketCtrlRedisClient2 (video)');
 });
 socketCtrlRedisClient2.on('error', (err) => {
-  console.log('Redis Error: ' + err);
-});
-// For video related works.
-var socketCtrlRedisClient3 = redis.createClient();
-socketCtrlRedisClient3.select(10, () => {
-  console.log('Selecting Redis database 10 for vChat: socket: socketCtrlRedisClient3');
-});
-socketCtrlRedisClient3.on('error', (err) => {
   console.log('Redis Error: ' + err);
 });
 
@@ -55,19 +40,16 @@ socketCtrlRedisClient3.on('error', (err) => {
  * Roombeat!!
  */
 var child = childProcess.fork('./roombeat.js');
-var roombeatCtrl = new RoombeatController(redisClient, io);
+var roombeatCtrl = new RoombeatController(socketCtrlRedisClient2, io);
 child.on('message', (message) => {
   roombeatCtrl.currentVideoEnded(message)
 });
 
 
 /*** Clear Redis entries during testing ***/
-redisClient.set('APP total:rooms', '0');
-redisClient.set('APP total:public_rooms', '0');
-redisClient.set('APP total:private_rooms', '0');
-redisClient.del('test-1');
-redisClient.del('VIDEO test-1');
-redisClient.del('VIDEO hello-test-world');
+var Constants = require('./app_modules/constants');
+socketCtrlRedisClient.flushdb();
+socketCtrlRedisClient2.flushdb();
 
 
 var SocketController = require('./controllers/socket').SocketController;
@@ -83,8 +65,7 @@ var SocketController = require('./controllers/socket').SocketController;
 io.sockets.on('connection', function (socket) {
 
   var socketCtrl = new SocketController(io,
-      socketCtrlRedisClient, socketCtrlRedisClient2, socketCtrlRedisClient3,
-      socket);
+      socketCtrlRedisClient, socketCtrlRedisClient2, socket);
 
   socket.on('client-chat-send', (data) => {
     socketCtrl.chatFromClient(data);

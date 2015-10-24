@@ -13,12 +13,11 @@ class SocketController {
    * NOTE: This controller is socket & room specific, and binded with SicketRedisController.
    */
 
-  constructor(io, redisClient, redisClient2, redisClient3, socket) {
+  constructor(io, redisClient, redisClient2, socket) {
     this._io = io;
     this._roomHash = this._getRoomHash(socket);
     this._roomKey = Constants.redisRoomKeyPrefix + this._roomHash;
-    this._redisCtrl = new SocketRedisController(redisClient, redisClient2,
-        redisClient3, this._roomHash);
+    this._redisCtrl = new SocketRedisController(redisClient, redisClient2, this._roomHash);
     this._user = {id: socket.id};
     this._socket = socket;
     this._socket.join(this._roomKey);

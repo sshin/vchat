@@ -1,5 +1,4 @@
 exports.appUrl = 'http://vchat.nullcannull-dev.net/';
-exports.roomsCount = 'APP total:rooms';
 exports.publicRoomsCount = 'APP total:public_rooms';
 exports.privateRoomsCount = 'APP total:private_rooms';
 exports.publicRoomsRanked = 'APP public_rooms:ranked';

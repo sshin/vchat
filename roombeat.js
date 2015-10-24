@@ -17,15 +17,6 @@ app.get('/', (req, res) => {
 
 
 /* Socket Handler */
-var redis = require('redis');
-var redisClient = redis.createClient();
-redisClient.select(10, () => {
-  console.log('Selecting Redis database 10 for vChat: socket-roombeat');
-});
-redisClient.on('error', (err) => {
-  console.log('Redis Error: ' + err);
-});
-
 io.on('connection', function (socket) {
   var roomHash = _getRoomHash(socket);
   var roomKey = Constants.redisRoomKeyPrefix + roomHash;
