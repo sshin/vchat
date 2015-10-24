@@ -7,8 +7,6 @@ CONFIG['imageUrl'] = CONFIG.baseUrl + 'assets/images/';
 
 /* APP Controller Class */
 function App() {
-  this._requesting = false;
-
   this.escapeHTML = function (string) {
     /* undersocre.js escape function  */
     var entityMap = {
@@ -27,26 +25,16 @@ function App() {
   };
 
   this._ajax = function (type, func, options) {
-    if (this._requesting) return;
 
     var params = {
       url: CONFIG.apiUrl + func,
       type: type
     };
 
-    params['beforeSend'] = function() {
-      this._requesting = true;
-      if (options['before']) options['before']();
-    }.bind(this);
-
     if (options['data']) params['data'] = options['data'];
     if (options['before']) params['beforeSend'] = options['before'];
-    params['success'] = function(data) {
-      this._requesting = false;
-      if (options['success']) options['success'](data);
-    }.bind(this);
+    if (options['success']) params['success'] = options['success'];
     params['error'] = function (xhr) {
-      this._requesting = false;
       if (options['error']) {
         var data = {status: xhr.status};
         if (xhr.responseText !== '') {

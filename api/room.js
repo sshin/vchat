@@ -7,18 +7,24 @@ var Constants = require('../app_modules/constants');
 
 router.get('/', (req, res) => {
   var func = req.query.get;
-  var room = new Room();
+  var roomCtrl = new RoomController();
 
   switch (func) {
     case 'mostLikedRooms':
-      room.getMostLikedRooms((rooms) => {
+      roomCtrl.getMostLikedRooms((rooms) => {
         res.send({rooms: rooms})
       });
       break;
     case 'randomRooms':
-      room.getRandomPublicRooms((rooms) => {
+      roomCtrl.getRandomPublicRooms((rooms) => {
         res.send({rooms: rooms})
       });
+      break;
+    case 'counts':
+      roomCtrl.getActiveRoomCounts((counts) => {
+        res.send(counts);
+      });
+      break;
     default:
       res.send('okay');
       break;

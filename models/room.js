@@ -1,5 +1,6 @@
 var Model = require('./model').Model;
 var Constants = require('../app_modules/constants');
+var async = require('async');
 
 class Room extends Model {
 
@@ -37,6 +38,22 @@ class Room extends Model {
     });
   }
 
+  getActiveRoomCounts(callback) {
+    async.waterfall([
+      (next) => {
+        this._redisRoomClient.get(Constants.publicRoomsCount, (err, count) => {
+          next(null, count);
+        });
+      },
+      (publicCount, next) => {
+        this._redisRoomClient.get(Constants.privateRoomsCount, (err, count) => {
+          next(null, {public: publicCount, private: count});
+        });
+      }
+    ], (err, data) => {
+      callback(data);
+    });
+  }
 }
 
 

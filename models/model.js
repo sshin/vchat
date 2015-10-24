@@ -15,6 +15,7 @@ class Model {
 
     this._dbPool = DBPools.pool;
     this._redis = DBPools.redisClient;
+    this._redisRoomClient = DBPools.redisRoomClient;
     this._logger = new DBLogger();
     this.model = subclassModel;
     this.table = table;

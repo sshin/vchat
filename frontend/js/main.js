@@ -2,11 +2,12 @@ $(document).ready(function () {
   _setCategories();
   //_setTodaysMostLikedRooms();
   //_setRandomPublicRooms();
+  _getRoomCounts();
 });
 
 function _setCategories() {
   app.get('category', {
-    success: function (data) {
+    success: function(data) {
       var categories = data['categories'];
       var $create = $('#new-chat-room-category');
 
@@ -21,7 +22,7 @@ function _setCategories() {
 function _setTodaysMostLikedRooms() {
   app.get('room', {
     data: {get: 'mostlikedrooms'},
-    success: function (rooms) {
+    success: function(rooms) {
       var $el = $('#todays-most-liked-chat-rooms');
       for (var i = 0; i < rooms.length; i++) {
         var room = JSON.parse(rooms[i]);
@@ -35,8 +36,20 @@ function _setTodaysMostLikedRooms() {
 function _setRandomPublicRooms() {
   app.get('room', {
     data: {get: 'randomRooms'},
-    success: function (rooms) {
+    success: function(rooms) {
       console.log(rooms);
+    }
+  });
+}
+
+function _getRoomCounts() {
+  app.get('room', {
+    data: {get: 'counts'},
+    success: function(data) {
+      var total = parseInt(data['public']) + parseInt(data['private']);
+      $('#total-count').text(total);
+      $('#public-count').text(data['public']);
+      $('#private-count').text(data['private']);
     }
   });
 }

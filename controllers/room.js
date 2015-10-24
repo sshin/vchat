@@ -100,6 +100,10 @@ class RoomController {
     return promise;
   }
 
+  getActiveRoomCounts(callback) {
+    var room = new Room();
+    room.getActiveRoomCounts(callback);
+  }
 }
 
 exports.RoomController = RoomController;

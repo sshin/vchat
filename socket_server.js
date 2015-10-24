@@ -19,19 +19,19 @@ app.get('/', (req, res) => {
 /* Socket Handler */
 var redis = require('redis');
 // For room related works.
-var socketCtrlRedisClient = redis.createClient();
-socketCtrlRedisClient.select(11, () => {
-  console.log('Selecting Redis database 11 for vChat: socket: socketCtrlRedisClient (room)');
+var socketCtrlRedisRoomClient = redis.createClient();
+socketCtrlRedisRoomClient.select(11, () => {
+  console.log('Selecting Redis database 11 for vChat: socket room client');
 });
-socketCtrlRedisClient.on('error', (err) => {
+socketCtrlRedisRoomClient.on('error', (err) => {
   console.log('Redis Error: ' + err);
 });
 // For video related works.
-var socketCtrlRedisClient2 = redis.createClient();
-socketCtrlRedisClient2.select(12, () => {
-  console.log('Selecting Redis database 12 for vChat: socket: socketCtrlRedisClient2 (video)');
+var socketCtrlRedisVideoClient = redis.createClient();
+socketCtrlRedisVideoClient.select(12, () => {
+  console.log('Selecting Redis database 12 for vChat: socket video client');
 });
-socketCtrlRedisClient2.on('error', (err) => {
+socketCtrlRedisVideoClient.on('error', (err) => {
   console.log('Redis Error: ' + err);
 });
 
@@ -40,7 +40,7 @@ socketCtrlRedisClient2.on('error', (err) => {
  * Roombeat!!
  */
 var child = childProcess.fork('./roombeat.js');
-var roombeatCtrl = new RoombeatController(socketCtrlRedisClient2, io);
+var roombeatCtrl = new RoombeatController(socketCtrlRedisVideoClient, io);
 child.on('message', (message) => {
   roombeatCtrl.currentVideoEnded(message)
 });
@@ -48,8 +48,8 @@ child.on('message', (message) => {
 
 /*** Clear Redis entries during testing ***/
 var Constants = require('./app_modules/constants');
-socketCtrlRedisClient.flushdb();
-socketCtrlRedisClient2.flushdb();
+socketCtrlRedisRoomClient.flushdb();
+socketCtrlRedisVideoClient.flushdb();
 
 
 var SocketController = require('./controllers/socket').SocketController;
@@ -65,7 +65,7 @@ var SocketController = require('./controllers/socket').SocketController;
 io.sockets.on('connection', function (socket) {
 
   var socketCtrl = new SocketController(io,
-      socketCtrlRedisClient, socketCtrlRedisClient2, socket);
+      socketCtrlRedisRoomClient, socketCtrlRedisVideoClient, socket);
 
   socket.on('client-chat-send', (data) => {
     socketCtrl.chatFromClient(data);
