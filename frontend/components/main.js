@@ -12,9 +12,8 @@ var SearchChatRoom = React.createClass({
     app.post('room', {
       data: data,
       success: function (data) {
-        // TODO: Instead of redirecting user to the room right away,
-        // we should list all rooms that contains the search keyword.
-        console.log(data);
+        // Redirect user to room.
+        window.location.href = data['url'];
       },
       error: function(data) {
         if (!data['response']) {
@@ -34,10 +33,8 @@ var SearchChatRoom = React.createClass({
     app.post('room', {
       data: data,
       success: function (data) {
-        console.log('redirecting to ' + data['url']);
-        setTimeout(function () {
-          window.location.href = data['url'];
-        }, 1000);
+        // Redirect user to room.
+        window.location.href = data['url'];
       }, error: function(data) {
         if (data['status'] == 401) {
           this._alertBar().alert('Room name or password is incorrect');
@@ -80,7 +77,7 @@ var SearchChatRoom = React.createClass({
               <InputField id="public-room-search-name" placeholder="Search by name" label="Room"
                           ref="publicName" />
             </div>
-            <Button id="public-room-search" color="purple" text="Search public vChat"
+            <Button id="public-room-search" color="purple" text="Enter public vChat"
                      onClick={this._searchPublicRoom} />
           </div>
           <div id="private-room-search-wrapper">

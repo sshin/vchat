@@ -7,6 +7,8 @@ CONFIG['imageUrl'] = CONFIG.baseUrl + 'assets/images/';
 
 /* APP Controller Class */
 function App() {
+  this._requesting = false;
+
   this.escapeHTML = function (string) {
     /* undersocre.js escape function  */
     var entityMap = {
@@ -22,18 +24,29 @@ function App() {
     return String(string).replace(/[&<>"'\/]/g, function (s) {
       return entityMap[s];
     });
-  }
+  };
 
   this._ajax = function (type, func, options) {
+    if (this._requesting) return;
+
     var params = {
       url: CONFIG.apiUrl + func,
       type: type
     };
 
+    params['beforeSend'] = function() {
+      this._requesting = true;
+      if (options['before']) options['before']();
+    }.bind(this);
+
     if (options['data']) params['data'] = options['data'];
     if (options['before']) params['beforeSend'] = options['before'];
-    if (options['success']) params['success'] = options['success'];
+    params['success'] = function(data) {
+      this._requesting = false;
+      if (options['success']) options['success'](data);
+    }.bind(this);
     params['error'] = function (xhr) {
+      this._requesting = false;
       if (options['error']) {
         var data = {status: xhr.status};
         if (xhr.responseText !== '') {
@@ -41,7 +54,7 @@ function App() {
         }
         options['error'](data);
       }
-    }
+    }.bind(this);
 
     $.ajax(params);
   };

@@ -47,18 +47,16 @@ class RoomController {
         reject({status: 400});
       } else {
         room.select({
-            select: ['name', 'hash'],
+            select: ['hash'],
             where: {
-              private: 0
-            },
-            like: {
-              name: '%' + name + '%'
+              private: 0,
+              name: name
             }
           }, (data) => {
             if (data.length === 0) {
               resolve(null);
             } else {
-              resolve(data);
+              resolve(data[0]['hash']);
             }
           }
         );

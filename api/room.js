@@ -51,11 +51,11 @@ router.post('/', (req, res) => {
       break;
     case 'searchPublicRoom':
       var searchPublicRoom = roomCtrl.searchPublicRoom(params);
-      searchPublicRoom.then((data) => {
-        if (data === null) {
+      searchPublicRoom.then((hash) => {
+        if (hash === null) {
           res.status(404).send();
         } else {
-          res.send({rooms: data});
+          res.send({url: '' + Constants.appUrl + 'vChat/' + hash});
         }
       }).catch((data) => res.status(data['status']).send());
       break;
