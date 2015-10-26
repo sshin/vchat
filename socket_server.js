@@ -4,7 +4,7 @@ var app = express();
 var server = require('http').createServer(app);
 var credentials = require('credentials');
 var server = app.listen(21000, () => {
-  console.log('Socket server started and listening on port %d', server.address().port);
+  console.log('[Log] Socket server started and listening on port %d', server.address().port);
 });
 var childProcess = require('child_process');
 var RoombeatController = require('./controllers/roombeat').RoombeatController;
@@ -21,18 +21,18 @@ var redis = require('redis');
 // For room related works.
 var socketCtrlRedisRoomClient = redis.createClient();
 socketCtrlRedisRoomClient.select(11, () => {
-  console.log('Selecting Redis database 11 for vChat: socket room client');
+  console.log('[Log] Selecting Redis database 11 for vChat: socket room client');
 });
 socketCtrlRedisRoomClient.on('error', (err) => {
-  console.log('Redis Error: ' + err);
+  console.log('[[Redis Error]] ' + err);
 });
 // For video related works.
 var socketCtrlRedisVideoClient = redis.createClient();
 socketCtrlRedisVideoClient.select(12, () => {
-  console.log('Selecting Redis database 12 for vChat: socket video client');
+  console.log('[Log] Selecting Redis database 12 for vChat: socket video client');
 });
 socketCtrlRedisVideoClient.on('error', (err) => {
-  console.log('Redis Error: ' + err);
+  console.log('[[Redis Error]] ' + err);
 });
 
 
@@ -48,6 +48,7 @@ child.on('message', (message) => {
 
 /*** Clear Redis entries during testing ***/
 var Constants = require('./app_modules/constants');
+console.log('[Log] Clearing up Redis key/values on socket server start.');
 socketCtrlRedisRoomClient.flushdb();
 socketCtrlRedisVideoClient.flushdb();
 

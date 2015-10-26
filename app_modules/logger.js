@@ -1,15 +1,15 @@
 class Logger {
 
   log(message) {
-    console.log('Log: ' + message);
+    console.log('[Log] ' + message);
   }
 
   error(message) {
-    console.log('Error: ' + message);
+    console.log('[[Error]] ' + message);
   }
 
   redisError(message) {
-    console.log('Redis Error: ' + message);
+    console.log('[[Redis Error]] ' + message);
   }
 }
 

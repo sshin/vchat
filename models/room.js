@@ -61,6 +61,13 @@ class Room extends Model {
   deleteRoom(hash) {
     this.runQuery('DELETE FROM Room WHERE hash = ?', hash, null);
   }
+
+  /**
+   * Delete all rooms in room table.
+   */
+  clearRoom() {
+    this.runQuery('DELETE FROM Room');
+  }
 }
 
 

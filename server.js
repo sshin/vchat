@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(session({
   store: new RedisStore({
-    host: 'localhost', port: 6379, db: 9, ttl: 3600, secret: credentials.redisSecret
+    host: 'localhost', port: 6379, db: 10, ttl: 3600, secret: credentials.redisSecret
   }),
   secret: credentials.sessionSecret,
   key: credentials.sessionKey,
@@ -19,12 +19,18 @@ app.use(session({
   saveUninitialized: true
 }));
 var server = app.listen(20000, () => {
-  console.log('Server started on port %d', server.address().port);
+  console.log('[Log] Server started on port %d', server.address().port);
 });
 
 
 /** database and redis initiate **/
 var pool = require('./models/db_pool');
+var Room = require('./models/room').Room;
+var room = new Room();
+/** Clear Room table on server start. **/
+console.log('[Log] Clearing up Room table on server start.')
+room.clearRoom();
+
 
 /** Router **/
 require('./router')(app);

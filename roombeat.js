@@ -6,7 +6,8 @@ var server = require('http').createServer(app);
 var credentials = require('credentials');
 var Constants = require('./app_modules/constants');
 var server = app.listen(21500, () => {
-  console.log('Socket roombeat server started and listening on port %d', server.address().port);
+  console.log('[Log] Socket roombeat server started and listening on port %d',
+               server.address().port);
 });
 var io = require('socket.io').listen(server);
 

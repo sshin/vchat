@@ -13,17 +13,17 @@ var pool = mysql.createPool({
 var redis = require('redis');
 var redisClient = redis.createClient();
 redisClient.select(10, () => {
-  console.log('Selecting Redis database 10 for vChat: App session');
+  console.log('[Log] Selecting Redis database 10 for vChat: App');
 });
 redisClient.on('error', (err) => {
-  console.log('Redis Error: ' + err);
+  console.log('[[Redis Error]] ' + err);
 });
 var redisRoomClient = redis.createClient();
 redisRoomClient.select(11, () => {
-  console.log('Selecting Redis database 11 for vChat: App room client');
+  console.log('[Log] Selecting Redis database 11 for vChat: App room client');
 });
 redisRoomClient.on('error', (err) => {
-  console.log('Redis Error: ' + err);
+  console.log('[[Redis Error]] ' + err);
 });
 
 
