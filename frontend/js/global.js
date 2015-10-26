@@ -5,10 +5,10 @@ var CONFIG = {
 CONFIG['apiUrl'] = CONFIG.baseUrl + 'api/';
 CONFIG['imageUrl'] = CONFIG.baseUrl + 'assets/images/';
 
-/* APP Controller Class */
+/** APP Controller Class **/
 function App() {
   this.escapeHTML = function (string) {
-    /* undersocre.js escape function  */
+    // undersocre.js escape function
     var entityMap = {
       '&': '&amp;',
       '<': '&lt;',

@@ -15,7 +15,7 @@ class Logger {
 
 
 class DBLogger extends Logger {
-  /*
+  /**
    * DB logger class.
    * Collection of helper functions for db error logging.
    */

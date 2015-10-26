@@ -7,7 +7,7 @@ class Category extends Model {
     super('category', 'Category');
   }
 
-  /*
+  /**
    * Get all categories sorted by id.
    */
   getCategories(callback) {

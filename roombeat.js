@@ -1,4 +1,4 @@
-/* app settings */
+/** app settings **/
 var APP_URL = 'http://vchat.nullcannull-dev.net/';
 var express = require('express');
 var app = express();
@@ -10,13 +10,13 @@ var server = app.listen(21500, () => {
 });
 var io = require('socket.io').listen(server);
 
-/* What ever... */
+/** Whatever... **/
 app.get('/', (req, res) => {
   res.send('vChat socket roombeat server.');
 });
 
 
-/* Socket Handler */
+/** Socket Handler **/
 io.on('connection', function (socket) {
   var roomHash = _getRoomHash(socket);
   var roomKey = Constants.redisRoomKeyPrefix + roomHash;
@@ -36,7 +36,7 @@ io.on('connection', function (socket) {
   });
 });
 
-/* 
+/**
  * Parse room hash from socket object. 
  */
 function _getRoomHash(socket) {
@@ -46,7 +46,7 @@ function _getRoomHash(socket) {
 }
 
 
-/*
+/**
  * Roombeat happens here!
  */
 (function roomBeat() {

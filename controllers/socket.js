@@ -5,7 +5,7 @@ var SocketRedisController = require('../controllers/socket_redis').SocketRedisCo
 
 
 class SocketController {
-  /*
+  /**
    * SocketController for vchat-socket server.
    * Never throw errros in this controller because we don't want to restart socket server.
    * Find a way to handle errors.
@@ -30,7 +30,7 @@ class SocketController {
     this._init();
   }
 
-  /*
+  /**
    * Generate user name, and save it to Redis.
    */
   _init() {
@@ -46,7 +46,7 @@ class SocketController {
     });
   }
 
-  /*
+  /**
    * Check if there is a video currently playing, and if there is,
    * then get the play time from one of the sockets in room.
    */
@@ -87,7 +87,7 @@ class SocketController {
     }
   }
 
-  /*
+  /**
    * User is leaving the chat room.
    * Romove from room and update all associated data.
    */
@@ -111,7 +111,7 @@ class SocketController {
     return this._socket.id;
   }
 
-  /*
+  /**
    * Parse room hash from socket object.
    */
   _getRoomHash(socket) {
@@ -122,14 +122,14 @@ class SocketController {
 
 
   /***** Chat & video  handlers *****/
-  /*
+  /**
    * Broadcast chat message to all in the room.
    */
   chatFromClient(data) {
     this._broadcastInRoom('new-message', data);
   }
 
-  /*
+  /**
    * Validate youtube video, and add it to queue.
    */
   newVideoSubmit(data) {
@@ -190,7 +190,7 @@ class SocketController {
     });
   }
 
-  /*
+  /**
    * Parse start time from the link.
    */
   _getStartAt(link, start) {
@@ -220,7 +220,7 @@ class SocketController {
     }
   }
 
-  /*
+  /**
    * Broadcast video control action in room.
    */
   controlVideo(data) {
@@ -241,14 +241,14 @@ class SocketController {
     }
   }
 
-  /*
+  /**
    * Broadcast to all in room.
    */
   _broadcastInRoom(eventName, data) {
     this._io.sockets.in(this._roomKey).emit(eventName, data);
   }
 
-  /*
+  /**
    * Broadcast to all except the message sender in room.
    */
   _broadcastToRoom(eventName, data) {

@@ -8,7 +8,7 @@ class Room extends Model {
     super('room', 'Room');
   }
 
-  /*
+  /**
    * Get today's most liked rooms from redis Sorted Set
    */
   getMostLikedRooms(callback) {
@@ -18,13 +18,13 @@ class Room extends Model {
     });
   }
 
-  /*
+  /**
    * Get random public live rooms.
    */
   getRandomPublicRooms(callback) {
   }
 
-  /*
+  /**
    * Check if room exist by hash lookup.
    */
   checkRoomExist(hash, callback) {
@@ -53,6 +53,13 @@ class Room extends Model {
     ], (err, data) => {
       callback(data);
     });
+  }
+
+  /**
+   * Deletes the room by hash.
+   */
+  deleteRoom(hash) {
+    this.runQuery('DELETE FROM Room WHERE hash = ?', hash, null);
   }
 }
 

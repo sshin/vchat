@@ -6,7 +6,7 @@ class RedisAppModel {
     this._redisClient = redisClient;
   }
 
-  /*
+  /**
    * Grabs redis client.
    *
    * NOTE: Use let instead of var where you call this method,
@@ -16,7 +16,7 @@ class RedisAppModel {
     return this._redisClient;
   }
 
-  /*
+  /**
    * Get from Redis.
    */
   get(key, callback) {
@@ -30,7 +30,7 @@ class RedisAppModel {
     });
   }
 
-  /*
+  /**
    * Execute zrevrange. (Get data from desnding order sorted set)
    */
   zrevrange(key, start, end, callback) {
@@ -44,7 +44,7 @@ class RedisAppModel {
     });
   }
 
-  /*
+  /**
    * Execute zcard. (Get count of elements for key in Sorted Set)
    */
   zcard(key, callback) {

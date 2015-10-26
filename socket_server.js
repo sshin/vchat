@@ -1,4 +1,4 @@
-/* app settings */
+/** app settings **/
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
@@ -10,13 +10,13 @@ var childProcess = require('child_process');
 var RoombeatController = require('./controllers/roombeat').RoombeatController;
 var io = require('socket.io').listen(server);
 
-/* What ever... */
+/** Whatever... **/
 app.get('/', (req, res) => {
   res.send('vChat socket server.');
 });
 
 
-/* Socket Handler */
+/** Socket Handler **/
 var redis = require('redis');
 // For room related works.
 var socketCtrlRedisRoomClient = redis.createClient();
@@ -36,7 +36,7 @@ socketCtrlRedisVideoClient.on('error', (err) => {
 });
 
 
-/*
+/**
  * Roombeat!!
  */
 var child = childProcess.fork('./roombeat.js');
@@ -54,7 +54,7 @@ socketCtrlRedisVideoClient.flushdb();
 
 var SocketController = require('./controllers/socket').SocketController;
 
-/*
+/**
  * Main socket handler.
  *
  * NOTE: For current socket's specefic events, declare a function inside closure,
@@ -89,7 +89,8 @@ io.sockets.on('connection', function (socket) {
 
 
   socket.on('disconnect', () => {
-    /* Remove all event handlers that are socket specific.
+    /**
+     * Remove all event handlers that are socket specific.
      * e.g., 
      *
      * function eventHandler(data) {

@@ -32,7 +32,7 @@ router.get('/', (req, res) => {
 });
 
 
-/*
+/**
  * Create new chat room or search for rooms.
  */
 router.post('/', (req, res) => {

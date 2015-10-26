@@ -6,7 +6,7 @@ var Constants = require('../app_modules/constants');
 
 
 class SocketRedisController {
-  /*
+  /**
    * RedisController for vchat-socket server.
    * Never throw errors on redis error, because we don't want to restart socket server.
    * Find a way to handle errors.
@@ -23,7 +23,7 @@ class SocketRedisController {
     this._logger = new Logger();
   }
 
-  /*
+  /**
    * Add user to the room, and update all associated Redis entries.
    * If this user is the first user of the room, create new Redis entries.
    */
@@ -55,7 +55,7 @@ class SocketRedisController {
     });
   }
 
-  /*
+  /**
    * Remove user from room and update all associated Redis entries.
    */
   removeUserFromRoom(user) {
@@ -64,11 +64,13 @@ class SocketRedisController {
       data['usersCount'] = parseInt(data['usersCount']) - 1;
       this.setRoom(data);
 
-      // If no user left in the room, empty out all redis keys.
+      // If no user left in the room, empty out all records.
       if (data['usersCount'] === 0) {
         this._redisRoomsClient.del(this._roomKey);
         this._redisVideoClient.del(this._videoKey);
         this._decreaseRoomCount(data['private']);
+        let room = new Room();
+        room.deleteRoom(this._roomHash);
       }
     });
   }
@@ -104,7 +106,7 @@ class SocketRedisController {
   }
 
   /***** Video related methods *****/
-  /*
+  /**
    * See if there is a video currently playing, and return video id if so.
    */
   checkVideoPlaying(callback) {
@@ -116,7 +118,7 @@ class SocketRedisController {
   }
 
 
-  /*
+  /**
    * Queue new video into Redis. If it is very first for the room,
    * create a new entry in Redis.
    * If there is no video currently playing, then play the first one in queue.
@@ -154,7 +156,7 @@ class SocketRedisController {
     });
   }
 
-  /* Play the next video from the queue. */
+  /** Play the next video from the queue. **/
   playNextVideo(callback) {
     this._get(this._redisVideoClient, this._videoKey, (data) => {
       let videoData = data;

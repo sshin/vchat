@@ -140,7 +140,7 @@ function _getUserName() {
 }
 
 function updateChat(data) {
-  /* Put message on chat box. */
+  // Put message on chat box.
   var message = '';
 
   if (typeof data['link'] !== 'undefined' && data['link'] === true) {

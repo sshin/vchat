@@ -23,8 +23,8 @@ var server = app.listen(20000, () => {
 });
 
 
-/* database and redis initiate */
+/** database and redis initiate **/
 var pool = require('./models/db_pool');
 
-/* Router */
+/** Router **/
 require('./router')(app);

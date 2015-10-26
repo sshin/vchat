@@ -3,9 +3,9 @@ var DBPools = require('./db_pool');
 
 
 class Model {
-  /* Base model class */
+  /** Base model class **/
 
-  /*
+  /**
    * These two arguements are required.
    */
   constructor(subclassModel, table) {
@@ -21,7 +21,7 @@ class Model {
     this.table = table;
   }
 
-  /*
+  /**
    * Get a connection from pool.
    *
    * NOTE: If this method is called directly from api or controller,
@@ -39,7 +39,7 @@ class Model {
     });
   }
 
-  /*
+  /**
    * Get connection and executes query.
    * Releases connection by itself.
    *
@@ -63,12 +63,12 @@ class Model {
           throw err;
         }
 
-        callback(rows);
+        if (typeof callback !== 'undefined' && callback !== null) callback(rows);
       });
     });
   }
 
-  /*
+  /**
    * Build and execute SELECT query.
    * This method will only work for simple SELECT queries.
    *
@@ -164,7 +164,7 @@ class Model {
     this.runQuery(sql, params, callback);
   }
 
-  /*
+  /**
    * Build and execute INSERT query.
    *
    * NOTE: params is required.
@@ -177,7 +177,6 @@ class Model {
     var sql = "INSERT INTO " + this.table + " SET ?";
     this.runQuery(sql, params, callback);
   }
-
 
 }
 
