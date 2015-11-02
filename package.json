@@ -11,13 +11,16 @@
 		"connect-redis": "latest",
 		"cookie-parser": "latest",
 		"entities": "latest",
+		"express": "latest",
 		"express-session": "latest",
 		"jade": "latest",
 		"mysql": "latest",
 		"request": "latest",
 		"socket.io": "latest",
+		"entities": "latest",
 		"redis": "latest",
 		"time": "latest",
+		"request": "latest",
 		"cron": "latest",
 		"body-parser": "latest"
 	}
