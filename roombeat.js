@@ -17,16 +17,6 @@ app.get('/', (req, res) => {
 });
 
 
-var zmq = require('zmq');
-sock = zmq.socket('push');
-sock.bindSync('tcp://127.0.0.1:21550');
-console.log('ZMQ pusher binded to port 21550');
-var count = 0;
-setInterval(() => {
-  console.log('hello  ' + count);
-  count++;
-}, 1000);
-
 /** Socket Handler **/
 io.on('connection', function (socket) {
   var roomHash = _getRoomHash(socket);

@@ -38,14 +38,7 @@ socketCtrlRedisVideoClient.on('error', (err) => {
 
 /**
  * Roombeat!!
-*/
-/*
-var child = childProcess.fork('./roombeat.js');
-var roombeatCtrl = new RoombeatController(socketCtrlRedisVideoClient, io);
-child.on('message', (message) => {
-  roombeatCtrl.currentVideoEnded(message)
-});
-*/
+ */
 var zmq = require('zmq');
 sock = zmq.socket('pull');
 sock.connect('tcp://127.0.0.1:21550');
