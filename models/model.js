@@ -16,7 +16,7 @@ class Model {
     this._dbPool = DBPools.pool;
     this._redis = DBPools.redisClient;
     this._redisRoomClient = DBPools.redisRoomClient;
-    this._logger = new DBLogger();
+    this.logger = new DBLogger();
     this.model = subclassModel;
     this.table = table;
   }
@@ -31,7 +31,7 @@ class Model {
   getConnection(callback) {
     this._dbPool.getConnection((err, connection) => {
       if (err) {
-        this._logger.error('Cannot get DB connection.');
+        this.logger.error('Cannot get DB connection.');
         throw err;
       }
 
@@ -59,7 +59,7 @@ class Model {
         connection.release();
 
         if (err) {
-          this._logger.error('Cannot excute query.');
+          this.logger.error('Cannot excute query.');
           throw err;
         }
 

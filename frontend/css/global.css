@@ -5,6 +5,10 @@ body{
   font-family: "RobotoDraft", "Roboto", sans-serif;
 }
 
+.red-border {
+  border-color: #FF1744;
+}
+
 label {
   display: inline-block;
   max-width: 100%;

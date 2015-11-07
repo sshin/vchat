@@ -83,6 +83,7 @@ class RoomController {
           delete params['type'];
 
           if (params['password'] !== '') {
+            // TODO: Move bcrypt part to dedicated service.
             bcrypt.hash(params['password'], 10, (err, hash) => {
               params['password'] = hash;
               room.insert(params, () => {
@@ -91,6 +92,7 @@ class RoomController {
             });
           } else {
             room.insert(params, () => {
+              room.logger.log('Room created: ' + params['hash']);
               resolve(params);
             });
           }

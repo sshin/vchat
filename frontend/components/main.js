@@ -127,12 +127,17 @@ var CreateNewChatRoom = React.createClass({
         for(var i = 0; i < errors.length; i++) {
           switch(errors[i]) {
             case 'category':
+              $(this.refs['category'].getDOMNode()).addClass('red-border');
               message.push('Category');
               break;
             case 'name':
+            case 'name exist':
+              this.refs['name'].highlight();
               message.push('Name');
               break;
             case 'password':
+              this.refs['password'].highlight();
+              this.refs['passwordVerify'].highlight();
               message.push('Password');
               break;
           }
@@ -143,36 +148,6 @@ var CreateNewChatRoom = React.createClass({
     });
   },
 
-  render: function() {
-    return (
-      <div id="create-new-chat-room-wrapper" className="white-background card-item">
-        <Dialog id="create-new-chat-room-dialog" buttonText="Create new vChat!"
-                header="Create new vChat!">
-          <AlertBar alertType="info" ref="alertBar" />
-          <div id="create-new-chat-room-form" ref="createForm">
-            <div>
-              <label htmlFor="new-chat-room-category" className="form-item">Category (required)</label>
-              <div className="form-item">
-                <select id="new-chat-room-category">
-                  <option value="none">Select a category</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <InputField id="new-chat-room-name" label="Name" maxLength="64"
-                          placeholder="Name for your new vChat room" />
-            </div>
-            <div id="comp-new-chat-room-type"></div>
-            <Button id="private-room-create" text="Create"
-                    color="blue" onClick={this._createRoom} />
-          </div>
-        </Dialog>
-      </div>
-    );
-  }
-});
-
-var NewChatRoomType = React.createClass({
   _changeType: function(e) {
     var $roomType = $(e.target);
     var $passwordWrapper = $(this.refs['passwordWrapper'].getDOMNode());
@@ -197,17 +172,39 @@ var NewChatRoomType = React.createClass({
 
   render: function() {
     return (
-      <div id="new-chat-room-wrapper">
-        <Button id="new-chat-room-type" onClick={this._changeType} text="Public Room"
-                color="green" dataValue="public" />
-        <div id="create-new-chat-room-password-wrapper" className="hide" ref="passwordWrapper">
-          <InputField id="new-chat-room-password" maxLength="16" label="Password"
-                      placeholder="Password for private vChat room" type="password"
-                      ref="password" />
-          <InputField id="new-chat-room-password-verify" maxLength="16" label="Check Password"
-                      placeholder="Verify your password" type="password"
-                      ref="passwordVerify" />
-        </div>
+      <div id="create-new-chat-room-wrapper" className="white-background card-item">
+        <Dialog id="create-new-chat-room-dialog" buttonText="Create new vChat!"
+                header="Create new vChat!">
+          <AlertBar alertType="alert" ref="alertBar" />
+          <div id="create-new-chat-room-form" ref="createForm">
+            <div>
+              <label htmlFor="new-chat-room-category" className="form-item">Category (required)</label>
+              <div className="form-item">
+                <select id="new-chat-room-category" ref="category">
+                  <option value="none">Select a category</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <InputField id="new-chat-room-name" label="Name" maxLength="64"
+                          placeholder="Name for your new vChat room" ref="name" />
+            </div>
+            <div id="new-chat-room-wrapper">
+              <Button id="new-chat-room-type" onClick={this._changeType} text="Public Room"
+                      color="green" dataValue="public" />
+              <div id="create-new-chat-room-password-wrapper" className="hide" ref="passwordWrapper">
+                <InputField id="new-chat-room-password" maxLength="16" label="Password"
+                            placeholder="Password for private vChat room" type="password"
+                            ref="password" />
+                <InputField id="new-chat-room-password-verify" maxLength="16" label="Check Password"
+                            placeholder="Verify your password" type="password"
+                            ref="passwordVerify" />
+              </div>
+            </div>
+            <Button id="private-room-create" text="Create"
+                    color="blue" onClick={this._createRoom} />
+          </div>
+        </Dialog>
       </div>
     );
   }
@@ -225,7 +222,3 @@ React.render(
   document.getElementById('comp-create-new-chat-room')
 );
 
-React.render(
-  <NewChatRoomType />,
-  document.getElementById('comp-new-chat-room-type')
-);

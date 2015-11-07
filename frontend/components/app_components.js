@@ -56,6 +56,12 @@ var InputField = React.createClass({
     return this.getInputElement().val();
   },
 
+  highlight: function(color) {
+    if (typeof color === 'undefined') color = 'red';
+    var className = color + '-border';
+    this.getInputElement().addClass(className);
+  },
+
   render: function() {
     return (
       <div className="form-item">
