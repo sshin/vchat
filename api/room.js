@@ -1,6 +1,5 @@
-var express = require('express');
 var async = require('async');
-var router = express.Router();
+var router = require('express').Router();
 var RoomController = require('../controllers/room').RoomController;
 var Constants = require('../app_modules/constants');
 
@@ -102,4 +101,3 @@ router.post('/', (req, res) => {
 });
 
 module.exports = router;
-

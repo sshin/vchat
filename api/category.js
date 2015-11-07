@@ -1,5 +1,4 @@
-var express = require('express');
-var router = express.Router();
+var router = require('express').Router();
 var Category = require('../models/category').Category;
 
 router.get('/', (req, res) => {
@@ -9,7 +8,4 @@ router.get('/', (req, res) => {
   });
 });
 
-
 module.exports = router;
-
-
