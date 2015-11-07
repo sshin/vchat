@@ -1,10 +1,9 @@
-var express = require('express');
-var Logger = require('../app_modules/logger').Logger;
+var Controller = require('./controller').Controller;
 var Constants = require('../app_modules/constants');
 var SocketRedisController = require('../controllers/socket_redis').SocketRedisController;
 
 
-class SocketController {
+class SocketController extends Controller{
   /**
    * SocketController for vchat-socket server.
    * Never throw errros in this controller because we don't want to restart socket server.
@@ -14,6 +13,7 @@ class SocketController {
    */
 
   constructor(io, redisClient, redisClient2, socket) {
+    super();
     this._io = io;
     this._roomHash = this._getRoomHash(socket);
     this._roomKey = Constants.redisRoomKeyPrefix + this._roomHash;
@@ -21,7 +21,6 @@ class SocketController {
     this._user = {id: socket.id};
     this._socket = socket;
     this._socket.join(this._roomKey);
-    this._logger = new Logger();
     this._systemMessageType = {
       info: 'system-message-info',
       warning: 'system-message-warning',
@@ -139,7 +138,7 @@ class SocketController {
     } else {
       if (!data['link'].startsWith('https://www.youtube.com/watch?v=')
         && !data['link'].startsWith('https://youtu.be/')) {
-        this._logger.log('Invalid video link: ' + data['link']);
+        this.logger.log('Invalid video link: ' + data['link']);
         return;
       }
 

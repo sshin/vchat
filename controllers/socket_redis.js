@@ -1,11 +1,10 @@
-var express = require('express');
+var Controller = require('./controller').Controller;
 var async = require('async');
-var Logger = require('../app_modules/logger').Logger;
 var Room = require('../models/room').Room;
 var Constants = require('../app_modules/constants');
 
 
-class SocketRedisController {
+class SocketRedisController extends Controller{
   /**
    * RedisController for vchat-socket server.
    * Never throw errors on redis error, because we don't want to restart socket server.
@@ -15,12 +14,12 @@ class SocketRedisController {
    */
 
   constructor(redisClient, redisClient2, roomHash) {
+    super();
     this._redisRoomsClient = redisClient;
     this._redisVideoClient = redisClient2;
     this._roomHash = roomHash;
     this._roomKey = Constants.redisRoomKeyPrefix + roomHash;
     this._videoKey = Constants.redisVideoKeyPrefix + roomHash;
-    this._logger = new Logger();
   }
 
   /**
@@ -176,7 +175,7 @@ class SocketRedisController {
   _get(client, key, callback) {
     client.get(key, (err, data) => {
       if (err) {
-        this._logger.redisError('Cannot get on RedisController');
+        this.logger.redisError('Cannot get on RedisController');
       } else {
         let val = null;
 

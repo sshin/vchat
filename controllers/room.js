@@ -1,10 +1,9 @@
-var express = require('express');
-var Logger = require('../app_modules/logger').Logger;
+var Controller = require('./controller').Controller;
 var Constants = require('../app_modules/constants');
 var Room = require('../models/room').Room;
 var bcrypt = require('bcryptjs');
 
-class RoomController {
+class RoomController extends Controller {
 
   searchPrivateRoom(params) {
     var hash = String.prototype.trim.apply(params['name']).replace(/ /g, '-');

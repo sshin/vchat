@@ -10,11 +10,6 @@ router.get('/', (req, res) => {
   var roomCtrl = new RoomController();
 
   switch (func) {
-    case 'mostLikedRooms':
-      roomCtrl.getMostLikedRooms((rooms) => {
-        res.send({rooms: rooms})
-      });
-      break;
     case 'randomRooms':
       roomCtrl.getRandomPublicRooms((rooms) => {
         res.send({rooms: rooms})

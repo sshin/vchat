@@ -1,12 +1,11 @@
-var express = require('express');
-var Logger = require('../app_modules/logger').Logger;
+var Controller = require('./controller').Controller;
 
-class RoombeatController {
+class RoombeatController extends Controller{
 
   constructor(redisClient, io) {
+    super();
     this._redisClient = redisClient;
     this._io = io;
-    this._logger = new Logger();
   }
 
   currentVideoEnded(message) {
@@ -29,17 +28,14 @@ class RoombeatController {
           let controlVideo = {
             action: 'playNextFromQueue',
             nextVideo: nextVideo
-          }
+          };
           this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
-          this._logger.log('Automatically playing the next video from'
+          this.logger.log('Automatically playing the next video from'
               + ' the queue for room: [' + data['roomKey'] + ']');
         }
       });
     }
   }
-
 }
 
 exports.RoombeatController = RoombeatController;
-
-
