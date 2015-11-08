@@ -19,7 +19,8 @@ class UserController extends Controller{
       }
     }
     if (typeof params['password'] === 'undefined' || params['password'] === '' ||
-        typeof params['passwordVerify'] === 'undefined' || params['passwordVerify'] === '') {
+        typeof params['passwordVerify'] === 'undefined' || params['passwordVerify'] === '' ||
+        params['password'] != params['passwordVerify']) {
       errors.push('password');
     }
     if (typeof params['email'] === 'undefined' || params['email'] === '') {
@@ -46,13 +47,6 @@ class UserController extends Controller{
             asyncCallback(null, '');
           }
         });
-      },
-      (error, asyncCallback) => {
-        if (params['password'] != params['passwordVerify']) {
-          asyncCallback(null, error + '/password');
-        } else {
-          asyncCallback(null, error);
-        }
       },
       (error, asyncCallback) => {
         user.checkEmailExist(params['email'], (emailExist) => {
