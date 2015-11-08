@@ -1,3 +1,107 @@
+var SignIn = React.createClass({
+  _alertBar: function(func) {
+    return this.refs[func + 'AlertBar'];
+  },
+
+  _login: function() {
+    var data = {
+      username: this.refs['loginUsername'].getVal(),
+      password: this.refs['loginPassword'].getVal()
+    };
+
+    app.post('login', {
+      data: data,
+      success: function(data) {
+        console.log('login success!');
+      },
+      error: function() {
+        console.log('login error!');
+      }
+    })
+  },
+
+  _signUp: function() {
+    var data = {
+      username: this.refs['signupUsername'].getVal(),
+      password: this.refs['signupPassword'].getVal(),
+      passwordVerify: this.refs['signupPasswordVerify'].getVal(),
+      email: this.refs['signupEmail'].getVal()
+    };
+
+    app.post('signup', {
+      data: data,
+      success: function(data) {
+        console.log(data);
+      },
+      error: function(data) {
+        var errors = data.response.errors;
+        var message = [];
+        for (var i = 0; i < errors.length; i++) {
+          switch(errors[i]) {
+            case 'username':
+              this.refs['signupUsername'].highlight();
+              message.push('Username');
+              break;
+            case 'password':
+              this.refs['signupPassword'].highlight();
+              this.refs['signupPasswordVerify'].highlight();
+              message.push('Password');
+              break;
+            case 'email':
+              this.refs['signupEmail'].highlight();
+              message.push('Email');
+              break;
+          }
+        }
+        message = message.join(' / ');
+        this._alertBar('signup').alert(message);
+      }.bind(this)
+    });
+  },
+
+  render: function() {
+    return (
+      <div id="login-wrapper" className="white-background card-item">
+        <Dialog id="login-dialog" buttonText="Login to vChat" header="Login" color="purple">
+          <div id="login-form-wrapper" ref="loginForm">
+            <AlertBar ref="loginAlertBar" />
+            <div id="login-form">
+              <div>
+                <InputField id="username-input" placeholder="Your username" label="Username"
+                            ref="loginUsername" required="true" />
+                <InputField id="password-input" placeholder="Your password" label="Password"
+                            ref="loginPassword" type="password" required="true" />
+              </div>
+              <Button id="login" color="purple" text="Login to vChat"
+                       onClick={this._login} />
+            </div>
+          </div>
+        </Dialog>
+        <Dialog id="signup-dialog" buttonText="Don't have an account yet?" header="Sign Up">
+          <div id="signup-form-wrapper" ref="signupForm">
+            <AlertBar ref="signupAlertBar" />
+            <div id="signup-form">
+              <div>
+                <InputField id="username-input" placeholder="Your username"
+                            label="Username" ref="signupUsername" required="true" />
+                <InputField id="password-input" placeholder="Your password"
+                            label="Password" ref="signupPassword" type="password"required="true"  />
+                <InputField id="password-verify-input" placeholder="Verify your password"
+                            label="Verify Password" ref="signupPasswordVerify" type="password"
+                            required="true" />
+                <InputField id="email-input" placeholder="Your email"
+                            label="Email" ref="signupEmail" required="true" />
+              </div>
+              <Button id="login" color="blue" text="Sign up to vChat"
+                       onClick={this._signUp} />
+            </div>
+          </div>
+        </Dialog>
+      </div>
+    );
+  }
+});
+
 var SearchChatRoom = React.createClass({
   _alertBar: function() {
     return this.refs['alertBar'];
@@ -178,7 +282,9 @@ var CreateNewChatRoom = React.createClass({
           <AlertBar alertType="alert" ref="alertBar" />
           <div id="create-new-chat-room-form" ref="createForm">
             <div>
-              <label htmlFor="new-chat-room-category" className="form-item">Category (required)</label>
+              <label htmlFor="new-chat-room-category" className="form-item">
+                Category <span className="required-asterisk">*</span>
+              </label>
               <div className="form-item">
                 <select id="new-chat-room-category" ref="category">
                   <option value="none">Select a category</option>
@@ -187,7 +293,7 @@ var CreateNewChatRoom = React.createClass({
             </div>
             <div>
               <InputField id="new-chat-room-name" label="Name" maxLength="64"
-                          placeholder="Name for your new vChat room" ref="name" />
+                          placeholder="Name for your new vChat room" ref="name" required="true" />
             </div>
             <div id="new-chat-room-wrapper">
               <Button id="new-chat-room-type" onClick={this._changeType} text="Public Room"
@@ -195,10 +301,10 @@ var CreateNewChatRoom = React.createClass({
               <div id="create-new-chat-room-password-wrapper" className="hide" ref="passwordWrapper">
                 <InputField id="new-chat-room-password" maxLength="16" label="Password"
                             placeholder="Password for private vChat room" type="password"
-                            ref="password" />
+                            ref="password" required="true" />
                 <InputField id="new-chat-room-password-verify" maxLength="16" label="Check Password"
                             placeholder="Verify your password" type="password"
-                            ref="passwordVerify" />
+                            ref="passwordVerify" required="true" />
               </div>
             </div>
             <Button id="private-room-create" text="Create"
@@ -212,6 +318,11 @@ var CreateNewChatRoom = React.createClass({
 
 
 /** Renderers **/
+React.render(
+  <SignIn />,
+  document.getElementById('comp-sign-in')
+);
+
 React.render(
   <SearchChatRoom />,
   document.getElementById('comp-vchat-search')

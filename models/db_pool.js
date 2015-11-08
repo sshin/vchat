@@ -26,9 +26,6 @@ redisRoomClient.on('error', (err) => {
   console.log('[[Redis Error]] ' + err);
 });
 
-
 exports.pool = pool;
 exports.redisClient = redisClient;
 exports.redisRoomClient = redisRoomClient;
-
-

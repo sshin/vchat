@@ -257,3 +257,7 @@ select {
   background-color: #00695c;
 }
 
+.required-asterisk {
+  color: #f44336;
+  font-size: 16px;
+}

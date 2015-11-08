@@ -60,6 +60,4 @@ class RedisAppModel {
 
 }
 
-
 exports.RedisAppModel = RedisAppModel;
-

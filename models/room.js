@@ -9,16 +9,6 @@ class Room extends Model {
   }
 
   /**
-   * Get today's most liked rooms from redis Sorted Set
-   */
-  getMostLikedRooms(callback) {
-    // TODO: This is temporary....
-    this._redis.get('test-1', (data) => {
-      callback([data]);
-    });
-  }
-
-  /**
    * Get random public live rooms.
    */
   getRandomPublicRooms(callback) {
@@ -70,8 +60,4 @@ class Room extends Model {
   }
 }
 
-
 exports.Room = Room;
-
-
-

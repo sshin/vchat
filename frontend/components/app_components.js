@@ -63,9 +63,14 @@ var InputField = React.createClass({
   },
 
   render: function() {
+    var label = this.props.label;
+    if (typeof this.props.required !== 'undefined' && this.props.required) {
+      label += ' <span class="required-asterisk">*</span>';
+    }
+
     return (
       <div className="form-item">
-        <label htmlFor={this.props.id}>{this.props.label}</label>
+        <label htmlFor={this.props.id} dangerouslySetInnerHTML={{__html: label}}></label>
         <input id={this.props.id} maxLength={this.props.maxLength}
                placeholder={this.props.placeholder} type={this.props.type}
                onKeyDown={this.props.onKeyDown} ref="input"></input>

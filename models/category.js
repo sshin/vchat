@@ -19,7 +19,4 @@ class Category extends Model {
 
 }
 
-
 exports.Category = Category;
-
-
