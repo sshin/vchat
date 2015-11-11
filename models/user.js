@@ -7,25 +7,40 @@ class User extends Model {
     super('user', 'User');
   }
 
-  checkUsernameExist(username, callback) {
-    this.select({
-      where: {
-        username: username
-      }
-    }, (rows) => {
-      callback(rows.length > 0);
+  checkUsernameExist(username) {
+    var promise = new Promise((resolve, reject) => {
+      this.select({
+        where: {
+          username: username
+        }
+      }, (rows) => {
+        if (rows.length > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
     });
+    return promise;
   }
 
   checkEmailExist(email, callback) {
-    this.select({
-      where: {
-        email: email
-      }
-    }, (rows) => {
-      callback(rows.length > 0);
+    var promise = new Promise((resolve, reject) => {
+      this.select({
+        where: {
+          email: email
+        }
+      }, (rows) => {
+        if (rows.length > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
     });
+    return promise;
   }
-
 }
+
 exports.User = User;
+

@@ -2,6 +2,7 @@ var Controller = require('./controller').Controller;
 var User = require('../models/user').User;
 var async = require('async');
 var bcrypt = require('bcryptjs');
+var co = require('co');
 
 class UserController extends Controller{
 
@@ -28,6 +29,7 @@ class UserController extends Controller{
     }
 
     if (errors.length > 0) {
+      this.logger.log('Failed to create new user | invalid input(s)');
       var data = {
         type: 'error',
         errorType: 'invalid',
@@ -38,34 +40,25 @@ class UserController extends Controller{
     }
 
     var user = new User();
-    async.waterfall([
-      (asyncCallback) => {
-        user.checkUsernameExist(params['username'], (usernameExist) => {
-          if (usernameExist) {
-            asyncCallback(null, 'username');
-          } else {
-            asyncCallback(null, '');
-          }
-        });
-      },
-      (error, asyncCallback) => {
-        user.checkEmailExist(params['email'], (emailExist) => {
-          if (emailExist) {
-            asyncCallback(null, error + '/email');
-          } else {
-            asyncCallback(null, error)
-          }
-        });
-      }
-    ], (err, results) => {
-      if (results.length > 0) {
-        var data = {
+    co(function* () {
+      var usernameExist = yield user.checkUsernameExist(params['username']);
+      var emailExist = yield user.checkEmailExist(params['email']);
+      var exists = [];
+      if (usernameExist) exists.push('username');
+      if (emailExist) exists.push('email');
+      return exists;
+    }).then((result) => {
+      if (result.length > 0) {
+        this.logger.log('Failed to create new user | username(' + params['username']
+                        + ') or email(' + params['email'] + ') already exist');
+        callback({
           type: 'error',
           errorType: 'exist',
-          errors: results.split('/')
-        };
-        callback(data);
+          errors: result
+        });
       } else {
+        this.logger.log('User will be created | username(' + params['username']
+                        + '), email(' + params['email'] + ')');
         callback({type: 'valid'});
       }
     });
@@ -92,13 +85,16 @@ class UserController extends Controller{
         let userData = rows[0];
         bcrypt.compare(params['password'], userData['password'], (err, matched) => {
           if (!matched) {
+            this.logger.log('Login failure | wrong password | username: ' + params['username']);
             callback(false, {});
           } else {
+            this.logger.log('Login success | username: ' + params['username']);
             delete userData['password'];
             callback(true, userData);
           }
         });
       } else {
+        this.logger.log('Login failure | username doet not exist | ' + params['username']);
         callback(false, {});
       }
     });

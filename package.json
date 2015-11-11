@@ -19,6 +19,7 @@
 		"redis": "latest",
 		"time": "latest",
 		"cron": "latest",
-	}
+	  "co": "latest"
+  }
 }
 
