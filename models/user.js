@@ -14,11 +14,7 @@ class User extends Model {
           username: username
         }
       }, (rows) => {
-        if (rows.length > 0) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
+        resolve(rows.length > 0);
       });
     });
     return promise;
@@ -31,11 +27,7 @@ class User extends Model {
           email: email
         }
       }, (rows) => {
-        if (rows.length > 0) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
+        resolve(rows.length > 0);
       });
     });
     return promise;
