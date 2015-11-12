@@ -47,14 +47,14 @@ class UserController extends Controller{
       if (usernameExist) exists.push('username');
       if (emailExist) exists.push('email');
       return exists;
-    }).then((result) => {
-      if (result.length > 0) {
+    }).then((exists) => {
+      if (exists.length > 0) {
         this.logger.log('Failed to create new user | username(' + params['username']
                         + ') or email(' + params['email'] + ') already exist');
         callback({
           type: 'error',
           errorType: 'exist',
-          errors: result
+          errors: exists
         });
       } else {
         this.logger.log('User will be created | username(' + params['username']
