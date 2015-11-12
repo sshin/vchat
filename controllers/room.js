@@ -6,10 +6,10 @@ var bcrypt = require('bcryptjs');
 class RoomController extends Controller {
 
   searchPrivateRoom(params) {
-    var hash = String.prototype.trim.apply(params['name']).replace(/ /g, '-');
-    hash = hash.toLowerCase();
-    var room = new Room();
     var promise = new Promise((resolve, reject) => {
+      var hash = String.prototype.trim.apply(params['name']).replace(/ /g, '-');
+      hash = hash.toLowerCase();
+      var room = new Room();
       if (hash.length === 0) {
         reject({status: 400});
       } else {
@@ -38,9 +38,9 @@ class RoomController extends Controller {
   }
 
   searchPublicRoom(params) {
-    var name = String.prototype.trim.apply(params['name']);
-    var room = new Room();
     var promise = new Promise((resolve, reject) => {
+      var name = String.prototype.trim.apply(params['name']);
+      var room = new Room();
       if (name.length === 0) {
         reject({status: 400});
       } else {
@@ -63,16 +63,15 @@ class RoomController extends Controller {
   }
 
   createNewRoom(params) {
-    var room = new Room();
-    params['name'] = String.prototype.trim.apply(params['name']);
-    params['hash'] = params['name'].replace(/ /g, '-');
-    params['hash'] = params['hash'].toLowerCase();
-
     var promise = new Promise((resolve, reject) => {
+      params['name'] = String.prototype.trim.apply(params['name']);
       var errors = this._validateCreateRoomInputs(params);
       if (errors.length > 0) {
         reject({status: 400, data: errors});
       } else {
+        var room = new Room();
+        params['hash'] = params['name'].replace(/ /g, '-');
+        params['hash'] = params['hash'].toLowerCase();
         room.checkRoomExist(params['hash']).then((exist) => {
           if (exist) {
             reject({status: 400, data: ['name exist']});
