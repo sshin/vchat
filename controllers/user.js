@@ -1,6 +1,5 @@
 var Controller = require('./controller').Controller;
 var User = require('../models/user').User;
-var async = require('async');
 var bcrypt = require('bcryptjs');
 var co = require('co');
 

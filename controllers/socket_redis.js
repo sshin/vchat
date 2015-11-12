@@ -1,5 +1,4 @@
 var Controller = require('./controller').Controller;
-var async = require('async');
 var Room = require('../models/room').Room;
 var Constants = require('../app_modules/constants');
 
@@ -75,11 +74,11 @@ class SocketRedisController extends Controller{
   }
 
   getRoom(callback) {
-    this._get(this._redisRoomsClient, this._roomKey, callback);
+    this._get(this._redisRoomsClient, this._roomKey).then(callback);
   }
 
   setRoom(data, callback) {
-    this._set(this._redisRoomsClient, this._roomKey, data, () => {
+    this._set(this._redisRoomsClient, this._roomKey, data).then(() => {
       if (typeof callback !== 'undefined') callback();
     });
   }
@@ -95,7 +94,7 @@ class SocketRedisController extends Controller{
   }
 
   _updateCount(key, change) {
-    this._get(this._redisRoomsClient, key, (data) => {
+    this._get(this._redisRoomsClient, key).then((data) => {
       let count = parseInt(data);
       if (count == null || isNaN(count)) count = 0;
       count = count + (change);
@@ -109,7 +108,7 @@ class SocketRedisController extends Controller{
    * See if there is a video currently playing, and return video id if so.
    */
   checkVideoPlaying(callback) {
-    this._get(this._redisVideoClient, this._videoKey, (data) => {
+    this._get(this._redisVideoClient, this._videoKey).then((data) => {
       if (data !== null && data.currentVideo !== null) {
         callback(data.currentVideo['videoId']);
       }
@@ -123,15 +122,14 @@ class SocketRedisController extends Controller{
    * If there is no video currently playing, then play the first one in queue.
    */
   queueVideo(videoData, callback, playVideoCallback) {
-    // TODO: Maybe implement real queue, instead of using Array.
-    this._get(this._redisVideoClient, this._videoKey, (data) => {
+    this._get(this._redisVideoClient, this._videoKey).then((data) => {
       if (data == null) {
         // Very first video.
         let newData = {
           currentVideo: null,
           queue: [videoData]
         };
-        this._set(this._redisVideoClient, this._videoKey, newData, () => {
+        this._set(this._redisVideoClient, this._videoKey, newData).then(() => {
           // Since this is the very first video, it must playNextVideo.
           callback();
           this.playNextVideo(playVideoCallback);
@@ -142,12 +140,12 @@ class SocketRedisController extends Controller{
           // No video currently playing, so set and play next video.
           let nextVideo = data.queue.shift();
           data.currentVideo = nextVideo;
-          this._set(this._redisVideoClient, this._videoKey, data, () => {
+          this._set(this._redisVideoClient, this._videoKey, data).then(() => {
             callback();
             this.playNextVideo(playVideoCallback);
           });
         } else {
-          this._set(this._redisVideoClient, this._videoKey, data, () => {
+          this._set(this._redisVideoClient, this._videoKey, data).then(() => {
             callback();
           });
         }
@@ -157,13 +155,13 @@ class SocketRedisController extends Controller{
 
   /** Play the next video from the queue. **/
   playNextVideo(callback) {
-    this._get(this._redisVideoClient, this._videoKey, (data) => {
+    this._get(this._redisVideoClient, this._videoKey).then((data) => {
       let videoData = data;
       let nextVideo = videoData.queue.shift();
       if (nextVideo) {
         videoData.currentVideo = nextVideo;
-        this._set(this._redisVideoClient, this._videoKey, videoData, () => {
-          if (typeof callback === 'function') callback(nextVideo);
+        this._set(this._redisVideoClient, this._videoKey, videoData).then(() => {
+          callback(nextVideo)
         });
       } else {
         callback(null);
@@ -172,32 +170,35 @@ class SocketRedisController extends Controller{
   }
 
   /***** Wrapper methods to abstract error handling *****/
-  _get(client, key, callback) {
-    client.get(key, (err, data) => {
-      if (err) {
-        this.logger.redisError('Cannot get on RedisController');
-      } else {
-        let val = null;
+  _get(client, key) {
+    var promise = new Promise((resolve, reject) => {
+      client.get(key, (err, data) => {
+        if (err) {
+          this.logger.redisError('Cannot get on RedisController');
+          reject();
+        } else {
+          let val = null;
 
-        if (data) {
-          val = JSON.parse(data);
+          if (data) {
+            val = JSON.parse(data);
+          }
+
+          resolve(val);
         }
-
-        callback(val);
-      }
+      });
     });
+    return promise;
   }
 
-  _set(client, key, data, callback) {
+  _set(client, key, data) {
     if (typeof data !== 'string') {
       data = JSON.stringify(data);
     }
 
-    if (typeof callback === 'undefined') {
-      callback = null;
-    }
-
-    client.set(key, data, callback);
+    var promise = new Promise((resolve, reject) => {
+      client.set(key, data, () => resolve());
+    });
+    return promise;
   }
 
 }

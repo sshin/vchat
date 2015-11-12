@@ -20,14 +20,17 @@ class RedisAppModel {
    * Get from Redis.
    */
   get(key, callback) {
-    this._redisClient.get(key, (err, data) => {
-      if (err) {
-        this.logger.redisError('Error on get for key: ' + key);
-        throw new Error('Redis Error');
-      } else {
-        callback(data);
-      }
+    var promise = new Promise((resolve, reject) => {
+      this._redisClient.get(key, (err, data) => {
+        if (err) {
+          this.logger.redisError('Error on get for key: ' + key);
+          reject();
+        } else {
+          resolve(data);
+        }
+      });
     });
+    return promise;
   }
 
   /**
