@@ -15,6 +15,8 @@ router.get('/', (req, res) => {
       break;
     case 'counts':
       roomCtrl.getActiveRoomCounts((counts) => {
+        if (counts['public'] === null) counts['public'] = 0;
+        if (counts['private'] === null) counts['private'] = 0;
         res.send(counts);
       });
       break;

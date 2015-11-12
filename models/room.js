@@ -1,6 +1,7 @@
 var Model = require('./model').Model;
 var Constants = require('../app_modules/constants');
-var async = require('async');
+var Redis = require('./redis').Redis;
+var co = require('co');
 
 class Room extends Model {
 
@@ -31,21 +32,15 @@ class Room extends Model {
     return promise;
   }
 
-  getActiveRoomCounts(callback) {
-    async.waterfall([
-      (next) => {
-        this._redisRoomClient.get(Constants.publicRoomsCount, (err, count) => {
-          next(null, count);
-        });
-      },
-      (publicCount, next) => {
-        this._redisRoomClient.get(Constants.privateRoomsCount, (err, count) => {
-          next(null, {public: publicCount, private: count});
-        });
-      }
-    ], (err, data) => {
-      callback(data);
+  getActiveRoomCounts() {
+    var promise = new Promise((resolve, reject) => {
+      co(function* () {
+        var publicRooms = yield this.redisRoomGet(Constants.publicRoomsCount);
+        var privateRooms = yield this.redisRoomGet(Constants.privateRoomsCount);
+        return {public: publicRooms, private: privateRooms};
+      }.bind(this)).then(resolve);
     });
+    return promise;
   }
 
   /**

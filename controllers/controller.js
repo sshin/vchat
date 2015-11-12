@@ -1,4 +1,4 @@
-var Logger = require('../app_modules/logger').Logger;
+var Logger = require('../app_modules/logger');
 
 class Controller {
 

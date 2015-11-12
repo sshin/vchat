@@ -1,22 +1,19 @@
-var DBLogger = require('../app_modules/logger').DBLogger;
 var DBPools = require('./db_pool');
+var Redis = require('./redis').Redis;
 
 
-class Model {
+class Model extends Redis {
   /** Base model class **/
 
   /**
    * These two arguements are required.
    */
   constructor(subclassModel, table) {
+    super();
     if (typeof subclassModel === 'undefined' || typeof table === 'undefined') {
       throw new Error('subclass model name and table name is required.');
     }
-
     this._dbPool = DBPools.pool;
-    this._redis = DBPools.redisClient;
-    this._redisRoomClient = DBPools.redisRoomClient;
-    this.logger = new DBLogger();
     this.model = subclassModel;
     this.table = table;
   }
@@ -31,7 +28,7 @@ class Model {
   getConnection(callback) {
     this._dbPool.getConnection((err, connection) => {
       if (err) {
-        this.logger.error('Cannot get DB connection.');
+        this.logger.dbError('Cannot get DB connection.');
         throw err;
       }
 
@@ -55,11 +52,12 @@ class Model {
     }
 
     this.getConnection((connection) => {
+      this.logger.dbLog('executing query: ' + query, params);
       connection.query(query, params, (err, rows) => {
         connection.release();
 
         if (err) {
-          this.logger.error('Cannot excute query.');
+          this.logger.dbError('Cannot execute query.');
           throw err;
         }
 
@@ -91,7 +89,8 @@ class Model {
    */
   select(options) {
     if (typeof options === 'undefined') {
-      throw new Error('Missing options.');
+      this.logger.dbError('Missing options');
+      throw new Error();
     }
 
     var sql = 'SELECT ';
@@ -180,16 +179,17 @@ class Model {
    * Returns:
    *  Promise object.
    */
-  insert(params, callback) {
-    if (typeof params === 'undefined') {
-      throw new Error('Missing params.');
-    }
-
+  insert(params) {
     var promise = new Promise((resolve, reject) => {
-      var sql = "INSERT INTO " + this.table + " SET ?";
-      this.runQuery(sql, params, () => {
-        resolve();
-      });
+      if (typeof params === 'undefined') {
+        this.logger.dbError('Missing params.');
+        reject();
+      } else {
+        var sql = "INSERT INTO " + this.table + " SET ?";
+        this.runQuery(sql, params, () => {
+          resolve();
+        });
+      }
     });
     return promise;
   }

@@ -1,9 +1,12 @@
-var redisClient = require('./db_pool').redisClient;
+var DBPools = require('./db_pool');
+var Logger = require('../app_modules/logger');
 
-class RedisAppModel {
+class Redis {
 
   constructor() {
-    this._redisClient = redisClient;
+    this._redisClient = DBPools.redisClient;
+    this._redisRoomClient = DBPools.redisRoomClient;
+    this.logger = new Logger();
   }
 
   /**
@@ -17,9 +20,19 @@ class RedisAppModel {
   }
 
   /**
-   * Get from Redis.
+   * Grabs redis room client.
+   *
+   * NOTE: Use let instead of var where you call this method,
+   * so we can immediately release it.
    */
-  get(key, callback) {
+  getRedisRoomClient() {
+    return this._redisRoomClient;
+  }
+
+  /**
+   * Get data from Redis.
+   */
+  redisGet(key) {
     var promise = new Promise((resolve, reject) => {
       this._redisClient.get(key, (err, data) => {
         if (err) {
@@ -34,34 +47,55 @@ class RedisAppModel {
   }
 
   /**
-   * Execute zrevrange. (Get data from desnding order sorted set)
+   * Set key/value on Redis.
    */
-  zrevrange(key, start, end, callback) {
-    this._redisClient.zrevrange(key, start, end, (err, data) => {
-      if (err) {
-        this.logger.redisError('Error on zrevrange for key: ' + key);
-        throw new Error('Redis Error');
-      } else {
-        callback(data);
-      }
+  redisSet(key, value) {
+    var promise = new Promise((resovle, reject) => {
+      this._redisClient.set(key, value, (err) => {
+        if (err) {
+          this.logger.redisError('Error on get for key: ' + key);
+          reject();
+        } else {
+          resolve();
+        }
+      });
     });
+    return promise;
   }
 
   /**
-   * Execute zcard. (Get count of elements for key in Sorted Set)
+   * Get room data from Redis.
    */
-  zcard(key, callback) {
-    this._redisClient.zcard(key, (err, data) => {
-      if (err) {
-        this.logger.redisError('Error on zcard for key: ' + key);
-        throw new Error('Redis Error');
-      } else {
-        callback(data);
-      }
+  redisRoomGet(key) {
+    var promise = new Promise((resolve, reject) => {
+      this._redisRoomClient.get(key, (err, data) => {
+        if (err) {
+          this.logger.redisError('Error on get for key: ' + key);
+          reject();
+        } else {
+          resolve(data);
+        }
+      });
     });
+    return promise;
   }
 
+  /**
+   * Set room key/value on Redis.
+   */
+  redisRoomSet(key, value) {
+    var promise = new Promise((resovle, reject) => {
+      this._redisRoomClient.set(key, value, (err) => {
+        if (err) {
+          this.logger.redisError('Error on get for key: ' + key);
+          reject();
+        } else {
+          resolve();
+        }
+      });
+    });
+    return promise;
+  }
 }
 
-exports.RedisAppModel = RedisAppModel;
-
+exports.Redis = Redis;
