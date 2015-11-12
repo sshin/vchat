@@ -14,25 +14,24 @@ class RoomController extends Controller {
         reject({status: 400});
       } else {
         room.select({
-            select: ['password'],
-            where: {
-              hash: hash,
-              private: 1
-            }
-          }, (data) => {
-            if (data.length === 0) {
-              resolve(null);
-            } else {
-              bcrypt.compare(params['password'], data[0]['password'], (err, matched) => {
-                if (!matched) {
-                  reject({status: 401});
-                } else {
-                  resolve(hash);
-                }
-              });
-            }
+          select: ['password'],
+          where: {
+            hash: hash,
+            private: 1
           }
-        );
+        }).then((data) => {
+          if (data.length === 0) {
+            resolve(null);
+          } else {
+            bcrypt.compare(params['password'], data[0]['password'], (err, matched) => {
+              if (!matched) {
+                reject({status: 401});
+              } else {
+                resolve(hash);
+              }
+            });
+          }
+        });
       }
     });
     return promise;
@@ -46,19 +45,18 @@ class RoomController extends Controller {
         reject({status: 400});
       } else {
         room.select({
-            select: ['hash'],
-            where: {
-              private: 0,
-              name: name
-            }
-          }, (data) => {
-            if (data.length === 0) {
-              resolve(null);
-            } else {
-              resolve(data[0]['hash']);
-            }
+          select: ['hash'],
+          where: {
+            private: 0,
+            name: name
           }
-        );
+        }).then((data) => {
+          if (data.length === 0) {
+            resolve(null);
+          } else {
+            resolve(data[0]['hash']);
+          }
+        });
       }
     });
     return promise;
@@ -70,7 +68,7 @@ class RoomController extends Controller {
     params['hash'] = params['hash'].toLowerCase();
 
     var promise = new Promise((resolve, reject) => {
-      room.checkRoomExist(params['hash'], (exist) => {
+      room.checkRoomExist(params['hash']).then((exist) => {
         if (exist) {
           reject({status: 400, data: ['name exist']});
         } else {
@@ -83,15 +81,16 @@ class RoomController extends Controller {
 
           if (params['password'] !== '') {
             // TODO: Move bcrypt part to dedicated service.
-            bcrypt.hash(params['password'], 10, (err, hash) => {
-              params['password'] = hash;
-              room.insert(params, () => {
+            bcrypt.hash(params['password'], 10, (err, hashedPassword) => {
+              params['password'] = hashedPassword;
+              room.insert(params).then(() => {
+                room.logger.log('Private room created: ' + params['hash']);
                 resolve(params);
               });
             });
           } else {
-            room.insert(params, () => {
-              room.logger.log('Room created: ' + params['hash']);
+            room.insert(params).then(() => {
+              room.logger.log('Public room created: ' + params['hash']);
               resolve(params);
             });
           }

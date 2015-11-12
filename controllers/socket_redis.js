@@ -35,7 +35,7 @@ class SocketRedisController extends Controller{
           where: {
             hash: this._roomHash
           }
-        }, (data) => {
+        }).then((data) => {
           let roomData = data[0];
           roomData['users'] = {};
           roomData['users'][user['id']] = user;

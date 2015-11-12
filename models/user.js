@@ -13,7 +13,7 @@ class User extends Model {
         where: {
           username: username
         }
-      }, (rows) => {
+      }).then((rows) => {
         resolve(rows.length > 0);
       });
     });
@@ -26,7 +26,7 @@ class User extends Model {
         where: {
           email: email
         }
-      }, (rows) => {
+      }).then((rows) => {
         resolve(rows.length > 0);
       });
     });

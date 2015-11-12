@@ -69,7 +69,7 @@ class UserController extends Controller{
     bcrypt.hash(params['password'], 10, (err, hash) => {
       params['password'] = hash;
       delete params['passwordVerify'];
-      user.insert(params, () => callback());
+      user.insert(params).then(callback);
     });
   }
 
@@ -80,7 +80,7 @@ class UserController extends Controller{
       where: {
         username: params['username']
       }
-    }, (rows) => {
+    }).then((rows) => {
       if (rows.length > 0) {
         let userData = rows[0];
         bcrypt.compare(params['password'], userData['password'], (err, matched) => {

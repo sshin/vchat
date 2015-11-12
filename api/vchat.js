@@ -6,7 +6,7 @@ var Room = require('../models/room').Room;
 router.get('/:room', (req, res) => {
   var room = new Room();
   var hash = req.params.room;
-  room.checkRoomExist(hash, (roomExist) => {
+  room.checkRoomExist(hash).then((roomExist) => {
     if (roomExist) {
       res.sendFile('frontend/html/vchat.html', sendFileParam);
     } else {

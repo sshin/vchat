@@ -39,3 +39,4 @@ class RoombeatController extends Controller{
 }
 
 exports.RoombeatController = RoombeatController;
+

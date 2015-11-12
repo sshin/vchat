@@ -14,7 +14,7 @@ class Category extends Model {
     this.select({
       select: ['id AS type', 'name'],
       order: {column: 'id', direction: 'ASC'}
-    }, callback);
+    }).then(callback);
   }
 
 }

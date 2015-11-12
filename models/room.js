@@ -18,14 +18,17 @@ class Room extends Model {
    * Check if room exist by hash lookup.
    */
   checkRoomExist(hash, callback) {
-    this.select({
-      select: ['id'],
-      where: {
-        hash: hash
-      }
-    }, (rows) => {
-      callback(rows.length > 0);
+    var promise = new Promise((resolve, reject) => {
+      this.select({
+        select: ['id'],
+        where: {
+          hash: hash
+        }
+      }).then((rows) => {
+        resolve(rows.length > 0);
+      });
     });
+    return promise;
   }
 
   getActiveRoomCounts(callback) {

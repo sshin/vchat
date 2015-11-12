@@ -85,8 +85,11 @@ class Model {
    *          order: object {column, direction} or nothing.
    *          limit: number to limit result.
    *          offset: offset.
+   *
+   * Returns:
+   *  Promise object.
    */
-  select(options, callback) {
+  select(options) {
     if (typeof options === 'undefined') {
       throw new Error('Missing options.');
     }
@@ -161,23 +164,37 @@ class Model {
       sql += ' OFFSET ' + options['offset'];
     }
 
-    this.runQuery(sql, params, callback);
+    var promise = new Promise((resolve, reject) => {
+      this.runQuery(sql, params, (rows) => {
+        resolve(rows);
+      });
+    });
+    return promise;
   }
 
   /**
    * Build and execute INSERT query.
    *
    * NOTE: params is required.
+   *
+   * Returns:
+   *  Promise object.
    */
   insert(params, callback) {
     if (typeof params === 'undefined') {
       throw new Error('Missing params.');
     }
 
-    var sql = "INSERT INTO " + this.table + " SET ?";
-    this.runQuery(sql, params, callback);
+    var promise = new Promise((resolve, reject) => {
+      var sql = "INSERT INTO " + this.table + " SET ?";
+      this.runQuery(sql, params, () => {
+        resolve();
+      });
+    });
+    return promise;
   }
 
 }
 
 exports.Model = Model;
+
