@@ -10,11 +10,14 @@ class Category extends Model {
   /**
    * Get all categories sorted by id.
    */
-  getCategories(callback) {
-    this.select({
-      select: ['id AS type', 'name'],
-      order: {column: 'id', direction: 'ASC'}
-    }).then(callback);
+  getCategories() {
+    var promise = new Promise((resolve, reject) => {
+      this.select({
+        select: ['id AS type', 'name'],
+        order: {column: 'id', direction: 'ASC'}
+      }).then(resolve);
+    });
+    return promise;
   }
 
 }

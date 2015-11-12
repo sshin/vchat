@@ -59,27 +59,6 @@ router.post('/', (req, res) => {
       }).catch((data) => res.status(data['status']).send());
       break;
     case 'create':
-      var errors = [];
-
-      params['name'] = String.prototype.trim.apply(params['name']);
-      if (params['category'] == 'none') errors.push('category');
-      if (params['name'] == '') errors.push('name');
-      if (params['type'] == '') errors.push('type');
-
-      // If type is public, password can be empty.
-      // If type is private, password is required.
-      if ((params['roomType'] == 'private' && params['password'].length === 0) ||
-          (params['password'] != params['verifyPassword'])) {
-        errors.push('password');
-      }
-
-      if (errors.length > 0) {
-        res.status(400);
-        res.send({errors: errors});
-        return;
-      }
-
-      // Now all inputs are valid, try inserting into database.
       roomCtrl.createNewRoom(params).then((data) => {
         let hash = data['hash'];
         let path = 'vChat/';

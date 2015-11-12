@@ -4,7 +4,7 @@ var UserController = require('../controllers/user').UserController;
 router.post('/', (req, res) => {
   var userCtrl = new UserController();
   var params = req.body;
-  userCtrl.login(params, (authenticated, userData) => {
+  userCtrl.login(params).then((authenticated, userData) => {
     if (authenticated) {
       req.session.loggedIn = true;
       req.session.user = userData;

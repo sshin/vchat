@@ -10,6 +10,49 @@ class UserController extends Controller{
   }
 
   validateSignUp(params, callback) {
+    var promise = new Promise((resolve, reject) => {
+      var errors = this._validateSignUpInputs(params);
+
+      if (errors.length > 0) {
+        this.logger.log('Failed to create new user | invalid input(s)');
+        var data = {
+          type: 'error',
+          errorType: 'invalid',
+          errors: errors
+        };
+        resolve(data);
+      } else {
+        var user = new User();
+        co(function* () {
+          var usernameExist = yield user.checkUsernameExist(params['username']);
+          var emailExist = yield user.checkEmailExist(params['email']);
+          var exists = [];
+          if (usernameExist) exists.push('username');
+          if (emailExist) exists.push('email');
+          return exists;
+        }).then((exists) => {
+          var data = {};
+          if (exists.length > 0) {
+            this.logger.log('Failed to create new user | username(' + params['username']
+              + ') or email(' + params['email'] + ') already exist');
+            data = {
+              type: 'error',
+              errorType: 'exist',
+              errors: exists
+            };
+          } else {
+            this.logger.log('User will be created | username(' + params['username']
+              + '), email(' + params['email'] + ')');
+            data = {type: 'valid'};
+          }
+          resolve(data);
+        });
+      }
+    });
+    return promise;
+  }
+
+  _validateSignUpInputs(params) {
     var errors = [];
     if (typeof params['username'] === 'undefined' || params['username'] === '') {
       errors.push('username');
@@ -27,40 +70,7 @@ class UserController extends Controller{
       errors.push('email');
     }
 
-    if (errors.length > 0) {
-      this.logger.log('Failed to create new user | invalid input(s)');
-      var data = {
-        type: 'error',
-        errorType: 'invalid',
-        errors: errors
-      };
-      callback(data);
-      return;
-    }
-
-    var user = new User();
-    co(function* () {
-      var usernameExist = yield user.checkUsernameExist(params['username']);
-      var emailExist = yield user.checkEmailExist(params['email']);
-      var exists = [];
-      if (usernameExist) exists.push('username');
-      if (emailExist) exists.push('email');
-      return exists;
-    }).then((exists) => {
-      if (exists.length > 0) {
-        this.logger.log('Failed to create new user | username(' + params['username']
-                        + ') or email(' + params['email'] + ') already exist');
-        callback({
-          type: 'error',
-          errorType: 'exist',
-          errors: exists
-        });
-      } else {
-        this.logger.log('User will be created | username(' + params['username']
-                        + '), email(' + params['email'] + ')');
-        callback({type: 'valid'});
-      }
-    });
+    return errors;
   }
   
   createUser(params, callback) {
@@ -72,31 +82,34 @@ class UserController extends Controller{
     });
   }
 
-  login(params, callback) {
-    var user = new User();
-    user.select({
-      select: ['id', 'username', 'email', 'password'],
-      where: {
-        username: params['username']
-      }
-    }).then((rows) => {
-      if (rows.length > 0) {
-        let userData = rows[0];
-        bcrypt.compare(params['password'], userData['password'], (err, matched) => {
-          if (!matched) {
-            this.logger.log('Login failure | wrong password | username: ' + params['username']);
-            callback(false, {});
-          } else {
-            this.logger.log('Login success | username: ' + params['username']);
-            delete userData['password'];
-            callback(true, userData);
-          }
-        });
-      } else {
-        this.logger.log('Login failure | username doet not exist | ' + params['username']);
-        callback(false, {});
-      }
+  login(params) {
+    var promise = new Promise((resolve, reject) => {
+      var user = new User();
+      user.select({
+        select: ['id', 'username', 'email', 'password'],
+        where: {
+          username: params['username']
+        }
+      }).then((rows) => {
+        if (rows.length > 0) {
+          let userData = rows[0];
+          bcrypt.compare(params['password'], userData['password'], (err, matched) => {
+            if (!matched) {
+              this.logger.log('Login failure | wrong password | username: ' + params['username']);
+              resolve(false, {});
+            } else {
+              this.logger.log('Login success | username: ' + params['username']);
+              delete userData['password'];
+              resolve(true, userData);
+            }
+          });
+        } else {
+          this.logger.log('Login failure | username does not exist | ' + params['username']);
+          resolve(false, {});
+        }
+      });
     });
+    return promise;
   }
 
 }

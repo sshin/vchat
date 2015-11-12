@@ -64,40 +64,63 @@ class RoomController extends Controller {
 
   createNewRoom(params) {
     var room = new Room();
+    params['name'] = String.prototype.trim.apply(params['name']);
     params['hash'] = params['name'].replace(/ /g, '-');
     params['hash'] = params['hash'].toLowerCase();
 
     var promise = new Promise((resolve, reject) => {
-      room.checkRoomExist(params['hash']).then((exist) => {
-        if (exist) {
-          reject({status: 400, data: ['name exist']});
-        } else {
-          params['category_id'] = params['category'];
-          params['private'] = params['roomType'] == 'public' ? 0 : 1;
-          delete params['verifyPassword'];
-          delete params['category'];
-          delete params['roomType'];
-          delete params['type'];
+      var errors = this._validateCreateRoomInputs(params);
+      if (errors.length > 0) {
+        reject({status: 400, data: errors});
+      } else {
+        room.checkRoomExist(params['hash']).then((exist) => {
+          if (exist) {
+            reject({status: 400, data: ['name exist']});
+          } else {
+            params['category_id'] = params['category'];
+            params['private'] = params['roomType'] == 'public' ? 0 : 1;
+            delete params['verifyPassword'];
+            delete params['category'];
+            delete params['roomType'];
+            delete params['type'];
 
-          if (params['password'] !== '') {
-            // TODO: Move bcrypt part to dedicated service.
-            bcrypt.hash(params['password'], 10, (err, hashedPassword) => {
-              params['password'] = hashedPassword;
+            if (params['password'] !== '') {
+              // TODO: Move bcrypt part to dedicated service.
+              bcrypt.hash(params['password'], 10, (err, hashedPassword) => {
+                params['password'] = hashedPassword;
+                room.insert(params).then(() => {
+                  this.logger.log('Private room created: ' + params['hash']);
+                  resolve(params);
+                });
+              });
+            } else {
               room.insert(params).then(() => {
-                this.logger.log('Private room created: ' + params['hash']);
+                this.logger.log('Public room created: ' + params['hash']);
                 resolve(params);
               });
-            });
-          } else {
-            room.insert(params).then(() => {
-              this.logger.log('Public room created: ' + params['hash']);
-              resolve(params);
-            });
+            }
           }
-        }
-      });
+        });
+      }
     });
     return promise;
+  }
+
+  _validateCreateRoomInputs(params) {
+    var errors = [];
+
+    if (params['category'] == 'none') errors.push('category');
+    if (params['name'] == '') errors.push('name');
+    if (params['type'] == '') errors.push('type');
+
+    // If type is public, password can be empty.
+    // If type is private, password is required.
+    if ((params['roomType'] == 'private' && params['password'].length === 0) ||
+        (params['password'] != params['verifyPassword'])) {
+      errors.push('password');
+    }
+
+    return errors;
   }
 
   getActiveRoomCounts(callback) {

@@ -4,7 +4,7 @@ var UserController = require('../controllers/user').UserController;
 router.post('/', (req, res) => {
   var userCtrl = new UserController();
   var params = req.body;
-  userCtrl.validateSignUp(params, (result) => {
+  userCtrl.validateSignUp(params).then((result) => {
     if (result['type'] === 'valid') {
       userCtrl.createUser(params, () => res.send('okay'));
     } else {

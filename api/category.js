@@ -3,7 +3,7 @@ var Category = require('../models/category').Category;
 
 router.get('/', (req, res) => {
   var category = new Category();
-  category.getCategories((categories) => {
+  category.getCategories().then((categories) => {
     res.send({categories: categories})
   });
 });
