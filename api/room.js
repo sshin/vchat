@@ -1,4 +1,3 @@
-var async = require('async');
 var router = require('express').Router();
 var RoomController = require('../controllers/room').RoomController;
 var Constants = require('../app_modules/constants');
@@ -35,8 +34,7 @@ router.post('/', (req, res) => {
 
   switch (params['type']) {
     case 'searchPrivateRoom':
-      var searchPrivateRoom = roomCtrl.searchPrivateRoom(params);
-      searchPrivateRoom.then((hash) => {
+      roomCtrl.searchPrivateRoom(params).then((hash) => {
         if (typeof req.session.privateRooms === 'undefined') {
           req.session.privateRooms = {};
         }
@@ -50,8 +48,7 @@ router.post('/', (req, res) => {
       }).catch((data) => res.status(data['status']).send());
       break;
     case 'searchPublicRoom':
-      var searchPublicRoom = roomCtrl.searchPublicRoom(params);
-      searchPublicRoom.then((hash) => {
+      roomCtrl.searchPublicRoom(params).then((hash) => {
         if (hash === null) {
           res.status(404).send();
         } else {
@@ -81,8 +78,7 @@ router.post('/', (req, res) => {
       }
 
       // Now all inputs are valid, try inserting into database.
-      var createNewRoom = roomCtrl.createNewRoom(params);
-      createNewRoom.then((data) => {
+      roomCtrl.createNewRoom(params).then((data) => {
         let hash = data['hash'];
         let path = 'vChat/';
         if (data['private'] === 1) {

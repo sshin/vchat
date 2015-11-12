@@ -17,12 +17,19 @@ router.get('/:room', (req, res) => {
 
 router.get('/private/:room', (req, res) => {
   var room = req.params.room;
-  if (typeof req.session.privateRooms === 'undefined' ||
-      !req.session.privateRooms.hasOwnProperty(room)) {
-    res.redirect(Constants.appUrl);
-  } else {
-    res.sendFile('frontend/html/vchat.html', sendFileParam);
-  }
+  var roomModel = new Room();
+  roomModel.checkRoomExist(room).then((roomExist) => {
+    if (roomExist) {
+      if (typeof req.session.privateRooms === 'undefined' ||
+          !req.session.privateRooms.hasOwnProperty(room)) {
+        res.redirect(Constants.appUrl);
+      } else {
+        res.sendFile('frontend/html/vchat.html', sendFileParam);
+      }
+    } else {
+      res.redirect(Constants.appUrl);
+    }
+  });
 });
 
 module.exports = router;
