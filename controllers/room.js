@@ -122,9 +122,12 @@ class RoomController extends Controller {
     return errors;
   }
 
-  getActiveRoomCounts(callback) {
-    var room = new Room();
-    room.getActiveRoomCounts().then(callback);
+  getActiveRoomCounts() {
+    var promise = new Promise((resolve, reject) => {
+      var room = new Room();
+      room.getActiveRoomCounts().then(resolve);
+    });
+    return promise;
   }
 }
 

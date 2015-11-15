@@ -1,29 +1,27 @@
 class Logger {
 
+  _getTime() {
+    return new Date().toLocaleString();
+  }
+
   log(message) {
-    console.log('[Log] ' + message);
+    console.log('%s:[Log] %s', this._getTime(), message);
   }
 
   error(message) {
-    console.log('[[Error]] ' + message);
+    console.log('%s:[[Error]] %s', this._getTime(), message);
   }
 
   dbLog(message, params) {
-    if (Array.isArray(params)) {
-      console.log('[DB Log] ' + message + ' | params: ' + params);
-    } else {
-      console.log('[DB Log] ' + message + ' | params----------------');
-      console.log(params);
-      console.log('-------------------------------------------------');
-    }
+   console.log('%s:[DB Log] %s | params: %j', this._getTime(), message, params);
   }
 
   dbError(message) {
-    console.log('[[DB Error]] ' + message);
+    console.log('%s:[[DB Error]] %s', this._getTime(), message);
   }
 
   redisError(message) {
-    console.log('[[Redis Error]] ' + message);
+    console.log('%s:[[Redis Error]] %s', this._getTime(), message);
   }
 }
 
