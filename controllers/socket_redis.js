@@ -3,7 +3,7 @@ var Room = require('../models/room').Room;
 var Constants = require('../app_modules/constants');
 
 
-class SocketRedisController extends Controller{
+class SocketRedisController extends Controller {
   /**
    * RedisController for vchat-socket server.
    * Never throw errors on redis error, because we don't want to restart socket server.

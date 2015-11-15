@@ -1,6 +1,6 @@
 var Controller = require('./controller').Controller;
 
-class RoombeatController extends Controller{
+class RoombeatController extends Controller {
 
   constructor(redisClient, io) {
     super();

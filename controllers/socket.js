@@ -3,7 +3,7 @@ var Constants = require('../app_modules/constants');
 var SocketRedisController = require('../controllers/socket_redis').SocketRedisController;
 
 
-class SocketController extends Controller{
+class SocketController extends Controller {
   /**
    * SocketController for vchat-socket server.
    * Never throw errros in this controller because we don't want to restart socket server.
@@ -34,6 +34,7 @@ class SocketController extends Controller{
    */
   _init() {
     this._redisCtrl.getRoom((data) => {
+      this.logger.log('initiating new user ' + this._socket['id'] + ' | room: ' + this._roomHash);
       this._user['name'] = 'vChat User ' + this._socket['id'];
       this._socket.emit('username-update', {username: this._user['name']});
       this._redisCtrl.addUserToRoom(this._user);
@@ -135,13 +136,16 @@ class SocketController extends Controller{
     // TODO: Update this logic to be more powerful. Temporary now.
     if (typeof data['videoId'] !== 'undefined') {
       // No action needed.
+      this.logger.log('new video submit via search');
     } else {
+      // Check YouTube link.
       if (!data['link'].startsWith('https://www.youtube.com/watch?v=')
         && !data['link'].startsWith('https://youtu.be/')) {
         this.logger.log('Invalid video link: ' + data['link']);
         return;
       }
-
+      
+      this.logger.log('new video submit via link: ' + data['link']);
       if (data['link'].startsWith('https://youtu.be/')) {
         // This link is provided by Share menu.
         let link = data['link'].split('/');
@@ -173,10 +177,10 @@ class SocketController extends Controller{
         }
         data['videoId'] = id;
       }
-
       delete data['link'];
     }
 
+    this.logger.log('queuing a video | videoId: ' + data['videoId'] + ' | room: ' + this._roomHash);
     // TODO: And probably verify given link is a real youtube video?
     this._redisCtrl.queueVideo(data, () => {
       // Callback for when queueing is done.

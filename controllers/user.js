@@ -3,7 +3,7 @@ var User = require('../models/user').User;
 var bcrypt = require('bcryptjs');
 var co = require('co');
 
-class UserController extends Controller{
+class UserController extends Controller {
 
   constructor() {
     super();
