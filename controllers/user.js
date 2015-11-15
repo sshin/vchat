@@ -22,8 +22,8 @@ class UserController extends Controller{
         };
         resolve(data);
       } else {
-        var user = new User();
         co(function* () {
+          let user = new User();
           var usernameExist = yield user.checkUsernameExist(params['username']);
           var emailExist = yield user.checkEmailExist(params['email']);
           var exists = [];

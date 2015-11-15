@@ -7,12 +7,13 @@ class RoomController extends Controller {
 
   searchPrivateRoom(params) {
     var promise = new Promise((resolve, reject) => {
+      this.logger.log('searching private room: ' + params['name']);
       var hash = String.prototype.trim.apply(params['name']).replace(/ /g, '-');
       hash = hash.toLowerCase();
-      var room = new Room();
       if (hash.length === 0) {
         reject({status: 400});
       } else {
+        var room = new Room();
         room.select({
           select: ['password'],
           where: {
@@ -40,10 +41,11 @@ class RoomController extends Controller {
   searchPublicRoom(params) {
     var promise = new Promise((resolve, reject) => {
       var name = String.prototype.trim.apply(params['name']);
-      var room = new Room();
+      this.logger.log('searching public room: ' + name);
       if (name.length === 0) {
         reject({status: 400});
       } else {
+        var room = new Room();
         room.select({
           select: ['hash'],
           where: {
