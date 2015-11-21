@@ -185,7 +185,7 @@ class Model extends Redis {
         this.logger.dbError('Missing params.');
         reject();
       } else {
-        var sql = "INSERT INTO " + this.table + " SET ?";
+        let sql = "INSERT INTO " + this.table + " SET ?";
         this.runQuery(sql, params, () => {
           resolve();
         });

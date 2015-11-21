@@ -8,12 +8,12 @@ class RoomController extends Controller {
   searchPrivateRoom(params) {
     var promise = new Promise((resolve, reject) => {
       this.logger.log('searching private room: ' + params['name']);
-      var hash = String.prototype.trim.apply(params['name']).replace(/ /g, '-');
+      let hash = String.prototype.trim.apply(params['name']).replace(/ /g, '-');
       hash = hash.toLowerCase();
       if (hash.length === 0) {
         reject({status: 400});
       } else {
-        var room = new Room();
+        let room = new Room();
         room.select({
           select: ['password'],
           where: {
@@ -40,12 +40,12 @@ class RoomController extends Controller {
 
   searchPublicRoom(params) {
     var promise = new Promise((resolve, reject) => {
-      var name = String.prototype.trim.apply(params['name']);
+      let name = String.prototype.trim.apply(params['name']);
       this.logger.log('searching public room: ' + name);
       if (name.length === 0) {
         reject({status: 400});
       } else {
-        var room = new Room();
+        let room = new Room();
         room.select({
           select: ['hash'],
           where: {
@@ -67,11 +67,11 @@ class RoomController extends Controller {
   createNewRoom(params) {
     var promise = new Promise((resolve, reject) => {
       params['name'] = String.prototype.trim.apply(params['name']);
-      var errors = this._validateCreateRoomInputs(params);
+      let errors = this._validateCreateRoomInputs(params);
       if (errors.length > 0) {
         reject({status: 400, data: errors});
       } else {
-        var room = new Room();
+        let room = new Room();
         params['hash'] = params['name'].replace(/ /g, '-');
         params['hash'] = params['hash'].toLowerCase();
         room.checkRoomExist(params['hash']).then((exist) => {
@@ -126,7 +126,7 @@ class RoomController extends Controller {
 
   getActiveRoomCounts() {
     var promise = new Promise((resolve, reject) => {
-      var room = new Room();
+      let room = new Room();
       room.getActiveRoomCounts().then(resolve);
     });
     return promise;

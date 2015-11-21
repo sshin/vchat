@@ -11,11 +11,11 @@ class UserController extends Controller {
 
   validateSignUp(params, callback) {
     var promise = new Promise((resolve, reject) => {
-      var errors = this._validateSignUpInputs(params);
+      let errors = this._validateSignUpInputs(params);
 
       if (errors.length > 0) {
         this.logger.log('Failed to create new user | invalid input(s)');
-        var data = {
+        let data = {
           type: 'error',
           errorType: 'invalid',
           errors: errors
@@ -24,14 +24,14 @@ class UserController extends Controller {
       } else {
         co(function* () {
           let user = new User();
-          var usernameExist = yield user.checkUsernameExist(params['username']);
-          var emailExist = yield user.checkEmailExist(params['email']);
-          var exists = [];
+          let usernameExist = yield user.checkUsernameExist(params['username']);
+          let emailExist = yield user.checkEmailExist(params['email']);
+          let exists = [];
           if (usernameExist) exists.push('username');
           if (emailExist) exists.push('email');
           return exists;
         }).then((exists) => {
-          var data = {};
+          let data = {};
           if (exists.length > 0) {
             this.logger.log('Failed to create new user | username(' + params['username']
               + ') or email(' + params['email'] + ') already exist');
@@ -84,7 +84,7 @@ class UserController extends Controller {
 
   login(params) {
     var promise = new Promise((resolve, reject) => {
-      var user = new User();
+      let user = new User();
       user.select({
         select: ['id', 'username', 'email', 'password'],
         where: {

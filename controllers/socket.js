@@ -77,7 +77,7 @@ class SocketController extends Controller {
 
   playCurrentVideoForNewUser(data) {
     data['currentVideo'] = true;
-    let socketId = data['socketId'];
+    var socketId = data['socketId'];
     delete data['socketId'];
     try {
       // Make sure new user is still connected.
@@ -197,7 +197,7 @@ class SocketController extends Controller {
    * Parse start time from the link.
    */
   _getStartAt(link, start) {
-    let time;
+    var time;
     for (var i = start; i < link.length; i++) {
       if (link[i].startsWith('t=')) {
         time = link[i].replace('t=', '');

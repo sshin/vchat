@@ -35,8 +35,8 @@ class Room extends Model {
   getActiveRoomCounts() {
     var promise = new Promise((resolve, reject) => {
       co(function* () {
-        var publicRooms = yield this.redisRoomGet(Constants.publicRoomsCount);
-        var privateRooms = yield this.redisRoomGet(Constants.privateRoomsCount);
+        let publicRooms = yield this.redisRoomGet(Constants.publicRoomsCount);
+        let privateRooms = yield this.redisRoomGet(Constants.privateRoomsCount);
         return {public: publicRooms, private: privateRooms};
       }.bind(this)).then(resolve);
     });
