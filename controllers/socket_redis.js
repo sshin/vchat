@@ -50,6 +50,7 @@ class SocketRedisController extends Controller {
         }
         this.setRoom(data);
       }
+      this._increaseUserCount();
     });
   }
 
@@ -70,6 +71,7 @@ class SocketRedisController extends Controller {
         let room = new Room();
         room.deleteRoom(this._roomHash);
       }
+      this._decreaseUserCount();
     });
   }
 
@@ -91,6 +93,14 @@ class SocketRedisController extends Controller {
   _decreaseRoomCount(isPrivate) {
     var key = isPrivate ? Constants.privateRoomsCount : Constants.publicRoomsCount;
     this._updateCount(key, -1);
+  }
+
+  _increaseUserCount() {
+    this._updateCount(Constants.userCount, 1);
+  }
+
+  _decreaseUserCount() {
+    this._updateCount(Constants.userCount, -1);
   }
 
   _updateCount(key, change) {

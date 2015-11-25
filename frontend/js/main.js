@@ -1,7 +1,7 @@
 $(document).ready(function () {
   _setCategories();
-  //_setRandomPublicRooms();
-  _getRoomCounts();
+  //_getRandomPublicRooms();
+  _getCounts();
 });
 
 function _setCategories() {
@@ -18,7 +18,7 @@ function _setCategories() {
   });
 }
 
-function _setRandomPublicRooms() {
+function _getRandomPublicRooms() {
   app.get('room', {
     data: {get: 'randomRooms'},
     success: function(rooms) {
@@ -27,7 +27,7 @@ function _setRandomPublicRooms() {
   });
 }
 
-function _getRoomCounts() {
+function _getCounts() {
   app.get('room', {
     data: {get: 'counts'},
     success: function(data) {
@@ -35,6 +35,7 @@ function _getRoomCounts() {
       $('#total-count').text(total);
       $('#public-count').text(data['public']);
       $('#private-count').text(data['private']);
+      $('#total-users').text(data['users']);
     }
   });
 }
