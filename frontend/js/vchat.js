@@ -5,6 +5,10 @@ var socket;
 var roombeat;
 var numMessages = 0;
 var pauseAfterLoad = false;
+// Whether video paused via controller or not.
+var actionPause = false;
+// Whether video resumed/played via controller or not.
+var actionResume = false;
 var $currentPlayTime, timer;
 
 $(document).ready(function () {
@@ -170,8 +174,10 @@ function loadVideo(data) {
   if (typeof data['currentVideo'] !== 'undefined') {
     message = 'You will be synced with the current video.';
     chatClass = 'system-message-info';
+    // Video will be automatically start for new user.
+    actionResume = true;
     // Add 0.5 for loading time..better than adding nothing.
-    var deltaTime = Math.ceil((new Date().getTime() - parseInt(data['timestamp'])) / 1000 + 0.5);
+    var deltaTime = Math.round((new Date().getTime() - parseInt(data['timestamp'])) / 1000 + 0.5);
     data['startAt'] = parseInt(data['startAt']) + deltaTime;
   } else {
     message = 'Next video will be played shortly.';
@@ -199,8 +205,11 @@ function loadVideo(data) {
 
   player.loadVideoById(videoData);
 
+  // Current video play or stop for new user.
   if (typeof data['isPlaying'] !== 'undefined' && !data['isPlaying']) {
     pauseAfterLoad = true;
+    // Current video is paused, so player will pause the video right after it is loaded.
+    actionResume = false;
   }
 }
 
@@ -218,10 +227,14 @@ function controlVideo(data) {
       break;
     case 'pause':
       message = 'paused video!';
+      actionPause = true;
+      actionResume = false;
       player.pauseVideo();
       break;
     case 'resume':
       message = 'resumed video!';
+      actionPause = false;
+      actionResume = true;
       player.playVideo();
       break;
     case 'playNext':
@@ -339,19 +352,22 @@ function onPlayerStateChange(event) {
   // Always clear interval on state change.
   clearInterval(timer);
   switch (event.data) {
-    case 0:
-      // Currnet video ended. Are we going to display something?
+    case 0: // Current video ended.
       break;
-    case 1:
-      // Started/Resumed playing.
+    case 1: // Started/Resumed playing.
       if (pauseAfterLoad) {
+        actionPause = true;
         player.pauseVideo();
         pauseAfterLoad = false;
+      } else if (!actionResume) {
+        player.pauseVideo();
       }
       setVideoInformation();
       break;
-    case 2:
-      // Paused.
+    case 2: // Video paused.
+      if (!actionPause) {
+        player.playVideo();
+      }
       break;
   }
 }
