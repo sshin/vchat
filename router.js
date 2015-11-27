@@ -36,6 +36,7 @@ module.exports = (app) => {
   // TODO: Singup/Login should be handled in it's own service.
   app.use('/api/signup', require('./api/signup'));
   app.use('/api/login', require('./api/login'));
+  app.use('/api/logout', require('./api/logout'));
   app.use('/api/room', require('./api/room'));
   app.use('/api/category', require('./api/category'));
 }

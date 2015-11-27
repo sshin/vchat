@@ -12,12 +12,13 @@ var SignIn = React.createClass({
     app.post('login', {
       data: data,
       success: function(data) {
-        $('#comp-sign-in').hide();
-        $('#comp-user-settings').show();
-      },
+        app.user = data;
+        this.refs['loginDialog'].closeDialog();
+        app.showUserSettings();
+      }.bind(this),
       error: function() {
-        console.log('login error!');
-      }
+        this._alertBar('login').alert('Invalid login information');
+      }.bind(this)
     })
   },
 
@@ -63,7 +64,8 @@ var SignIn = React.createClass({
   render: function() {
     return (
       <div id="login-wrapper" className="white-background card-item">
-        <Dialog id="login-dialog" buttonText="Login to vChat" header="Login" color="purple">
+        <Dialog id="login-dialog" buttonText="Login to vChat" header="Login" color="purple"
+                ref="loginDialog">
           <div id="login-form-wrapper" ref="loginForm">
             <AlertBar ref="loginAlertBar" />
             <div id="login-form">

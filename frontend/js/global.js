@@ -71,13 +71,36 @@ function App() {
     }
   };
 
+  /** user info **/
+  this.user = {};
+  this.get('login', {
+    success: function(data) {
+      this.user = data;
+      this.showUserSettings();
+    }.bind(this),
+    error: function() {
+      this.showLogin();
+      this.log('user not logged in');
+    }.bind(this)
+  });
+
+  this.showLogin = function() {
+    $('#comp-sign-in').removeClass('hide');
+    $('#comp-user-settings').addClass('hide');
+  };
+
+  this.showUserSettings = function() {
+    $('#comp-sign-in').addClass('hide');
+    $('#comp-user-settings').removeClass('hide');
+  };
+
   /** loggers **/
   this.log = function(message) {
-    console.log('Log: ' + message);
+    console.log('[Log] ' + message);
   };
 
   this.error = function(message) {
-    console.error('Error: ' + message);
+    console.error('[[Error]] ' + message);
   };
 }
 
