@@ -57,7 +57,7 @@ function _getRoomHash(socket) {
     // Skip individual socket rooms.
     if (!key.startsWith(Constants.redisRoomKeyPrefix)) continue;
     let sockets = io.sockets.adapter.rooms[key];
-    for (var socketKey in sockets) {
+    for (let socketKey in sockets) {
       if (sockets[socketKey] === true) {
         try {
           // Just in case if this socket left the room in like 10ms...

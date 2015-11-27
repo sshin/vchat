@@ -96,16 +96,16 @@ class UserController extends Controller {
           bcrypt.compare(params['password'], userData['password'], (err, matched) => {
             if (!matched) {
               this.logger.log('Login failure | wrong password | username: ' + params['username']);
-              resolve(false, {});
+              resolve({authenticated: false});
             } else {
               this.logger.log('Login success | username: ' + params['username']);
               delete userData['password'];
-              resolve(true, userData);
+              resolve({authenticated: true, userData: userData});
             }
           });
         } else {
           this.logger.log('Login failure | username does not exist | ' + params['username']);
-          resolve(false, {});
+          resolve({authenticated: false});
         }
       });
     });

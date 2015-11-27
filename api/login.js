@@ -4,11 +4,11 @@ var UserController = require('../controllers/user').UserController;
 router.post('/', (req, res) => {
   var userCtrl = new UserController();
   var params = req.body;
-  userCtrl.login(params).then((authenticated, userData) => {
-    if (authenticated) {
+  userCtrl.login(params).then((result) => {
+    if (result['authenticated']) {
       req.session.loggedIn = true;
-      req.session.user = userData;
-      res.send();
+      req.session.user = result['userData'];
+      res.send({username: result['userData']['username'], email: result['userData']['email']});
     } else {
       res.status(401);
       res.send();

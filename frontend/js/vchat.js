@@ -132,7 +132,7 @@ function _onVideoControl(e) {
         var data = {
           username: _getUserName(),
           action: 'playNext'
-        }
+        };
         socket.emit('control-video', data);
       }
       break;
