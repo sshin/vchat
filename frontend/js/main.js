@@ -36,6 +36,8 @@ function _getCounts() {
       $('#public-count').text(data['public']);
       $('#private-count').text(data['private']);
       $('#total-users').text(data['users']);
+      // get counts every 15 seconds.
+      setTimeout(_getCounts, 15000);
     }
   });
 }
