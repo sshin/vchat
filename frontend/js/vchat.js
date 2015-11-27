@@ -170,12 +170,12 @@ function loadVideo(data) {
   // Ignore if no data was sent.
   if (typeof data === 'undefined') return;
 
+  // Video is loaded via server.
+  actionResume = true;
   var message, chatClass;
   if (typeof data['currentVideo'] !== 'undefined') {
     message = 'You will be synced with the current video.';
     chatClass = 'system-message-info';
-    // Video will be automatically start for new user.
-    actionResume = true;
     // Add 0.5 for loading time..better than adding nothing.
     var deltaTime = Math.round((new Date().getTime() - parseInt(data['timestamp'])) / 1000 + 0.5);
     data['startAt'] = parseInt(data['startAt']) + deltaTime;
