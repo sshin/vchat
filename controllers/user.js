@@ -23,18 +23,24 @@ class UserController extends Controller {
         resolve(data);
       } else {
         co(function* () {
+          // Check if username or email or nickname already exist.
+          let exists = [];
           let user = new User();
           let usernameExist = yield user.checkUsernameExist(params['username']);
           let emailExist = yield user.checkEmailExist(params['email']);
-          let exists = [];
+          let nicknameExist = yield user.checkNicknameExist(params['nickname']);
+
           if (usernameExist) exists.push('username');
           if (emailExist) exists.push('email');
+          if (nicknameExist) exists.push('nickname');
+
           return exists;
         }).then((exists) => {
           let data = {};
           if (exists.length > 0) {
             this.logger.log('Failed to create new user | username(' + params['username']
-              + ') or email(' + params['email'] + ') already exist');
+              + ') or email(' + params['email'] + ') or nickname(' +params['nickname']
+              + ') already exist');
             data = {
               type: 'error',
               errorType: 'exist',
@@ -42,7 +48,7 @@ class UserController extends Controller {
             };
           } else {
             this.logger.log('User will be created | username(' + params['username']
-              + '), email(' + params['email'] + ')');
+              + '), email(' + params['email'] + '), nickname(' + params['nickname'] + ')');
             data = {type: 'valid'};
           }
           resolve(data);
@@ -54,6 +60,7 @@ class UserController extends Controller {
 
   _validateSignUpInputs(params) {
     var errors = [];
+    // Check username.
     if (typeof params['username'] === 'undefined' || params['username'] === '') {
       errors.push('username');
     } else {
@@ -61,13 +68,22 @@ class UserController extends Controller {
         errors.push('username');
       }
     }
+
+    // Check password.
     if (typeof params['password'] === 'undefined' || params['password'] === '' ||
         typeof params['passwordVerify'] === 'undefined' || params['passwordVerify'] === '' ||
         params['password'] != params['passwordVerify']) {
       errors.push('password');
     }
+
+    // Check email.
     if (typeof params['email'] === 'undefined' || params['email'] === '') {
       errors.push('email');
+    }
+
+    // Check nickname.
+    if (typeof params['nickname'] === 'undefined' || params['nickname'] === '') {
+      errors.push('nickname');
     }
 
     return errors;
@@ -86,7 +102,7 @@ class UserController extends Controller {
     var promise = new Promise((resolve, reject) => {
       let user = new User();
       user.select({
-        select: ['id', 'username', 'email', 'password'],
+        select: ['id', 'username', 'email', 'password', 'nickname'],
         where: {
           username: params['username']
         }

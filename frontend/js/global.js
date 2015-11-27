@@ -90,6 +90,7 @@ function App() {
   };
 
   this.showUserSettings = function() {
+    $('#user-settings-welcome-nickname').text(this.user['nickname']);
     $('#comp-sign-in').addClass('hide');
     $('#comp-user-settings').removeClass('hide');
   };

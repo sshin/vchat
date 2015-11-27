@@ -20,11 +20,24 @@ class User extends Model {
     return promise;
   }
 
-  checkEmailExist(email, callback) {
+  checkEmailExist(email) {
     var promise = new Promise((resolve, reject) => {
       this.select({
         where: {
           email: email
+        }
+      }).then((rows) => {
+        resolve(rows.length > 0);
+      });
+    });
+    return promise;
+  }
+
+  checkNicknameExist(nickname) {
+    var promise = new Promise((resolve, reject) => {
+      this.select({
+        where: {
+          nickname: nickname
         }
       }).then((rows) => {
         resolve(rows.length > 0);

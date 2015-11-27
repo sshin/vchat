@@ -27,7 +27,8 @@ var SignIn = React.createClass({
       username: this.refs['signupUsername'].getVal(),
       password: this.refs['signupPassword'].getVal(),
       passwordVerify: this.refs['signupPasswordVerify'].getVal(),
-      email: this.refs['signupEmail'].getVal()
+      email: this.refs['signupEmail'].getVal(),
+      nickname: this.refs['signupNickname'].getVal()
     };
 
     app.post('signup', {
@@ -52,6 +53,10 @@ var SignIn = React.createClass({
             case 'email':
               this.refs['signupEmail'].highlight();
               message.push('Email');
+              break;
+            case 'nickname':
+              this.refs['signupNickname'].highlight();
+              message.push('Nickname');
               break;
           }
         }
@@ -94,6 +99,8 @@ var SignIn = React.createClass({
                             required="true" />
                 <InputField id="email-input" placeholder="Your email"
                             label="Email" ref="signupEmail" required="true" />
+                <InputField id="nickname-input" placeholder="Your nick name"
+                            label="Nickname" ref="signupNickname" required="true" />
               </div>
               <Button id="login" color="blue" text="Sign up to vChat"
                        onClick={this._signUp} />

@@ -8,7 +8,9 @@ var UserSettings = React.createClass({
   render: function() {
     return (
       <div id="user-settings-wrapper" className="white-background card-item">
-        <div className="center-text card-item-title">Welcome to vChat!</div>
+        <div className="center-text card-item-title">
+          Welcome to vChat <span id="user-settings-welcome-nickname"></span>!
+        </div>
         <Dialog id="user-settings-dialog" buttonText="Your vChat settings"
                 header="User Settings">
         </Dialog>
