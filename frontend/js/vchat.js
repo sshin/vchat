@@ -250,7 +250,7 @@ function controlVideo(data) {
 
       // TODO: Handle situation where no more next video.
       loadVideo(data['nextVideo']);
-      return;
+      break;
     case 'playNextFromQueue':
       updateChat({
         message: 'Playing next video from the queue.',
@@ -260,7 +260,17 @@ function controlVideo(data) {
       setTimeout(function () {
         loadVideo(data['nextVideo']);
       }, 1500);
-      return;
+      break;
+    case 'playRelatedVideo':
+      updateChat({
+        message: 'Queue is empty. Playing a related video from the last played video.',
+        chatClass: 'system-message-info'
+      });
+
+      setTimeout(function () {
+        loadVideo(data['nextVideo']);
+      }, 1500);
+      break;
   }
 
   updateChat({

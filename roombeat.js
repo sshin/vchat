@@ -6,7 +6,7 @@ var server = require('http').createServer(app);
 var credentials = require('credentials');
 var Constants = require('./app_modules/constants');
 var server = app.listen(21500, () => {
-  console.log('[Log] Socket roombeat server started and listening on port %d',
+  console.log('[Warm up Log] Socket roombeat server started and listening on port %d',
                server.address().port);
 });
 var io = require('socket.io').listen(server);
@@ -30,8 +30,9 @@ io.on('connection', function (socket) {
         videoEnded: true,
         videoKey: videoKey,
         videoId: data['videoId'],
-        roomKey: roomKey
-      }
+        roomKey: roomKey,
+        roomHash: roomHash
+      };
       process.send(JSON.stringify(videoData));
     }
   });
@@ -70,6 +71,7 @@ function _getRoomHash(socket) {
     }
   }
 
+  // Roombeat every 3 seconds.
   setTimeout(roomBeat, 3000);
 })();
 

@@ -19,7 +19,7 @@ app.use(session({
   saveUninitialized: true
 }));
 var server = app.listen(20000, () => {
-  console.log('[Log] Server started on port %d', server.address().port);
+  console.log('[Warm up Log] Server started on port %d', server.address().port);
 });
 
 
@@ -28,7 +28,7 @@ var pool = require('./models/db_pool');
 var Room = require('./models/room').Room;
 var room = new Room();
 /** Clear Room table on server start. **/
-console.log('[Log] Clearing up Room table on server start.')
+console.log('[Warm up Log] Clearing up Room table on server start.');
 room.clearRoom();
 
 

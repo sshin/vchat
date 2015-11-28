@@ -137,7 +137,8 @@ class SocketRedisController extends Controller {
         // Very first video.
         let newData = {
           currentVideo: null,
-          queue: [videoData]
+          queue: [videoData],
+          searchingRelatedVideo: false
         };
         this._set(this._redisVideoClient, this._videoKey, newData).then(() => {
           // Since this is the very first video, it must playNextVideo.
@@ -146,8 +147,8 @@ class SocketRedisController extends Controller {
         });
       } else {
         data.queue.push(videoData);
-        if (data.currentVideo == null) {
-          // No video currently playing, so set and play next video.
+        if (data.currentVideo == null && !data.searchingRelatedVideo) {
+          // No video currently playing, so set and play the next video.
           let nextVideo = data.queue.shift();
           data.currentVideo = nextVideo;
           this._set(this._redisVideoClient, this._videoKey, data).then(() => {
