@@ -115,11 +115,11 @@ class SocketController extends Controller {
    * Validate youtube video, and add it to queue.
    */
   newVideoSubmit(data) {
-    // TODO: Update this logic to be more powerful. Temporary now.
+    var submitType = '';
     if (typeof data['videoId'] !== 'undefined') {
-      // No action needed.
-      this.logger.log('new video submit via search');
+      submitType = 'search';
     } else {
+      submitType = 'link';
       // Check YouTube link.
       if (!data['link'].startsWith('https://www.youtube.com/watch?')
         && !data['link'].startsWith('https://youtu.be/')) {
@@ -169,7 +169,8 @@ class SocketController extends Controller {
       delete data['link'];
     }
 
-    this.logger.log('queuing a video | videoId: ' + data['videoId'] + ' | room: ' + this._roomHash);
+    this.logger.log('queuing a video | submit type: ' + submitType
+                    + ' | videoId: ' + data['videoId'] + ' | room: ' + this._roomHash);
     // TODO: And probably verify given link is a real youtube video?
     this._redisCtrl.queueVideo(data, () => {
       // Callback for when queueing is done.
