@@ -67,6 +67,8 @@ class RoombeatController extends Controller {
                 this.logger.error('Error when searching for a related video for room:'
                                    + data['roomHash'] + ' | videoId: ' + data['videoId']);
 
+                let controlVideo = {action: 'noRelatedVideo'};
+                this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
                 // videoData.searchingRelatedVideo should be true if it hits this else block,
                 // but we want to keep it as true, because we don't want to do any more search
                 // that will return an error for sure.

@@ -271,6 +271,12 @@ function controlVideo(data) {
         loadVideo(data['nextVideo']);
       }, 1500);
       break;
+    case 'noRelatedVideo':
+      updateChat({
+        message: 'Queue is empty. Cannot find a related video from the last played video.',
+        chatClass: 'system-message-warning'
+      });
+      break;
   }
 
   updateChat({
