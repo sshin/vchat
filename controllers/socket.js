@@ -234,7 +234,7 @@ class SocketController extends Controller {
           data['nextVideo'] = nextVideo;
           this._broadcastInRoom('control-video', data);
         } else {
-          this._broadcastInRoom('no-more-video', {
+          this._socket.emit('no-more-video', {
             chatClass: this._systemMessageType['warning']
           });
         }
