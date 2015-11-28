@@ -88,7 +88,7 @@ class RoombeatController extends Controller {
                 // Notify users to play the related video.
                 let controlVideo = {
                   action: 'playRelatedVideo',
-                  chatClass: 'system-message-info',
+                  messageType: 'info',
                   nextVideo: nextVideo
                 };
                 this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
@@ -100,7 +100,7 @@ class RoombeatController extends Controller {
 
                 let controlVideo = {
                   action: 'noRelatedVideo',
-                  chatClass: 'system-message-warning'
+                  messageType: 'warning'
                 };
                 this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
               }
@@ -117,7 +117,7 @@ class RoombeatController extends Controller {
             // Notify users to play next video.
             let controlVideo = {
               action: 'playNextFromQueue',
-              chatClass: 'system-message-info',
+              messageType: 'info',
               nextVideo: nextVideo
             };
             this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);

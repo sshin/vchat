@@ -21,11 +21,6 @@ class SocketController extends Controller {
     this._user = {id: socket['id']};
     this._socket = socket;
     this._socket.join(this._roomKey);
-    this._systemMessageType = {
-      info: 'system-message-info',
-      warning: 'system-message-warning',
-      action: 'system-message-action'
-    };
     this._init();
   }
 
@@ -40,7 +35,7 @@ class SocketController extends Controller {
       this._redisCtrl.addUserToRoom(this._user);
       this._broadcastToRoom('new-user-entered', {
         username: this._user['name'],
-        chatClass: this._systemMessageType['info'],
+        messageType: 'info',
         message: 'entered the vChat room.'
       });
     });
@@ -94,7 +89,7 @@ class SocketController extends Controller {
   leave() {
     this._broadcastToRoom('user-left', {
       message: '[' + this._user['name'] + '] has left the vChat room.',
-      chatClass: this._systemMessageType['warning']
+      messageType: 'warning'
     });
     this._redisCtrl.removeUserFromRoom(this._user);
   }
@@ -179,12 +174,12 @@ class SocketController extends Controller {
     this._redisCtrl.queueVideo(data, () => {
       // Callback for when queueing is done.
       data['message'] = 'queued new video!';
-      data['chatClass'] = this._systemMessageType['info'];
+      data['messageType'] = 'info';
       this._broadcastInRoom('new-video-queued', data)
     }, (nextVideo) => {
       // This will be executed if there is no video currently playing.
       nextVideo['message'] = 'Playing a video from the queue.';
-      nextVideo['chatClass'] = this._systemMessageType['info'];
+      nextVideo['messageType'] = 'info';
       this._broadcastInRoom('new-video-to-play', nextVideo);
     });
   }
@@ -229,7 +224,7 @@ class SocketController extends Controller {
    * Broadcast video control action in room.
    */
   controlVideo(data) {
-    data['chatClass'] = this._systemMessageType['action'];
+    data['messageType'] = 'action';
     if (data['action'] == 'playNext') {
       this._redisCtrl.playNextVideo((nextVideo) => {
         if (nextVideo !== null) {
@@ -237,7 +232,7 @@ class SocketController extends Controller {
           this._broadcastInRoom('control-video', data);
         } else {
           this._socket.emit('no-more-video', {
-            chatClass: this._systemMessageType['warning']
+            messageType: 'warning'
           });
         }
       });

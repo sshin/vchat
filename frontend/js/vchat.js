@@ -10,6 +10,11 @@ var actionPause = false;
 // Whether video resumed/played via controller or not.
 var actionResume = false;
 var $currentPlayTime, timer;
+var MESSAGE_TYPES = {
+  info: 'system-message-info',
+  warning: 'system-message-warning',
+  action: 'system-message-action'
+};
 
 $(document).ready(function () {
   socket = io.connect('http://vchat-socket.nullcannull-dev.net');
@@ -45,22 +50,7 @@ function _onChatInputSubmit(e) {
       message: $.trim($chatInput.val())
     };
 
-    if (data['message'].toLowerCase() == 'what is the current video?') {
-      var videoData = player.getVideoData();
-      if (videoData['video_id'] !== null) {
-        updateChat({
-          html: true,
-          message: 'Name of the video is <a href="' + player.getVideoUrl()
-          + '" target="_blank">' + videoData['title'] + '</a>',
-          chatClass: 'system-message-info'
-        });
-      } else {
-        updateChat({
-          message: 'There is no video playing.',
-          chatClass: 'system-message-info'
-        });
-      }
-    } else if (data['message'] !== '') {
+    if (data['message'] !== '') {
       if (/^http(s)?:\/\//.test(data['message']) === true) {
         data['html'] = true;
         data['link'] = true;
@@ -173,24 +163,24 @@ function loadVideo(data) {
   // Video is loaded via server.
   actionResume = true;
   var message = null;
-  var chatClass = null;
+  var messageType = null;
   if (typeof data['currentVideo'] !== 'undefined') {
     message = 'You will be synced with the current video.';
-    chatClass = 'system-message-info';
+    messageType = 'info';
     // Add 0.5 for loading time..better than adding nothing.
     var deltaTime = Math.round((new Date().getTime() - parseInt(data['timestamp'])) / 1000 + 0.5);
     data['startAt'] = parseInt(data['startAt']) + deltaTime;
   }
 
-  if (typeof data['message'] !== 'undefined' && typeof data['chatClass'] !== 'undefined') {
+  if (typeof data['message'] !== 'undefined' && typeof data['messageType'] !== 'undefined') {
     message = data['message'];
-    chatClass = data['chatClass'];
+    messageType = data['messageType'];
   }
 
   if (message !== null) {
     updateChat({
       message: message,
-      chatClass: chatClass
+      messageType: messageType
     });
   }
 
@@ -221,9 +211,9 @@ function loadVideo(data) {
 
 function controlVideo(data) {
   var message = '';
-  var chatClass = '';
   switch (data['action']) {
     case 'startAt':
+      var startAt = 0;
       message = 'adjusted video!';
       if (typeof data['startAt'] === 'number') {
         startAt = data['startAt'];
@@ -265,11 +255,16 @@ function controlVideo(data) {
       break;
   }
 
-  updateChat({
+  var chatData = {
     username: data['username'],
-    message: message,
-    chatClass: data['chatClass']
-  });
+    message: message
+  };
+
+  if (typeof data['messageType'] !== 'undefined') {
+    chatData['messageType'] = data['messageType'];
+  }
+
+  updateChat(chatData);
 }
 
 function noMoreVideo(data) {
@@ -284,12 +279,19 @@ function noMoreVideo(data) {
 function _appendToChatBox(data) {
   if (numMessages < 30) numMessages++;
   var $chatBox = $('#chat-messages');
-  var classes = 'chat-message';
-  if (typeof data['chatClass'] !== 'undefined') classes += ' ' + data['chatClass'];
+  var classes = ['chat-message'];
+
+  // If chatClass is defined directly, use chatClass.
+  if (typeof data['chatClass'] !== 'undefined' && data['chatClass'] !== null) {
+    classes.push(data['chatClass']);
+  } else if (typeof data['messageType'] !== 'undefined' && data['messageType'] !== null) {
+    // If messageType is defined, use it.
+    classes.push(MESSAGE_TYPES[data['messageType']]);
+  }
 
   // If this chat message is by current user itself, add background color.
   if ((typeof data['username'] !== 'undefined') && data['username'] === $('#user-name').val()){
-    classes += ' ' + 'chat-self';
+    classes.push('chat-self');
   }
 
   if (typeof data['html'] !== 'undefined' && data['html'] === true) {
@@ -298,12 +300,12 @@ function _appendToChatBox(data) {
     data['message'] = app.escapeHTML(data['message']);
   }
 
-  $chatBox.append('<div class="' + classes + '">' + data['message'] + '</div>');
+  $chatBox.append('<div class="' + classes.join(' ') + '">' + data['message'] + '</div>');
   $('#chat-box-wrapper').scrollTop($chatBox.height());
 
   // Remove the top message if there are more than 30 messages.
   if (numMessages >= 30) {
-    $('#chat-messages').children().first().remove();
+    $chatBox.children().first().remove();
   }
 }
 
@@ -350,15 +352,16 @@ function onPlayerReady(event) {
 }
 
 function onPlayerStateChange(event) {
+  var $videoWrapper = $('#video-wrapper');
   /* When current video ends, try to load next video on queue from server. */
   // Always clear interval on state change.
   clearInterval(timer);
   switch (event.data) {
     case 0: // Current video ended.
-      $('#video-wrapper').addClass('no-pointer-events');
+      $videoWrapper.addClass('no-pointer-events');
       break;
     case 1: // Started/Resumed playing.
-      $('#video-wrapper').removeClass('no-pointer-events');
+      $videoWrapper.removeClass('no-pointer-events');
       if (pauseAfterLoad) {
         actionPause = true;
         player.pauseVideo();
