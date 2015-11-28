@@ -1,19 +1,19 @@
 var router = require('express').Router();
 var request = require('request');
-var apiKey = require('credentials').youtubeAPIKey;
+var credentials = require('credentials');
 
 router.get('/', (req, res) => {
   var data = {
     url: 'https://www.googleapis.com/youtube/v3/search',
     qs: {
-      key: apiKey,
+      key: credentials.youtubeAPIKey,
       part: 'snippet',
       q: req.query.q,
       type: 'video',
       maxResults: 20
     },
     headers: {
-      'Referer': 'vchat.nullcannull-dev.net'
+      'Referer': credentials.APIReferer
     }
   };
 

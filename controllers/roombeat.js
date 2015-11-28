@@ -1,6 +1,6 @@
 var Controller = require('./controller').Controller;
 var request = require('request');
-var apiKey = require('credentials').youtubeAPIKey;
+var credentials = require('credentials');
 
 class RoombeatController extends Controller {
 
@@ -16,7 +16,7 @@ class RoombeatController extends Controller {
    * If queue is empty, then get a related video and play it.
    */
   currentVideoEnded(message) {
-    let data = JSON.parse(message);
+    var data = JSON.parse(message);
     if (data['videoEnded']) {
       this._redisClient.get(data['videoKey'], (err, videoData) => {
         if (err) throw err;
@@ -24,6 +24,7 @@ class RoombeatController extends Controller {
         videoData = JSON.parse(videoData);
         if (videoData !== null) {
           if (videoData['queue'].length === 0) {
+            let maxRelatedVideos = 20;
             // Queue is empty, so we get a related video from the last played video.
             // If roombeat controller is currently searching for a related video, don't do anything.
             if (videoData['searchingRelatedVideo']) return;
@@ -38,18 +39,21 @@ class RoombeatController extends Controller {
                              + data['roomHash']);
 
             // We store maximum 10 related videos to avoid duplicated related videos.
-            let url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=';
-            url += data['videoId'] + '&type=video&maxResults=20&key=' + apiKey;
             request.get({
-              url: url,
+              url: 'https://www.googleapis.com/youtube/v3/search',
+              qs: {
+                part: 'snippet',
+                relatedToVideoId: data['videoId'],
+                type: 'video',
+                maxResults: maxRelatedVideos,
+                key: credentials.youtubeAPIKey
+              },
               headers: {
-                'Referer': 'vchat.nullcannull-dev.net'
+                'Referer': credentials.APIReferer
               }
             }, (error, response, body) => {
               let items = JSON.parse(body)['items'];
               if (typeof items !== 'undefined' && items != null && items.length > 0) {
-                this.logger.log('Found a related video for the room: ' + data['roomHash']);
-
                 // Avoid duplicated related videos.
                 // Max length of items is 20..so it's okay for this tiny blocking code.
                 let nextVideo = {username: 'vChat'};
@@ -64,8 +68,8 @@ class RoombeatController extends Controller {
                   }
                 }
 
-                // Reset related videos if over 20.
-                if (videoData['relatedVideos']['length'] >= 20) {
+                // Reset related videos if over limit.
+                if (videoData['relatedVideos']['length'] >= maxRelatedVideos) {
                   this.logger.log('reached maximum related videos for the room: '
                                    + data['roomHash']);
                   videoData['relatedVideos'] = {length: 0, videos: {}};
