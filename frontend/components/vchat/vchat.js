@@ -23,11 +23,7 @@ var VideoSearch = React.createClass({
         // TODO: error message for input.
 
         var data = {
-          key: 'AIzaSyAlUxS-otlTs8LjXPtbICBbAGTvNKY7wSY',
-          part: 'snippet',
-          q: input,
-          type: 'video',
-          maxResults: 20 // Videos per page.
+          q: input
         };
 
         var resetSearch = true;
@@ -39,11 +35,11 @@ var VideoSearch = React.createClass({
           resetSearch = false;
         }
 
-        $.ajax({
-          url: 'https://www.googleapis.com/youtube/v3/search',
-          data: data,
+        app.get('videosearch', {
           beforeSend: $InputField.disableInput(),
+          data: data,
           success: function(response) {
+            response = JSON.parse(response);
             this._keyword = input;
             this._nextPageToken = response.nextPageToken;
             this._searchResults.push(response.items);
@@ -54,7 +50,7 @@ var VideoSearch = React.createClass({
             app.error('Youtube video search error.');
             $InputField.enableInput();
           }
-        })
+        });
       }
     }.bind(this));
   },

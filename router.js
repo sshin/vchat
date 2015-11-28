@@ -39,7 +39,8 @@ module.exports = (app) => {
   app.use('/api/logout', require('./api/logout'));
   app.use('/api/room', require('./api/room'));
   app.use('/api/category', require('./api/category'));
-}
+  app.use('/api/videosearch', require('./api/videosearch'));
+};
 
 /**
  * Check if file exist, and respond to client.
