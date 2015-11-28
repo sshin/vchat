@@ -1,5 +1,3 @@
-/***** youtube api *****/
-
 var player;
 var socket;
 var roombeat;
