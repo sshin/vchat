@@ -92,7 +92,7 @@ class RoombeatController extends Controller {
                   nextVideo: nextVideo
                 };
                 this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
-                this.logger.log('Automatically playing the related video '
+                this.logger.log('Automatically playing a related video '
                                 + 'for the room: ' + data['roomHash']);
               } else {
                 this.logger.error('Error when searching for a related video for room:'
