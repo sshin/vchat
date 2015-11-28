@@ -25,7 +25,6 @@ function App() {
   };
 
   this._ajax = function (type, func, options) {
-
     var params = {
       url: CONFIG.apiUrl + func,
       type: type
@@ -106,5 +105,3 @@ function App() {
 }
 
 var app = new App();
-
-
