@@ -126,7 +126,7 @@ class SocketController extends Controller {
       this.logger.log('new video submit via search');
     } else {
       // Check YouTube link.
-      if (!data['link'].startsWith('https://www.youtube.com/watch?v=')
+      if (!data['link'].startsWith('https://www.youtube.com/watch?')
         && !data['link'].startsWith('https://youtu.be/')) {
         this.logger.log('Invalid video link: ' + data['link']);
         return;
@@ -146,23 +146,30 @@ class SocketController extends Controller {
 
           // Now lets see if this link contains start time.
           link = link[1].split('&');
-          let startAt = this._getStartAt(link, 0);
+          let startAt = this._getStartAt(link);
           if (startAt !== null) data['startAt'] = startAt;
         }
         data['videoId'] = id;
       } else {
-        // Handle https://youtube.com/watch?v= url.
+        // Handle https://youtube.com/watch?. (v=id)
         let link = data['link'].split('/');
-        link = link[link.length - 1].replace('watch?v=', '');
+        link = link[link.length - 1].replace('watch?', '');
         link = link.split('&');
-        let id = link[0];
+        let id = null;
 
         if (link.length > 1) {
-          // This link contains additional parameters.
-          let startAt = this._getStartAt(link, 1);
-          if (startAt !== null) data['startAt'] = startAt;
+          // Parse link.
+          let parsedData = this._parseLink(link);
+          if (parsedData['id'] !== null) id = parsedData['id'];
+          if (parsedData['startAt'] !== null) data['startAt'] = parsedData['startAt'];
+        } else {
+          if (link[0].startsWith('v=')) id = link[0].replace('v=', '');
         }
         data['videoId'] = id;
+      }
+      if (data['videoId'] === null) {
+        this.logger.log('Invalid video link: ' + data['link']);
+        return;
       }
       delete data['link'];
     }
@@ -183,33 +190,39 @@ class SocketController extends Controller {
   }
 
   /**
-   * Parse start time from the link.
+   * Parse link and get id / start at.
    */
-  _getStartAt(link, start) {
-    var time;
-    for (var i = start; i < link.length; i++) {
-      if (link[i].startsWith('t=')) {
+  _parseLink(link) {
+    var time, id;
+    var data = {id: null, startAt: null};
+    for (var i = 0; i < link.length; i++) {
+      if (link[i].startsWith('v=')) {
+        id = link[i].replace('v=', '');
+      } else if (link[i].startsWith('t=')) {
         time = link[i].replace('t=', '');
-        break;
       }
     }
+
     if (typeof time !== 'undefined') {
       let startAt = time.split('m');
       if (startAt.length > 1) {
         // Format of t=1m33s..
         let min = startAt[0];
         let sec = startAt[1].replace('s', '');
-        startAt = {
+        data['startAt'] = {
           min: min,
           sec: sec
         };
       } else {
-        startAt = parseInt(startAt[0]);
+        data['startAt'] = parseInt(startAt[0]);
       }
-      return startAt;
-    } else {
-      return null;
     }
+
+    if (typeof id !== 'undefined') {
+      data['id'] = id;
+    }
+
+    return data;
   }
 
   /**
