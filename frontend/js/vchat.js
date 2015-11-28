@@ -369,8 +369,10 @@ function onPlayerStateChange(event) {
   clearInterval(timer);
   switch (event.data) {
     case 0: // Current video ended.
+      $('#video-wrapper').addClass('no-pointer-events');
       break;
     case 1: // Started/Resumed playing.
+      $('#video-wrapper').removeClass('no-pointer-events');
       if (pauseAfterLoad) {
         actionPause = true;
         player.pauseVideo();

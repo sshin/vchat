@@ -261,3 +261,7 @@ select {
   color: #f44336;
   font-size: 16px;
 }
+
+.no-pointer-events {
+  pointer-events: none;
+}
