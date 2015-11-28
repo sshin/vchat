@@ -18,7 +18,7 @@ class SocketController extends Controller {
     this._roomHash = this._getRoomHash(socket);
     this._roomKey = Constants.redisRoomKeyPrefix + this._roomHash;
     this._redisCtrl = new SocketRedisController(redisClient, redisClient2, this._roomHash);
-    this._user = {id: socket.id};
+    this._user = {id: socket['id']};
     this._socket = socket;
     this._socket.join(this._roomKey);
     this._systemMessageType = {
@@ -53,18 +53,18 @@ class SocketController extends Controller {
   getCurrentPlayTimeForNewUser(data) {
     this._redisCtrl.checkVideoPlaying((videoId) => {
       if (videoId) {
-        let sockets = this._io.sockets.adapter.rooms[this._roomKey];
+        let sockets = this._io.sockets['adapter']['rooms'][this._roomKey];
         for (var key in sockets) {
           // Just sending one emit is fine enough...
           if (sockets[key] === true) {
             let data = {
               videoId: videoId,
               socketId: this._socket.id
-            }
+            };
             try {
               // It's possible that this user(socket) left the room,
               // right after we got the socket id.
-              this._io.sockets.connected[key].emit('get-current-play-time-for-new-user', data);
+              this._io.sockets['connected'][key].emit('get-current-play-time-for-new-user', data);
               break;
             } catch (err) {
               // Continue looping..
@@ -81,7 +81,7 @@ class SocketController extends Controller {
     delete data['socketId'];
     try {
       // Make sure new user is still connected.
-      this._io.sockets.connected[socketId].emit('new-video-to-play', data);
+      this._io.sockets['connected'][socketId].emit('new-video-to-play', data);
     } catch (err) {
       // New user left the room so don't do anything..
     }
@@ -98,24 +98,11 @@ class SocketController extends Controller {
     });
     this._redisCtrl.removeUserFromRoom(this._user);
   }
-
-  getRoomHash() {
-    return this._roomHash;
-  }
-
-  getRoomKey() {
-    return this._roomKey;
-  }
-
-  getSocketId() {
-    return this._socket.id;
-  }
-
   /**
    * Parse room hash from socket object.
    */
   _getRoomHash(socket) {
-    var referer = socket.handshake.headers.referer;
+    var referer = socket['handshake']['headers']['referer'];
     referer = referer.split('/');
     return referer[referer.length - 1];
   }

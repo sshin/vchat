@@ -172,22 +172,22 @@ function loadVideo(data) {
 
   // Video is loaded via server.
   actionResume = true;
-  var message, chatClass;
+  var message = null;
+  var chatClass = null;
   if (typeof data['currentVideo'] !== 'undefined') {
     message = 'You will be synced with the current video.';
     chatClass = 'system-message-info';
     // Add 0.5 for loading time..better than adding nothing.
     var deltaTime = Math.round((new Date().getTime() - parseInt(data['timestamp'])) / 1000 + 0.5);
     data['startAt'] = parseInt(data['startAt']) + deltaTime;
-  } else {
-    message = 'Next video will be played shortly.';
-    chatClass = 'system-message-warning';
   }
 
-  updateChat({
-    message: message,
-    chatClass: chatClass
-  });
+  if (message !== null) {
+    updateChat({
+      message: message,
+      chatClass: chatClass
+    });
+  }
 
   var videoData = {
     videoId: data['videoId']
@@ -197,7 +197,8 @@ function loadVideo(data) {
     if (typeof data['startAt'] === 'number') {
       videoData['startSeconds'] = data['startAt'];
     } else {
-      videoData['startSeconds'] = (parseInt(data.startAt['min']) * 60) + parseInt(data.startAt['sec']);
+      videoData['startSeconds'] = (parseInt(data.startAt['min']) * 60)
+                                  + parseInt(data.startAt['sec']);
     }
   } else if (typeof data['startSeconds'] !== 'undefined') {
     videoData['startSeconds'] = data['startSeconds'];
@@ -215,6 +216,7 @@ function loadVideo(data) {
 
 function controlVideo(data) {
   var message = '';
+  var chatClass = '';
   switch (data['action']) {
     case 'startAt':
       message = 'adjusted video!';
@@ -239,43 +241,28 @@ function controlVideo(data) {
       break;
     case 'playNext':
       message = 'played next video!';
-
-      // We want to disply this chat first...
-      // TODO: Find better way to do this.
-      updateChat({
-        username: data['username'],
-        message: message,
-        chatClass: data['chatClass']
-      });
-
-      // TODO: Handle situation where no more next video.
+      chatClass = data['chatClass'];
       loadVideo(data['nextVideo']);
       break;
     case 'playNextFromQueue':
-      updateChat({
-        message: 'Playing next video from the queue.',
-        chatClass: 'system-message-info'
-      });
+      message = 'Playing next video from the queue.';
+      chatClass = 'system-message-info';
 
       setTimeout(function () {
         loadVideo(data['nextVideo']);
       }, 1500);
       break;
     case 'playRelatedVideo':
-      updateChat({
-        message: 'Queue is empty. Playing a related video from the last played video.',
-        chatClass: 'system-message-info'
-      });
+      message = 'Queue is empty. Playing a related video from the last played video.';
+      chatClass = 'system-message-info';
 
       setTimeout(function () {
         loadVideo(data['nextVideo']);
       }, 1500);
-      break;
+      return;
     case 'noRelatedVideo':
-      updateChat({
-        message: 'Queue is empty. Cannot find a related video from the last played video.',
-        chatClass: 'system-message-warning'
-      });
+      message = 'Queue is empty. Cannot find a related video from the last played video.';
+      chatClass = 'system-message-warning';
       break;
   }
 

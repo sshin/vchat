@@ -23,13 +23,13 @@ class RoombeatController extends Controller {
 
         videoData = JSON.parse(videoData);
         if (videoData !== null) {
-          if (videoData.queue.length === 0) {
+          if (videoData['queue'].length === 0) {
             // Queue is empty, so we get a related video from the last played video.
             // If roombeat controller is currently searching for a related video, don't do anything.
-            if (videoData.searchingRelatedVideo) return;
+            if (videoData['searchingRelatedVideo']) return;
 
             // Now we should search for a related video.
-            videoData.searchingRelatedVideo = true;
+            videoData['searchingRelatedVideo'] = true;
             // Set the last played videoId into related videos, so we won't play it again.
             videoData['relatedVideos']['videos'][data['videoId']] = 1;
             this._redisClient.set(data['videoKey'], JSON.stringify(videoData));
@@ -60,9 +60,6 @@ class RoombeatController extends Controller {
                     let length = parseInt(videoData['relatedVideos']['length']);
                     videoData['relatedVideos']['length'] = length + 1;
                     break;
-                  } else {
-                    this.logger.log('duplicated related video for the room: '
-                                    + data['roomHash']);
                   }
                 }
 
@@ -78,10 +75,10 @@ class RoombeatController extends Controller {
                 }
 
                 // Found a related video. Set it to current video.
-                videoData.currentVideo = nextVideo;
+                videoData['currentVideo'] = nextVideo;
 
                 // Set to redis ASAP.
-                videoData.searchingRelatedVideo = false;
+                videoData['searchingRelatedVideo'] = false;
                 this._redisClient.set(data['videoKey'], JSON.stringify(videoData));
 
                 // Notify users to play the related video.
@@ -105,11 +102,11 @@ class RoombeatController extends Controller {
             });
           } else {
             // There is/are video(s) in the queue, so play the next video.
-            let nextVideo = videoData.queue.shift();
-            videoData.currentVideo = nextVideo;
+            let nextVideo = videoData['queue'].shift();
+            videoData['currentVideo'] = nextVideo;
 
             // Set to redis ASAP.
-            videoData.searchingRelatedVideo = false;
+            videoData['searchingRelatedVideo'] = false;
             this._redisClient.set(data['videoKey'], JSON.stringify(videoData));
 
             // Notify users to play next video.

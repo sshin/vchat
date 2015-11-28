@@ -119,8 +119,8 @@ class SocketRedisController extends Controller {
    */
   checkVideoPlaying(callback) {
     this._get(this._redisVideoClient, this._videoKey).then((data) => {
-      if (data !== null && data.currentVideo !== null) {
-        callback(data.currentVideo['videoId']);
+      if (data !== null && data['currentVideo'] !== null) {
+        callback(data['currentVideo']['videoId']);
       }
     });
   }
@@ -148,10 +148,10 @@ class SocketRedisController extends Controller {
         });
       } else {
         data.queue.push(videoData);
-        if (data.currentVideo == null && !data.searchingRelatedVideo) {
+        if (data['currentVideo'] == null && !data['searchingRelatedVideo']) {
           // No video currently playing, so set and play the next video.
-          let nextVideo = data.queue.shift();
-          data.currentVideo = nextVideo;
+          let nextVideo = data['queue'].shift();
+          data['currentVideo'] = nextVideo;
           this._set(this._redisVideoClient, this._videoKey, data).then(() => {
             callback();
             this.playNextVideo(playVideoCallback);
@@ -169,9 +169,9 @@ class SocketRedisController extends Controller {
   playNextVideo(callback) {
     this._get(this._redisVideoClient, this._videoKey).then((data) => {
       let videoData = data;
-      let nextVideo = videoData.queue.shift();
+      let nextVideo = videoData['queue'].shift();
       if (nextVideo) {
-        videoData.currentVideo = nextVideo;
+        videoData['currentVideo'] = nextVideo;
         this._set(this._redisVideoClient, this._videoKey, videoData).then(() => {
           callback(nextVideo)
         });

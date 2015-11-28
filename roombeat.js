@@ -42,7 +42,7 @@ io.on('connection', function (socket) {
  * Parse room hash from socket object. 
  */
 function _getRoomHash(socket) {
-  var referer = socket.handshake.headers.referer;
+  var referer = socket['handshake']['headers']['referer'];
   referer = referer.split('/');
   return referer[referer.length - 1];
 }
@@ -53,16 +53,18 @@ function _getRoomHash(socket) {
  */
 (function roomBeat() {
 
-  let rooms = io.sockets.adapter.rooms;
+  let rooms = io.sockets['adapter']['rooms'];
+  let count = 0;
   for (var key in rooms) {
     // Skip individual socket rooms.
     if (!key.startsWith(Constants.redisRoomKeyPrefix)) continue;
-    let sockets = io.sockets.adapter.rooms[key];
+    count++;
+    let sockets = io.sockets['adapter']['rooms'][key];
     for (let socketKey in sockets) {
       if (sockets[socketKey] === true) {
         try {
           // Just in case if this socket left the room in like 10ms...
-          io.sockets.connected[socketKey].emit('roombeat');
+          io.sockets['connected'][socketKey].emit('roombeat');
           break;
         } catch (err) {
           // Continue looping..
@@ -71,8 +73,9 @@ function _getRoomHash(socket) {
     }
   }
 
-  // Roombeat every 3 seconds.
-  setTimeout(roomBeat, 3000);
+  // Roombeat every 3 seconds - number of rooms.
+  // Roombeating rooms will take some time!
+  setTimeout(roomBeat, 3000 - count);
 })();
 
 
