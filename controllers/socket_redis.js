@@ -138,7 +138,8 @@ class SocketRedisController extends Controller {
         let newData = {
           currentVideo: null,
           queue: [videoData],
-          searchingRelatedVideo: false
+          searchingRelatedVideo: false,
+          relatedVideos: {length: 0, videos: {}}
         };
         this._set(this._redisVideoClient, this._videoKey, newData).then(() => {
           // Since this is the very first video, it must playNextVideo.

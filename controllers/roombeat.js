@@ -30,13 +30,16 @@ class RoombeatController extends Controller {
 
             // Now we should search for a related video.
             videoData.searchingRelatedVideo = true;
+            // Set the last played videoId into related videos, so we won't play it again.
+            videoData['relatedVideos']['videos'][data['videoId']] = 1;
             this._redisClient.set(data['videoKey'], JSON.stringify(videoData));
 
             this.logger.log('Queue is empty. Searching for a related video for the room: '
                              + data['roomHash']);
 
+            // We store maximum 10 related videos to avoid duplicated related videos.
             let url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=';
-            url += data['videoId'] + '&type=video&maxResults=1&key=' + apiKey;
+            url += data['videoId'] + '&type=video&maxResults=20&key=' + apiKey;
             request.get({
               url: url,
               headers: {
@@ -46,7 +49,33 @@ class RoombeatController extends Controller {
               let items = JSON.parse(body)['items'];
               if (typeof items !== 'undefined' && items != null && items.length > 0) {
                 this.logger.log('Found a related video for the room: ' + data['roomHash']);
-                let nextVideo = {username: 'vChat', videoId: items[0]['id']['videoId']};
+
+                // Avoid duplicated related videos.
+                let nextVideo = {username: 'vChat'};
+                for (let i = 0; i < items.length; i++) {
+                  let videoId = items[i]['id']['videoId'];
+                  if (!videoData['relatedVideos']['videos'].hasOwnProperty(videoId)) {
+                    nextVideo['videoId'] = videoId;
+                    videoData['relatedVideos']['videos'][videoId] = 1;
+                    let length = parseInt(videoData['relatedVideos']['length']);
+                    videoData['relatedVideos']['length'] = length + 1;
+                    break;
+                  } else {
+                    this.logger.log('duplicated related video for the room: '
+                                    + data['roomHash']);
+                  }
+                }
+
+                // Reset related videos if over 20.
+                if (videoData['relatedVideos']['length'] >= 20) {
+                  this.logger.log('reached maximum related videos for the room: '
+                                   + data['roomHash']);
+                  videoData['relatedVideos'] = {length: 0, videos: {}};
+                  // Just play the first related video if search result were all played before.
+                  if (!nextVideo.hasOwnProperty('videoId')) {
+                    nextVideo['videoId'] = items[0]['id']['videoId'];
+                  }
+                }
 
                 // Found a related video. Set it to current video.
                 videoData.currentVideo = nextVideo;
