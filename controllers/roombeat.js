@@ -51,6 +51,7 @@ class RoombeatController extends Controller {
                 this.logger.log('Found a related video for the room: ' + data['roomHash']);
 
                 // Avoid duplicated related videos.
+                // Max length of items is 20..so it's okay for this tiny blocking code.
                 let nextVideo = {username: 'vChat'};
                 for (let i = 0; i < items.length; i++) {
                   let videoId = items[i]['id']['videoId'];
@@ -68,22 +69,22 @@ class RoombeatController extends Controller {
                   this.logger.log('reached maximum related videos for the room: '
                                    + data['roomHash']);
                   videoData['relatedVideos'] = {length: 0, videos: {}};
-                  // Just play the first related video if search result were all played before.
-                  if (!nextVideo.hasOwnProperty('videoId')) {
-                    nextVideo['videoId'] = items[0]['id']['videoId'];
-                  }
                 }
 
-                // Found a related video. Set it to current video.
-                videoData['currentVideo'] = nextVideo;
+                // Just play the first related video if search results were all played before.
+                if (!nextVideo.hasOwnProperty('videoId')) {
+                  nextVideo['videoId'] = items[0]['id']['videoId'];
+                }
 
-                // Set to redis ASAP.
+                videoData['currentVideo'] = nextVideo;
                 videoData['searchingRelatedVideo'] = false;
+                // Set to redis ASAP.
                 this._redisClient.set(data['videoKey'], JSON.stringify(videoData));
 
                 // Notify users to play the related video.
                 let controlVideo = {
                   action: 'playRelatedVideo',
+                  chatClass: 'system-message-info',
                   nextVideo: nextVideo
                 };
                 this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
@@ -93,11 +94,11 @@ class RoombeatController extends Controller {
                 this.logger.error('Error when searching for a related video for room:'
                                    + data['roomHash'] + ' | videoId: ' + data['videoId']);
 
-                let controlVideo = {action: 'noRelatedVideo'};
+                let controlVideo = {
+                  action: 'noRelatedVideo',
+                  chatClass: 'system-message-warning'
+                };
                 this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
-                // videoData.searchingRelatedVideo should be true if it hits this else block,
-                // but we want to keep it as true, because we don't want to do any more search
-                // that will return an error for sure.
               }
             });
           } else {
@@ -112,11 +113,12 @@ class RoombeatController extends Controller {
             // Notify users to play next video.
             let controlVideo = {
               action: 'playNextFromQueue',
+              chatClass: 'system-message-info',
               nextVideo: nextVideo
             };
             this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
             this.logger.log('Automatically playing the next video from'
-                + ' the queue for the room: ' + data['roomHash']);
+                            + ' the queue for the room: ' + data['roomHash']);
           }
         }
       });

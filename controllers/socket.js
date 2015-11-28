@@ -176,6 +176,8 @@ class SocketController extends Controller {
       this._broadcastInRoom('new-video-queued', data)
     }, (nextVideo) => {
       // This will be executed if there is no video currently playing.
+      nextVideo['message'] = 'Playing a video from the queue.';
+      nextVideo['chatClass'] = this._systemMessageType['info'];
       this._broadcastInRoom('new-video-to-play', nextVideo);
     });
   }

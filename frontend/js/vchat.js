@@ -182,6 +182,11 @@ function loadVideo(data) {
     data['startAt'] = parseInt(data['startAt']) + deltaTime;
   }
 
+  if (typeof data['message'] !== 'undefined' && typeof data['chatClass'] !== 'undefined') {
+    message = data['message'];
+    chatClass = data['chatClass'];
+  }
+
   if (message !== null) {
     updateChat({
       message: message,
@@ -241,28 +246,22 @@ function controlVideo(data) {
       break;
     case 'playNext':
       message = 'played next video!';
-      chatClass = data['chatClass'];
       loadVideo(data['nextVideo']);
       break;
     case 'playNextFromQueue':
       message = 'Playing next video from the queue.';
-      chatClass = 'system-message-info';
-
       setTimeout(function () {
         loadVideo(data['nextVideo']);
       }, 1500);
       break;
     case 'playRelatedVideo':
       message = 'Queue is empty. Playing a related video from the last played video.';
-      chatClass = 'system-message-info';
-
       setTimeout(function () {
         loadVideo(data['nextVideo']);
       }, 1500);
-      return;
+      break;
     case 'noRelatedVideo':
       message = 'Queue is empty. Cannot find a related video from the last played video.';
-      chatClass = 'system-message-warning';
       break;
   }
 
