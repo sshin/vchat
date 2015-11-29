@@ -71,7 +71,7 @@ class RoombeatController extends Controller {
                 // Reset related videos if over limit.
                 if (videoData['relatedVideos']['length'] >= maxRelatedVideos) {
                   this.logger.log('reached maximum related videos for the room: '
-                                   + data['roomHash']);
+                                   + data['roomHash'] + ' | resetting related videos');
                   videoData['relatedVideos'] = {length: 0, videos: {}};
                 }
 
