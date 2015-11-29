@@ -1,0 +1,101 @@
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>Welcome to vChat</title>
+  <script src="http://vchat.nullcannull-dev.net/libs/jquery.min.js"></script>
+  <script src="http://vchat.nullcannull-dev.net/libs/react.js"></script>
+  <link href="http://vchat.nullcannull-dev.net/frontend/css/global.css" rel="stylesheet" type="text/css"/>
+  <script src="http://vchat.nullcannull-dev.net/frontend/js/global.js"></script>
+  <link href="http://vchat.nullcannull-dev.net/frontend/css/vchat.css" rel="stylesheet" type="text/css"/>
+  <script src="http://vchat.nullcannull-dev.net/frontend/js/vchat.js"></script>
+  <script src="http://vchat-socket.nullcannull-dev.net/socket.io/socket.io.js"></script>
+  <script src="https://www.youtube.com/player_api"></script>
+</head>
+<body>
+<div id="app-container" class="full-width">
+  <div id="pop-out-vchat-content-container" class="center-div full-width">
+    <div id="pop-out-video-wrapper" class="center-div full-width no-pointer-events">
+      <div id="video-content"></div>
+    </div>
+    <div id="pop-out-current-video-information" class="full-width">
+        <div id="current-video-name" class="pop-out-current-video-information-text"></div>
+        <div id="current-video-time" class="pop-out-current-video-information-text">
+          <span id="current-play-time"></span><span id="current-video-duration"></span>
+        </div>
+        <div id="current-video-youtube-link" class="pop-out-current-video-information-text"></div>
+      </div>
+    <div id="pop-out-chat-box-wrapper" class="center-div full-width">
+      <div id="chat-box">
+        <div id="chat-messages"></div>
+      </div>
+    </div>
+    <div id="video-link-wrapper">
+      <div class="form-item full-width">Copy and paste youtube link here...</div>
+      <input id="video-input" class="full-width" />
+    </div>
+    <div id="comp-video-search"></div>
+    <table id="video-controller">
+      <tr>
+        <td>
+          <div id="video-time-controller-wrapper">
+            <input id="video-control-minutes" class="video-control-time-input" maxlength="3"/>
+            <strong> : </strong>
+            <input id="video-control-seconds" class="video-control-time-input" maxlength="2"/>
+
+            <div>
+              <button id="video-controller-time"
+                      class="full-width center-text form-item video-control-button">Play
+              </button>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="video-resume-pause-wrapper">
+            <button id="video-controller-pause" class="center-text form-item video-control-button">
+              <img class="control-button-image"
+                   src="http://vchat.nullcannull-dev.net/assets/images/pause_button.png">
+            </button>
+          </div>
+        </td>
+        <td>
+          <div class="video-resume-pause-wrapper">
+            <button id="video-controller-resume" class="center-text form-item video-control-button">
+              <img class="control-button-image"
+                   src="http://vchat.nullcannull-dev.net/assets/images/play_button.png">
+            </button>
+          </div>
+        </td>
+        <td>
+          <div id="video-play-next-wrapper">
+            <button id="video-controller-play-next"
+                    class="center-text form-item video-control-button">
+              <img class="control-button-image"
+                   src="http://vchat.nullcannull-dev.net/assets/images/play_next_button.png">
+            </button>
+          </div>
+        </td>
+        <td>
+          <div id="current-video-information">
+            <div id="current-video-name"></div>
+            <div id="current-video-time"><span id="current-play-time"></span><span
+              id="current-video-duration"></span></div>
+            <div id="current-video-youtube-link"></div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+<script src="http://vchat.nullcannull-dev.net/frontend/js/components/global/alertbar.js"></script>
+<script src="http://vchat.nullcannull-dev.net/frontend/js/components/global/button.js"></script>
+<script src="http://vchat.nullcannull-dev.net/frontend/js/components/global/dialog.js"></script>
+<script src="http://vchat.nullcannull-dev.net/frontend/js/components/global/inputfield.js"></script>
+<script src="http://vchat.nullcannull-dev.net/frontend/js/components/global/tab.js"></script>
+<script src="http://vchat.nullcannull-dev.net/frontend/js/components/global/tabitem.js"></script>
+<script src="http://vchat.nullcannull-dev.net/frontend/js/components/vchat/vchat.js"></script>
+</body>
+</html>
+
+
+

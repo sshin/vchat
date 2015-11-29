@@ -48,8 +48,8 @@ router.post('/', (req, res) => {
         } else {
           req.session.privateRooms[hash] = true;
           res.send({
-            room: Constants.appUrl + 'vChat/private/' + hash,
-            popout: Constants.popoutUrl + 'private/' + hash
+            type: 'private',
+            room: hash
           });
         }
       }).catch((data) => res.status(data['status']).send());
@@ -60,8 +60,8 @@ router.post('/', (req, res) => {
           res.status(404).send();
         } else {
           res.send({
-            room: Constants.appUrl + 'vChat/public/' + hash,
-            popout: Constants.popoutUrl + 'public/' + hash
+            type: 'public',
+            room: hash
           });
         }
       }).catch((data) => res.status(data['status']).send());

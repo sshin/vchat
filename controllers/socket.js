@@ -110,8 +110,15 @@ class SocketController extends Controller {
    */
   _getRoomHash(socket) {
     var referer = socket['handshake']['headers']['referer'];
+
+    if (!referer.startsWith(Constants.appUrl)) {
+      this.logger.log('invalid socket handshake from: ' + referer);
+      return null;
+    }
+
     referer = referer.split('/');
-    return referer[referer.length - 1];
+    // Remove query params.
+    return referer[referer.length - 1].replace(/\?.*/, '');
   }
 
 

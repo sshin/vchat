@@ -1,6 +1,7 @@
 var SearchChatRoom = React.createClass({
   componentWillMount: function() {
-    this._roomUrl = '';
+    this._roomType = '';
+    this._room = '';
   },
 
   _alertBar: function() {
@@ -17,7 +18,8 @@ var SearchChatRoom = React.createClass({
       data: data,
       success: function (data) {
         // Redirect user to room.
-        this._roomUrl = data;
+        this._roomType = data['type'];
+        this._room = data['room'];
         this.refs['searchResult'].openDialog();
       }.bind(this),
       error: function(data) {
@@ -26,14 +28,6 @@ var SearchChatRoom = React.createClass({
         }
       }.bind(this)
     });
-  },
-
-  _entervChat: function() {
-    window.location.href = this._roomUrl['room'];
-  },
-
-  _openPopOut: function() {
-    window.open(this._roomUrl['popout'], '', 'width=831,height=785');
   },
 
   _searchPrivateRoom: function() {
@@ -47,7 +41,8 @@ var SearchChatRoom = React.createClass({
       data: data,
       success: function (data) {
         // Redirect user to room.
-        this._roomUrl = data;
+        this._roomType = data['type'];
+        this._room = data['room'];
         this.refs['searchResult'].openDialog();
       }.bind(this),
       error: function(data) {
@@ -60,6 +55,18 @@ var SearchChatRoom = React.createClass({
         }
       }.bind(this)
     });
+  },
+
+  _entervChat: function() {
+    window.location.href = CONFIG['vChatUrl'] + this._roomType + '/' + this._room;
+  },
+
+  _popOutVideoOnly: function() {
+    app.popOutVideoOnly(this._roomType, this._room);
+  },
+
+  _popOutRegular: function() {
+   app.popOutRegular(this._roomType, this._room);
   },
 
   _getTabs: function() {
@@ -110,8 +117,10 @@ var SearchChatRoom = React.createClass({
                 noButton="true">
           <Button id="enter-vchat" color="purple" text="Enter vChat room"
                   onClick={this._entervChat} />
+          <Button id="open-pop-out" color="purple" text="Open Pop Out (video only)"
+                  onClick={this._popOutVideoOnly} />
           <Button id="open-pop-out" color="purple" text="Open Pop Out (no control & no chat)"
-                  onClick={this._openPopOut} />
+                  onClick={this._popOutRegular} />
         </Dialog>
       </div>
     );
