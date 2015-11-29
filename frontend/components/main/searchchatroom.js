@@ -1,4 +1,8 @@
 var SearchChatRoom = React.createClass({
+  componentWillMount: function() {
+    this._roomUrl = '';
+  },
+
   _alertBar: function() {
     return this.refs['alertBar'];
   },
@@ -13,14 +17,27 @@ var SearchChatRoom = React.createClass({
       data: data,
       success: function (data) {
         // Redirect user to room.
-        window.location.href = data['url'];
-      },
+        this._roomUrl = data['url'];
+        this.refs['searchResult'].openDialog();
+      }.bind(this),
       error: function(data) {
         if (!data['response']) {
           this._alertBar().alert('Room not found');
         }
       }.bind(this)
     });
+  },
+
+  _entervChat: function() {
+    window.location.href = this._roomUrl;
+  },
+
+  _openPopOut: function() {
+    window.open(this._getPopOutURL(), '', 'width=831,height=785');
+  },
+
+  _getPopOutURL: function() {
+    return this._roomUrl.replace('/vChat/', '/videopopout/');
   },
 
   _searchPrivateRoom: function() {
@@ -34,8 +51,10 @@ var SearchChatRoom = React.createClass({
       data: data,
       success: function (data) {
         // Redirect user to room.
-        window.location.href = data['url'];
-      }, error: function(data) {
+        this._roomUrl = data['url'];
+        this.refs['searchResult'].openDialog();
+      }.bind(this),
+      error: function(data) {
         if (data['status'] == 401) {
           this._alertBar().alert('Room name or password is incorrect');
         } else {
@@ -77,7 +96,7 @@ var SearchChatRoom = React.createClass({
               <InputField id="public-room-search-name" placeholder="Search by name" label="Room"
                           ref="publicName" />
             </div>
-            <Button id="public-room-search" color="purple" text="Enter public vChat"
+            <Button id="public-room-search" color="purple" text="Search public vChat"
                      onClick={this._searchPublicRoom} />
           </div>
           <div id="private-room-search-wrapper">
@@ -86,11 +105,18 @@ var SearchChatRoom = React.createClass({
                            ref="privateName" />
               <InputField id="private-room-search-password" placeholder="Private room's password"
                           label="Password" maxLength="16" ref="privatePassword" />
-              <Button id="private-room-search" color="purple" text="Enter private vChat"
+              <Button id="private-room-search" color="purple" text="Search private vChat"
                       onClick={this._searchPrivateRoom} />
             </div>
           </div>
         </Tab>
+        <Dialog id="search-result-dialog" header="Enter the vChat Room" ref="searchResult"
+                noButton="true">
+          <Button id="enter-vchat" color="purple" text="Enter vChat room"
+                  onClick={this._entervChat} />
+          <Button id="open-pop-out" color="purple" text="Open Pop Out (no control & no chat)"
+                  onClick={this._openPopOut} />
+        </Dialog>
       </div>
     );
   }

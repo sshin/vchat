@@ -7,12 +7,13 @@
  *  buttonText: Text for close button.
  *  header: Dialog header text.
  *  children: React children. This is used for content.
+ *  noButton: boolean.
  */
 var Dialog = React.createClass({
   /**
    * Open dialog and automatically focus first input.
    */
-  _openDialog: function() {
+  openDialog: function() {
     var $el = $(this.refs['overlayWrapper'].getDOMNode());
 
     if ($el.hasClass('hide')) {
@@ -36,8 +37,11 @@ var Dialog = React.createClass({
 
     return (
       <div>
-        <Button id={this.props.id} color={color}
-                text={this.props.buttonText} onClick={this._openDialog} />
+        {this.props.noButton ?
+          '' :
+          <Button id={this.props.id} color={color} text={this.props.buttonText}
+                  onClick={this.openDialog}/>
+        }
         <div id={dialogId} className="dialog-overlay hide" ref="overlayWrapper">
           <div className="dialog-inner-wrapper center-div">
             <div className="dialog-content-header-wrapper">
