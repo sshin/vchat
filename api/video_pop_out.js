@@ -11,7 +11,7 @@ router.get('/public/:room', (req, res) => {
     if (roomExist) {
       res.sendFile('frontend/html/video_pop_out.html', sendFileParam);
     } else {
-      res.redirect(Constants.appUrl);
+      res.send('Invalid');
     }
   });
 });
@@ -23,12 +23,12 @@ router.get('/private/:room', (req, res) => {
     if (roomExist) {
       if (typeof req.session.privateRooms === 'undefined' ||
           !req.session.privateRooms.hasOwnProperty(room)) {
-        res.redirect(Constants.appUrl);
+        res.send('Invalid');
       } else {
         res.sendFile('frontend/html/video_pop_out.html', sendFileParam);
       }
     } else {
-      res.redirect(Constants.appUrl);
+      res.send('Invalid');
     }
   });
 });
