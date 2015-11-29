@@ -1,3 +1,6 @@
+"use strict";
+
+
 class Logger {
 
   _getTime() {

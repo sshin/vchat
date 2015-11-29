@@ -1,7 +1,9 @@
+"use strict";
+
 var Controller = require('./controller').Controller;
-var Constants = require('../app_modules/constants');
 var Room = require('../models/room').Room;
 var bcrypt = require('bcryptjs');
+
 
 class RoomController extends Controller {
 

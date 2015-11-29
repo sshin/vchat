@@ -1,3 +1,5 @@
+"use strict";
+
 var mysql = require('mysql');
 var credentials = require('credentials');
 

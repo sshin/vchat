@@ -1,3 +1,5 @@
+"use strict";
+
 var Model = require('./model').Model;
 
 

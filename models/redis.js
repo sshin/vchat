@@ -1,5 +1,8 @@
+"use strict";
+
 var DBPools = require('./db_pool');
 var Logger = require('../app_modules/logger');
+
 
 class Redis {
 

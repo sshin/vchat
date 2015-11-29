@@ -1,7 +1,9 @@
+"use strict";
+
 var Model = require('./model').Model;
 var Constants = require('../app_modules/constants');
-var Redis = require('./redis').Redis;
 var co = require('co');
+
 
 class Room extends Model {
 

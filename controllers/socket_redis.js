@@ -1,3 +1,5 @@
+"use strict";
+
 var Controller = require('./controller').Controller;
 var Room = require('../models/room').Room;
 var Constants = require('../app_modules/constants');

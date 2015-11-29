@@ -1,3 +1,5 @@
+"use strict";
+
 var Controller = require('./controller').Controller;
 var Constants = require('../app_modules/constants');
 var SocketRedisController = require('../controllers/socket_redis').SocketRedisController;

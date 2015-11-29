@@ -1,3 +1,5 @@
+"use strict";
+
 var router = require('express').Router();
 var UserController = require('../controllers/user').UserController;
 

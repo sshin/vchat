@@ -1,6 +1,9 @@
+"use strict";
+
 var Controller = require('./controller').Controller;
 var request = require('request');
 var credentials = require('credentials');
+
 
 class RoombeatController extends Controller {
 

@@ -1,3 +1,5 @@
+"use strict";
+
 var DBPools = require('./db_pool');
 var Redis = require('./redis').Redis;
 

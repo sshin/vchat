@@ -1,7 +1,8 @@
+"use strict";
+
 var router = require('express').Router();
 var RoomController = require('../controllers/room').RoomController;
 var Constants = require('../app_modules/constants');
-
 
 router.get('/', (req, res) => {
   var func = req.query.get;

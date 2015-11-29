@@ -1,4 +1,7 @@
+"use strict";
+
 var Logger = require('../app_modules/logger');
+
 
 class Controller {
 
