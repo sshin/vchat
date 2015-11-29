@@ -49,7 +49,7 @@ router.post('/', (req, res) => {
           req.session.privateRooms[hash] = true;
           res.send({
             room: Constants.appUrl + 'vChat/private/' + hash,
-            popout: Constants.popoutUrl + '/private/' + hash
+            popout: Constants.popoutUrl + 'private/' + hash
           });
         }
       }).catch((data) => res.status(data['status']).send());
@@ -61,7 +61,7 @@ router.post('/', (req, res) => {
         } else {
           res.send({
             room: Constants.appUrl + 'vChat/public/' + hash,
-            popout: Constants.popoutUrl + '/public/' + hash
+            popout: Constants.popoutUrl + 'public/' + hash
           });
         }
       }).catch((data) => res.status(data['status']).send());
