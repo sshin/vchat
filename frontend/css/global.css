@@ -1,7 +1,6 @@
 body{
 	color: #263238;
   background: url("http://vchat.nullcannull-dev.net/assets/images/body_background.gif");
-  overflow-y: scroll;
   font-family: "RobotoDraft", "Roboto", sans-serif;
 }
 

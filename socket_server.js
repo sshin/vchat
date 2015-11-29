@@ -90,6 +90,10 @@ io.sockets.on('connection', function (socket) {
     socketCtrl.playCurrentVideoForNewUser(data);
   });
 
+  socket.on('pop-out-user', () => {
+    socketCtrl.notifyPopOutUser();
+  });
+
 
   socket.on('disconnect', () => {
     /**

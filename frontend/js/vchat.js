@@ -1,3 +1,5 @@
+var roomInfo = {};
+var isPopOut = false;
 var player;
 var socket;
 var roombeat;
@@ -15,18 +17,18 @@ var MESSAGE_TYPES = {
 };
 
 $(document).ready(function () {
-  socket = io.connect('http://vchat-socket.nullcannull-dev.net');
-  roombeat = io.connect('http://vchat-roombeat.nullcannull-dev.net');
+  socket = io.connect(CONFIG['socketServer']);
+  roombeat = io.connect(CONFIG['roombeatServer']);
   $currentPlayTime = $('#current-play-time');
+  _setRoomInfo();
 
   /***** Roombeat *****/
   roombeat.on('roombeat', respondRoombeat);
 
   /***** Socket events *****/
-  socket.on('new-user-entered', updateChat);
+  socket.on('system-message', updateChat);
   socket.on('new-message', updateChat);
   socket.on('username-update', updateUserName);
-  socket.on('user-left', updateChat);
   socket.on('new-video-queued', updateChat);
   socket.on('new-video-to-play', loadVideo);
   socket.on('control-video', controlVideo);
@@ -57,6 +59,19 @@ function _onChatInputSubmit(e) {
     }
     $chatInput.val('');
   }
+}
+
+function _setRoomInfo() {
+  var room = window.location.pathname;
+  if (room.startsWith('/videopopout')) {
+    isPopOut = true;
+    // Notify users that this user is a pop out view.
+    socket.emit('pop-out-user');
+    return;
+  }
+  room = room.replace('/vChat/', '').split('/');
+  roomInfo['type'] = room[0];
+  roomInfo['name'] = room[1];
 }
 
 function _onVideoSubmit(e) {
@@ -275,6 +290,10 @@ function noMoreVideo(data) {
  * Chatbox will only contain 30 messages at most.
  */
 function _appendToChatBox(data) {
+  // For pop out window, only append system message.
+  if (isPopOut && (typeof data['messageType'] === 'undefined' || data['messageType'] === null)) {
+    return;
+  }
   if (numMessages < 30) numMessages++;
   var $chatBox = $('#chat-messages');
   var classes = ['chat-message'];
@@ -298,8 +317,14 @@ function _appendToChatBox(data) {
     data['message'] = app.escapeHTML(data['message']);
   }
 
+  // Append to chat box.
   $chatBox.append('<div class="' + classes.join(' ') + '">' + data['message'] + '</div>');
-  $('#chat-box-wrapper').scrollTop($chatBox.height());
+
+  if (isPopOut) {
+    $('#pop-out-chat-box-wrapper').scrollTop($chatBox.height());
+  } else {
+    $('#chat-box-wrapper').scrollTop($chatBox.height());
+  }
 
   // Remove the top message if there are more than 30 messages.
   if (numMessages >= 30) {
@@ -350,7 +375,13 @@ function onPlayerReady(event) {
 }
 
 function onPlayerStateChange(event) {
-  var $videoWrapper = $('#video-wrapper');
+  var $videoWrapper;
+  if (isPopOut) {
+    $videoWrapper = $('#pop-out-video-wrapper');
+  } else {
+    $videoWrapper = $('#video-wrapper');
+  }
+
   /* When current video ends, try to load next video on queue from server. */
   // Always clear interval on state change.
   clearInterval(timer);

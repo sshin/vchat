@@ -33,6 +33,7 @@ module.exports = (app) => {
   /** static pages **/
   app.use('/', require('./api/main'));
   app.use('/vChat', require('./api/vchat'));
+  app.use('/videopopout', require('./api/video_pop_out'));
 
   /** api routing **/
   // TODO: Singup/Login should be handled in it's own service.
@@ -41,7 +42,7 @@ module.exports = (app) => {
   app.use('/api/logout', require('./api/logout'));
   app.use('/api/room', require('./api/room'));
   app.use('/api/category', require('./api/category'));
-  app.use('/api/videosearch', require('./api/videosearch'));
+  app.use('/api/videosearch', require('./api/video_search'));
 };
 
 /**

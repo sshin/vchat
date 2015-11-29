@@ -110,8 +110,6 @@ var VideoSearch = React.createClass({
   }
 });
 
-
-/** Renderers **/
 React.render(
   <VideoSearch />,
   document.getElementById('comp-video-search')

@@ -1,9 +1,11 @@
 var CONFIG = {
   baseUrl: 'http://vchat.nullcannull-dev.net/',
-  chatServer: 'http://vhat-socket.nullcannull-dev.net'
+  socketServer: 'http://vchat-socket.nullcannull-dev.net',
+  roombeatServer: 'http://vchat-roombeat.nullcannull-dev.net'
 };
-CONFIG['apiUrl'] = CONFIG.baseUrl + 'api/';
-CONFIG['imageUrl'] = CONFIG.baseUrl + 'assets/images/';
+CONFIG['apiUrl'] = CONFIG['baseUrl'] + 'api/';
+CONFIG['imageUrl'] = CONFIG['baseUrl'] + 'assets/images/';
+CONFIG['popOutUrl'] = CONFIG['baseUrl'] + 'videopopout/';
 
 /** APP Controller Class **/
 function App() {

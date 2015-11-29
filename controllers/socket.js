@@ -32,13 +32,12 @@ class SocketController extends Controller {
   _init() {
     this._redisCtrl.getRoom((data) => {
       this.logger.log('initiating new user ' + this._socket['id'] + ' | room: ' + this._roomHash);
-      this._user['name'] = 'vChat User ' + this._socket['id'];
+      this._user['name'] = this._socket['id'];
       this._socket.emit('username-update', {username: this._user['name']});
       this._redisCtrl.addUserToRoom(this._user);
-      this._broadcastToRoom('new-user-entered', {
-        username: this._user['name'],
+      this._broadcastToRoom('system-message', {
         messageType: 'info',
-        message: 'entered the vChat room.'
+        message: '[' + this._user['name'] + '] entered the vChat room.'
       });
     });
   }
@@ -85,11 +84,22 @@ class SocketController extends Controller {
   }
 
   /**
+   * New user is a pop out view user. Notify to users in room.
+   */
+  notifyPopOutUser() {
+    this._broadcastToRoom('system-message', {
+      message: '[' + this._user['name'] + '] is a Video Pop Out user. '
+               + 'This user cannot see chat messages.',
+      messageType: 'warning'
+    });
+  }
+
+  /**
    * User is leaving the chat room.
    * Romove from room and update all associated data.
    */
   leave() {
-    this._broadcastToRoom('user-left', {
+    this._broadcastToRoom('system-message', {
       message: '[' + this._user['name'] + '] has left the vChat room.',
       messageType: 'warning'
     });

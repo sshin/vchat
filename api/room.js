@@ -56,7 +56,7 @@ router.post('/', (req, res) => {
         if (hash === null) {
           res.status(404).send();
         } else {
-          res.send({url: '' + Constants.appUrl + 'vChat/' + hash});
+          res.send({url: '' + Constants.appUrl + 'vChat/public/' + hash});
         }
       }).catch((data) => res.status(data['status']).send());
       break;
@@ -70,6 +70,8 @@ router.post('/', (req, res) => {
           }
           req.session.privateRooms[hash] = true;
           path += 'private/';
+        } else {
+          path += 'public/';
         }
         res.send({url: Constants.appUrl + path + hash});
       }).catch((data) => {
