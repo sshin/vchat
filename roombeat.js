@@ -38,6 +38,11 @@ io.on('connection', function (socket) {
       process.send(JSON.stringify(videoData));
     }
   });
+
+  socket.on('disconnect', () => {
+    // Remove all listeners.
+    socket.removeAllListeners('roombeat');
+  });
 });
 
 /**

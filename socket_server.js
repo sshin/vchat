@@ -96,23 +96,15 @@ io.sockets.on('connection', function (socket) {
 
 
   socket.on('disconnect', () => {
-    /**
-     * Remove all event handlers that are socket specific.
-     * e.g., 
-     *
-     * function eventHandler(data) {
-     *     socket.emit('example', data);
-     * }
-     *
-     * socket.on('some-event', eventHandler);
-     *
-     *
-     * And on disconnect...
-     * socket.removeListener('some-event', eventHandler)
-     */
+    // Remove all listeners.
+    socket.removeAllListeners('client-chat-send');
+    socket.removeAllListeners('new-video-submit');
+    socket.removeAllListeners('control-video');
+    socket.removeAllListeners('get-current-play-time-for-new-user');
+    socket.removeAllListeners('current-play-time-for-new-user');
+    socket.removeAllListeners('pop-out-user');
     socketCtrl.leave();
   });
-
 });
 
 
