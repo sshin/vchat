@@ -145,8 +145,6 @@ class SocketController extends Controller {
         this.logger.log('Invalid video link: ' + data['link']);
         return;
       }
-      
-      this.logger.log('new video submit via link: ' + data['link']);
       if (data['link'].startsWith('https://youtu.be/')) {
         // This link is provided by Share menu.
         let link = data['link'].split('/');
