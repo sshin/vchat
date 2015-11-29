@@ -63,7 +63,7 @@ function _onChatInputSubmit(e) {
 
 function _setRoomInfo() {
   var room = window.location.pathname;
-  if (room.startsWith('/videopopout')) {
+  if (room.startsWith('/popout')) {
     isPopOut = true;
     // Notify users that this user is a pop out view.
     socket.emit('pop-out-user');

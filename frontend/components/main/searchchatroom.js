@@ -17,7 +17,7 @@ var SearchChatRoom = React.createClass({
       data: data,
       success: function (data) {
         // Redirect user to room.
-        this._roomUrl = data['url'];
+        this._roomUrl = data;
         this.refs['searchResult'].openDialog();
       }.bind(this),
       error: function(data) {
@@ -29,15 +29,11 @@ var SearchChatRoom = React.createClass({
   },
 
   _entervChat: function() {
-    window.location.href = this._roomUrl;
+    window.location.href = this._roomUrl['room'];
   },
 
   _openPopOut: function() {
-    window.open(this._getPopOutURL(), '', 'width=831,height=785');
-  },
-
-  _getPopOutURL: function() {
-    return this._roomUrl.replace('/vChat/', '/videopopout/');
+    window.open(this._roomUrl['popout'], '', 'width=831,height=785');
   },
 
   _searchPrivateRoom: function() {

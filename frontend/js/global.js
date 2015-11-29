@@ -5,7 +5,7 @@ var CONFIG = {
 };
 CONFIG['apiUrl'] = CONFIG['baseUrl'] + 'api/';
 CONFIG['imageUrl'] = CONFIG['baseUrl'] + 'assets/images/';
-CONFIG['popOutUrl'] = CONFIG['baseUrl'] + 'videopopout/';
+CONFIG['popOutUrl'] = CONFIG['baseUrl'] + 'popout/';
 
 /** APP Controller Class **/
 function App() {
