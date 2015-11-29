@@ -29,7 +29,7 @@
   height: 150px;
   border: 1px solid black;
   overflow-y: scroll;
-  margin-top: 10px;
+  margin-top: 45px;
 }
 
 #chat-messages {
@@ -113,15 +113,32 @@
   width: 300px;
 }
 
+#pop-out-current-video-information {
+  margin-top: 15px;
+  margin-left: 5px;
+}
+
+#pop-out-current-video-information > #current-video-name {
+  width: 480px;
+}
+
+.pop-out-current-video-information-text {
+  float: left;
+}
+
 #current-video-name {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
 }
 
-#current-video-duration,
-#current-video-youtube-link {
+#current-video-duration {
   margin-top: 3px;
+}
+
+#current-video-time.pop-out-current-video-information-text,
+#current-video-youtube-link.pop-out-current-video-information-text {
+  margin-left: 10px;
 }
 
 #video-link-wrapper {
