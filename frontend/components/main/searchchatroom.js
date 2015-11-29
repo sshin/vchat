@@ -47,7 +47,7 @@ var SearchChatRoom = React.createClass({
       data: data,
       success: function (data) {
         // Redirect user to room.
-        this._roomUrl = data['url'];
+        this._roomUrl = data;
         this.refs['searchResult'].openDialog();
       }.bind(this),
       error: function(data) {
