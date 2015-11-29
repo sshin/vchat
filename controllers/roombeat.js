@@ -35,7 +35,7 @@ class RoombeatController extends Controller {
             videoData['relatedVideos']['videos'][data['videoId']] = 1;
             this._redisClient.set(data['videoKey'], JSON.stringify(videoData));
 
-            this.logger.log('Queue is empty. Searching for a related video for the room: '
+            this.logger.log('queue is empty, searching for a related video for the room: '
                              + data['roomHash']);
 
             // We store maximum 10 related videos to avoid duplicated related videos.
@@ -92,10 +92,10 @@ class RoombeatController extends Controller {
                   nextVideo: nextVideo
                 };
                 this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
-                this.logger.log('Automatically playing a related video '
+                this.logger.log('automatically playing a related video '
                                 + 'for the room: ' + data['roomHash']);
               } else {
-                this.logger.error('Error when searching for a related video for room:'
+                this.logger.error('error when searching for a related video for room:'
                                    + data['roomHash'] + ' | videoId: ' + data['videoId']);
 
                 let controlVideo = {
@@ -121,7 +121,7 @@ class RoombeatController extends Controller {
               nextVideo: nextVideo
             };
             this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
-            this.logger.log('Automatically playing the next video from'
+            this.logger.log('automatically playing the next video from'
                             + ' the queue for the room: ' + data['roomHash']);
           }
         }
