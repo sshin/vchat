@@ -11,6 +11,10 @@ class Logger {
     console.log('%s:[Log] %s', this._getTime(), message);
   }
 
+  logJSON(key, json) {
+    console.log('%s:[Log:%s] %j', this._getTime(), key, json);
+  }
+
   error(message) {
     console.log('%s:[[Error]] %s', this._getTime(), message);
   }

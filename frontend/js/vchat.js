@@ -334,7 +334,9 @@ function _appendToChatBox(data) {
 
 function getCurrentPlayTimeForNewUser(data) {
   data['startAt'] = parseInt(player.getCurrentTime());
-  data['isPlaying'] = !isPlayerPaused();
+  // Don'y rely on player state. Use client variable to determine if video is playing or not.
+  data['isPlaying'] = !actionPause && !pauseAfterLoad;
+  data['isEnded'] = isPlayerEnded();
   data['timestamp'] = new Date().getTime();
   data['currentVideoId'] = player.getVideoData().video_id;
   socket.emit('current-play-time-for-new-user', data);

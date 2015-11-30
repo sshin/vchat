@@ -65,18 +65,47 @@ class SocketController extends Controller {
   }
 
   playCurrentVideoForNewUser(data) {
+    this.logger.log('playCurrentVideoForNewUser for logJSON key: ' + data['socketId']);
+    this.logger.logJSON(data['socketId'], data);
     var socketId = data['socketId'];
     delete data['socketId'];
 
+    if (data['isEnded']) {
+      // Roombeat is fired at every 3 seconds, so having a delay oft 3 seconds will be good.
+      this._delayProcessCurrentVideoForNewUser(data, socketId, 3);
+    } else {
+      this._processCurrentVideoForNewUser(data, socketId);
+    }
+  }
+
+  /**
+   * If current video is ended, server is playing the next video from the queue,
+   * or getting a related video, so we give a short delay here.
+   */
+  _delayProcessCurrentVideoForNewUser(data, socketId, delay) {
+    this.logger.log('getting next video from the queue or searching for a related video'
+                    + ' | delaying process for socket: ' + socketId
+                    + ' | for room: ' + this._roomHash);
+    data['startAt'] = parseInt(data['startAt']) + delay;
+    setTimeout(() => {
+      this._processCurrentVideoForNewUser(data, socketId);
+    }, 1000);
+  }
+
+  _processCurrentVideoForNewUser(data, socketId) {
     this._redisCtrl.getCurrentVideo((videoData) => {
-      if (videoData['currentVideo']['videoId'] != data['currentVideoId']) {
-        data['startAt'] = videoData['startAt'];
-        data['videoId'] = videoData['currentVideo']['videoId'];
+      if (videoData['searchingRelatedVideo']) {
+        this._delayProcessCurrentVideoForNewUser(data, socketId, 1);
       } else {
-        data['videoId'] = data['currentVideoId'];
+        if (videoData['currentVideo']['videoId'] != data['currentVideoId']) {
+          data['startAt'] = videoData['startAt'];
+          data['videoId'] = videoData['currentVideo']['videoId'];
+        } else {
+          data['videoId'] = data['currentVideoId'];
+        }
+        delete data['currentVideoId'];
+        this._playCurrentVideoForNewUser(data, socketId);
       }
-      delete data['currentVideoId'];
-      this._playCurrentVideoForNewUser(data, socketId);
     });
   }
 
