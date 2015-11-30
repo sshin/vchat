@@ -79,7 +79,7 @@ class SocketController extends Controller {
   }
 
   /**
-   * If current video is ended, server is playing the next video from the queue,
+   * If current video is ended, server is playing the next video from the queue
    * or getting a related video, so we give a short delay here.
    */
   _delayProcessCurrentVideoForNewUser(data, socketId, delay) {
