@@ -7,6 +7,11 @@ var bcrypt = require('bcryptjs');
 
 class RoomController extends Controller {
 
+  constructor() {
+    super();
+    this._room = new Room();
+  }
+
   searchPrivateRoom(params) {
     var promise = new Promise((resolve, reject) => {
       this.logger.log('searching private room: ' + params['name']);
@@ -15,8 +20,7 @@ class RoomController extends Controller {
       if (hash.length === 0) {
         reject({status: 400});
       } else {
-        let room = new Room();
-        room.select({
+        this._room.select({
           select: ['password'],
           where: {
             hash: hash,
@@ -47,8 +51,7 @@ class RoomController extends Controller {
       if (name.length === 0) {
         reject({status: 400});
       } else {
-        let room = new Room();
-        room.select({
+        this._room.select({
           select: ['hash'],
           where: {
             private: 0,
@@ -73,10 +76,9 @@ class RoomController extends Controller {
       if (errors.length > 0) {
         reject({status: 400, data: errors});
       } else {
-        let room = new Room();
         params['hash'] = params['name'].replace(/ /g, '-');
         params['hash'] = params['hash'].toLowerCase();
-        room.checkRoomExist(params['hash']).then((exist) => {
+        this._room.checkRoomExist(params['hash']).then((exist) => {
           if (exist) {
             reject({status: 400, data: ['name exist']});
           } else {
@@ -91,13 +93,13 @@ class RoomController extends Controller {
               // TODO: Move bcrypt part to dedicated service.
               bcrypt.hash(params['password'], 10, (err, hashedPassword) => {
                 params['password'] = hashedPassword;
-                room.insert(params).then(() => {
+                this._room.insert(params).then(() => {
                   this.logger.log('Private room created: ' + params['hash']);
                   resolve(params);
                 });
               });
             } else {
-              room.insert(params).then(() => {
+              this._room.insert(params).then(() => {
                 this.logger.log('Public room created: ' + params['hash']);
                 resolve(params);
               });
@@ -128,8 +130,7 @@ class RoomController extends Controller {
 
   getActiveRoomCounts() {
     var promise = new Promise((resolve, reject) => {
-      let room = new Room();
-      room.getActiveRoomCounts().then(resolve);
+      this._room.getActiveRoomCounts().then(resolve);
     });
     return promise;
   }
