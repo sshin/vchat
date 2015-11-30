@@ -19,7 +19,7 @@ var CreateNewChatRoom = React.createClass({
       success: function(data) {
         console.log('redirecting to ' + data['url']);
         setTimeout(function () {
-          window.location.href = data['url'];
+          window.location.href = data['url'] + '?newroom=1';
         }, 1000);
       },
       error: function(data) {

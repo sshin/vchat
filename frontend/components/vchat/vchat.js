@@ -99,8 +99,8 @@ var VideoSearch = React.createClass({
   render: function() {
     return (
       <div id="video-search-wrapper">
-        <Dialog id="video-search-dialog" buttonText="Search YouTube videos"
-                header="Search YouTube videos" ref="dialog">
+        <Dialog id="video-search-dialog" buttonText="Search YouTube Videos"
+                header="Search YouTube Videos" ref="dialog">
           <InputField id="video-search" label="Search" maxLength="64"
                           placeholder="Search by name" ref="videoSearch"></InputField>
           <div id="video-search-result" ref="searchResult"></div>

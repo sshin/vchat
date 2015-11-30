@@ -62,16 +62,33 @@ function _onChatInputSubmit(e) {
 }
 
 function _setRoomInfo() {
-  var room = window.location.pathname;
-  if (room.startsWith('/popout')) {
+  var room = window.location.href;
+  var path = window.location.pathname;
+  if (path.startsWith('/popout')) {
     isPopOut = true;
     // Notify users that this user is a pop out view.
     socket.emit('pop-out-user');
     return;
   }
+  room = room.replace(CONFIG['vChatUrl'], '');
   room = room.replace('/vChat/', '').split('/');
   roomInfo['type'] = room[0];
-  roomInfo['name'] = room[1];
+
+  var param = room[1].split('?');
+  roomInfo['name'] = param[0];
+
+  if (param.length > 1 && param[1] == 'newroom=1') {
+    updateChat({
+      message: 'Welcome to vChat. Start playing videos by copy & pasting a video link or using '
+               + 'Search YouTube Videos.',
+      messageType: 'info'
+    });
+  } else {
+    updateChat({
+      message: 'You will be synced with the playing video.',
+      messageType: 'info'
+    });
+  }
 }
 
 function _onVideoSubmit(e) {
@@ -371,11 +388,6 @@ function onPlayerReady() {
   if (player.getVideoData().video_id !== null) {
     player.playVideo();
   }
-
-  updateChat({
-    message: 'If there is a video playing, you will be synced with the playing video.',
-    messageType: 'info'
-  });
 
   socket.emit('get-current-play-time-for-new-user');
 }
