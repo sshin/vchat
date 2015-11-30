@@ -67,14 +67,13 @@ class SocketController extends Controller {
   playCurrentVideoForNewUser(data) {
     this.logger.log('playCurrentVideoForNewUser for logJSON key: ' + data['socketId']);
     this.logger.logJSON(data['socketId'], data);
-    var socketId = data['socketId'];
-    delete data['socketId'];
 
+    data['currentVideoForNewUser'] = true;
     if (data['isEnded']) {
       // Roombeat is fired at every 3 seconds, so having a delay of 3 seconds is reasonable.
-      this._delayProcessCurrentVideoForNewUser(data, socketId, 3);
+      this._delayProcessCurrentVideoForNewUser(data, 3);
     } else {
-      this._processCurrentVideoForNewUser(data, socketId);
+      this._processCurrentVideoForNewUser(data);
     }
   }
 
@@ -82,20 +81,20 @@ class SocketController extends Controller {
    * If current video is ended, server is playing the next video from the queue
    * or getting a related video, so we give a short delay here.
    */
-  _delayProcessCurrentVideoForNewUser(data, socketId, delay) {
+  _delayProcessCurrentVideoForNewUser(data, delay) {
     this.logger.log('getting next video from the queue or searching for a related video'
-                    + ' | delaying process for socket: ' + socketId
+                    + ' | delaying process for socket: ' + data['socketId']
                     + ' | for room: ' + this._roomHash);
     data['startAt'] = parseInt(data['startAt']) + delay;
     setTimeout(() => {
-      this._processCurrentVideoForNewUser(data, socketId);
+      this._processCurrentVideoForNewUser(data);
     }, 1000 * delay);
   }
 
-  _processCurrentVideoForNewUser(data, socketId) {
+  _processCurrentVideoForNewUser(data) {
     this._redisCtrl.getCurrentVideo((videoData) => {
       if (videoData['searchingRelatedVideo']) {
-        this._delayProcessCurrentVideoForNewUser(data, socketId, 1);
+        this._delayProcessCurrentVideoForNewUser(data, 1);
       } else {
         if (videoData['currentVideo']['videoId'] != data['currentVideoId']) {
           data['startAt'] = videoData['startAt'];
@@ -104,7 +103,7 @@ class SocketController extends Controller {
           data['videoId'] = data['currentVideoId'];
         }
         delete data['currentVideoId'];
-        this._playCurrentVideoForNewUser(data, socketId);
+        this._playCurrentVideoForNewUser(data);
       }
     });
   }
@@ -112,10 +111,10 @@ class SocketController extends Controller {
   /**
    * Send message to client.
    */
-  _playCurrentVideoForNewUser(data, socketId) {
+  _playCurrentVideoForNewUser(data) {
     try {
       // Make sure new user is still connected.
-      this._io.sockets['connected'][socketId].emit('new-video-to-play', data);
+      this._io.sockets['connected'][data['socketId']].emit('new-video-to-play', data);
     } catch (err) {
       // New user left the room so don't do anything..
     }

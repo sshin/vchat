@@ -177,9 +177,7 @@ function loadVideo(data) {
   actionResume = true;
   var message = null;
   var messageType = null;
-  if (typeof data['currentVideo'] !== 'undefined') {
-    message = 'You will be synced with the current video.';
-    messageType = 'info';
+  if (typeof data['currentVideoForNewUser'] !== 'undefined' && data['currentVideoForNewUser']) {
     // Add 0.5 for loading time..better than adding nothing.
     var deltaTime = Math.round((new Date().getTime() - parseInt(data['timestamp'])) / 1000 + 0.5);
     data['startAt'] = parseInt(data['startAt']) + deltaTime;
@@ -366,13 +364,18 @@ function onYouTubePlayerAPIReady() {
 
 }
 
-function onPlayerReady(event) {
+function onPlayerReady() {
   /* Play video if video_id has value. */
   console.log('Youtube Player is ready.');
 
   if (player.getVideoData().video_id !== null) {
     player.playVideo();
   }
+
+  updateChat({
+    message: 'If there is a video playing, you will be synced with the playing video.',
+    messageType: 'info'
+  });
 
   socket.emit('get-current-play-time-for-new-user');
 }
