@@ -71,7 +71,7 @@ class SocketController extends Controller {
     delete data['socketId'];
 
     if (data['isEnded']) {
-      // Roombeat is fired at every 3 seconds, so having a delay oft 3 seconds will be good.
+      // Roombeat is fired at every 3 seconds, so having a delay of 3 seconds is reasonable.
       this._delayProcessCurrentVideoForNewUser(data, socketId, 3);
     } else {
       this._processCurrentVideoForNewUser(data, socketId);
