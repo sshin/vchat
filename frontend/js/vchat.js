@@ -334,8 +334,9 @@ function _appendToChatBox(data) {
 
 function getCurrentPlayTimeForNewUser(data) {
   data['startAt'] = parseInt(player.getCurrentTime());
-  data['isPlaying'] = isPlayerPlaying();
+  data['isPlaying'] = !isPlayerPaused();
   data['timestamp'] = new Date().getTime();
+  data['currentVideoId'] = player.getVideoData().video_id;
   socket.emit('current-play-time-for-new-user', data);
 }
 

@@ -87,6 +87,10 @@ class SocketRedisController extends Controller {
     });
   }
 
+  getCurrentVideo(callback) {
+    this._get(this._redisVideoClient, this._videoKey).then(callback);
+  }
+
   _increaseRoomCount(isPrivate) {
     var key = isPrivate ? Constants.privateRoomsCount : Constants.publicRoomsCount;
     this._updateCount(key, 1);

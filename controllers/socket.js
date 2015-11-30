@@ -46,41 +46,50 @@ class SocketController extends Controller {
    * Check if there is a video currently playing, and if there is,
    * then get the play time from one of the sockets in room.
    */
-  getCurrentPlayTimeForNewUser(data) {
-    this._redisCtrl.checkVideoPlaying((videoId) => {
-      if (videoId) {
-        let sockets = this._io.sockets['adapter']['rooms'][this._roomKey];
-        for (var key in sockets) {
-          // Just sending one emit is fine enough...
-          if (sockets[key] === true) {
-            let data = {
-              videoId: videoId,
-              socketId: this._socket.id
-            };
-            try {
-              // It's possible that this user(socket) left the room,
-              // right after we got the socket id.
-              this._io.sockets['connected'][key].emit('get-current-play-time-for-new-user', data);
-              break;
-            } catch (err) {
-              // Continue looping..
-            }
-          }
+  getCurrentPlayTimeForNewUser() {
+    var sockets = this._io.sockets['adapter']['rooms'][this._roomKey];
+    for (let key in sockets) {
+      // Just sending one emit is fine enough...
+      if (sockets[key] === true) {
+        try {
+          // It's possible that this user(socket) left the room,
+          // right after we got the socket id.
+          let data = {socketId: this._socket.id}
+          this._io.sockets['connected'][key].emit('get-current-play-time-for-new-user', data);
+          break;
+        } catch (err) {
+          // Continue looping..
         }
       }
-    });
+    }
   }
 
   playCurrentVideoForNewUser(data) {
-    data['currentVideo'] = true;
     var socketId = data['socketId'];
     delete data['socketId'];
+
+    this._redisCtrl.getCurrentVideo((videoData) => {
+      if (videoData['currentVideo']['videoId'] != data['currentVideoId']) {
+        data['startAt'] = videoData['startAt'];
+        data['videoId'] = videoData['currentVideo']['videoId'];
+      } else {
+        data['videoId'] = data['currentVideoId'];
+      }
+      delete data['currentVideoId'];
+      this._playCurrentVideoForNewUser(data, socketId);
+    });
+  }
+
+  /**
+   * Send message to client.
+   */
+  _playCurrentVideoForNewUser(data, socketId) {
     try {
-      // Make sure new user is still connected.
-      this._io.sockets['connected'][socketId].emit('new-video-to-play', data);
-    } catch (err) {
-      // New user left the room so don't do anything..
-    }
+        // Make sure new user is still connected.
+        this._io.sockets['connected'][socketId].emit('new-video-to-play', data);
+      } catch (err) {
+        // New user left the room so don't do anything..
+      }
   }
 
   /**
