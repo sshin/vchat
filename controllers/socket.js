@@ -89,7 +89,7 @@ class SocketController extends Controller {
     data['startAt'] = parseInt(data['startAt']) + delay;
     setTimeout(() => {
       this._processCurrentVideoForNewUser(data, socketId);
-    }, 1000);
+    }, 1000 * delay);
   }
 
   _processCurrentVideoForNewUser(data, socketId) {
