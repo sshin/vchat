@@ -49,8 +49,8 @@ class SocketController extends Controller {
   getCurrentPlayTimeForNewUser() {
     var sockets = this._io.sockets['adapter']['rooms'][this._roomKey];
     for (let key in sockets) {
-      // Just sending one emit is fine enough...
-      if (sockets[key] === true) {
+      // Just sending one emit is fine enough.
+      if (sockets[key] === true && key != this._socket.id) {
         try {
           // It's possible that this user(socket) left the room,
           // right after we got the socket id.
