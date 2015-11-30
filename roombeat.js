@@ -51,7 +51,7 @@ io.on('connection', function (socket) {
 function _getRoomHash(socket) {
   var referer = socket['handshake']['headers']['referer'];
   referer = referer.split('/');
-  return referer[referer.length - 1];
+  return referer[referer.length - 1].replace(/\?.*/, '');
 }
 
 
