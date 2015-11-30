@@ -85,11 +85,11 @@ class SocketController extends Controller {
    */
   _playCurrentVideoForNewUser(data, socketId) {
     try {
-        // Make sure new user is still connected.
-        this._io.sockets['connected'][socketId].emit('new-video-to-play', data);
-      } catch (err) {
-        // New user left the room so don't do anything..
-      }
+      // Make sure new user is still connected.
+      this._io.sockets['connected'][socketId].emit('new-video-to-play', data);
+    } catch (err) {
+      // New user left the room so don't do anything..
+    }
   }
 
   /**
