@@ -67,6 +67,7 @@ class SocketRedisController extends Controller {
 
       // If no user left in the room, empty out all records.
       if (data['usersCount'] === 0) {
+        this.logger.log('Last user left for the room: ' + this._roomHash);
         this._redisRoomsClient.del(this._roomKey);
         this._redisVideoClient.del(this._videoKey);
         this._decreaseRoomCount(data['private']);
