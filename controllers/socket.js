@@ -30,15 +30,13 @@ class SocketController extends Controller {
    * Generate user name, and save it to Redis.
    */
   _init() {
-    this._redisCtrl.getRoom((data) => {
-      this.logger.log('initiating new user ' + this._socket['id'] + ' | room: ' + this._roomHash);
-      this._user['name'] = this._socket['id'];
-      this._socket.emit('username-update', {username: this._user['name']});
-      this._redisCtrl.addUserToRoom(this._user);
-      this._broadcastToRoom('system-message', {
-        messageType: 'info',
-        message: '[' + this._user['name'] + '] entered the vChat room.'
-      });
+    this.logger.log('initiating new user ' + this._socket['id'] + ' | room: ' + this._roomHash);
+    this._user['name'] = this._socket['id'];
+    this._socket.emit('username-update', {username: this._user['name']});
+    this._redisCtrl.addUserToRoom(this._user);
+    this._broadcastToRoom('system-message', {
+      messageType: 'info',
+      message: '[' + this._user['name'] + '] entered the vChat room.'
     });
   }
 
@@ -48,6 +46,8 @@ class SocketController extends Controller {
    */
   getCurrentPlayTimeForNewUser() {
     var sockets = this._io.sockets['adapter']['rooms'][this._roomKey];
+    var pingedClient = false;
+
     for (let key in sockets) {
       // Just sending one emit is fine enough.
       if (sockets[key] === true && key != this._socket.id) {
@@ -56,11 +56,26 @@ class SocketController extends Controller {
           // right after we got the socket id.
           let data = {socketId: this._socket.id}
           this._io.sockets['connected'][key].emit('get-current-play-time-for-new-user', data);
+          pingedClient = true;
           break;
         } catch (err) {
           // Continue looping..
         }
       }
+    }
+
+    // This is a reactivated room, so new user is the first user.
+    if (!pingedClient) {
+      this._redisCtrl.getVideoData((data) => {
+        if (typeof data !== 'undefined' && data !== null) {
+          let newVideo = {
+            videoId: data['currentVideo']['videoId'],
+            message: 'You have reactivated the room.',
+            messageType: 'info'
+          };
+          this._socket.emit('new-video-to-play', newVideo);
+        }
+      });
     }
   }
 
@@ -92,7 +107,7 @@ class SocketController extends Controller {
   }
 
   _processCurrentVideoForNewUser(data) {
-    this._redisCtrl.getCurrentVideo((videoData) => {
+    this._redisCtrl.getVideoData((videoData) => {
       if (videoData['searchingRelatedVideo']) {
         this._delayProcessCurrentVideoForNewUser(data, 1);
       } else {

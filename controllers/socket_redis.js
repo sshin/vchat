@@ -45,6 +45,12 @@ class SocketRedisController extends Controller {
             this._increaseRoomCount(roomData['private']);
           });
         });
+      } else if (data['usersCount'] === 0) {
+        // Room has been reactivated.
+        let roomData = data;
+        roomData['users'][user['id']] = user;
+        roomData['usersCount'] = 1;
+        this.setRoom(roomData);
       } else {
         if (!data['users'].hasOwnProperty(user['id'])) {
           data['users'][user['id']] = user;
@@ -65,16 +71,36 @@ class SocketRedisController extends Controller {
       data['usersCount'] = parseInt(data['usersCount']) - 1;
       this.setRoom(data);
 
-      // If no user left in the room, empty out all records.
+      // If no user left in the room, get ready to wipe out data.
       if (data['usersCount'] === 0) {
-        this.logger.log('Last user left for the room: ' + this._roomHash);
+        this.logger.log('last user left for the room: ' + this._roomHash);
+        setTimeout(() => {
+          this._wipeOutRoom();
+          // 30 seconds for re activating the room.
+        }, 30000);
+      }
+      this._decreaseUserCount();
+    });
+  }
+
+  _wipeOutRoom() {
+    this.getRoom((data) => {
+      // If room is already wiped out, then don't do anything.
+      if (data === null) return;
+
+      // Room has been inactive for 30 seconds, so totally wipe out data.
+      if (data['usersCount'] === 0) {
+        this.logger.log('room has been inactive for 30 seconds'
+                         + ' | wiping out data for room: ' + this._roomHash);
         this._redisRoomsClient.del(this._roomKey);
         this._redisVideoClient.del(this._videoKey);
         this._decreaseRoomCount(data['private']);
         let room = new Room();
         room.deleteRoom(this._roomHash);
+      } else {
+        this.logger.log('room has been reactivated'
+                         + ' | canceling wipe out data for room: ' + this._roomHash);
       }
-      this._decreaseUserCount();
     });
   }
 
@@ -88,7 +114,7 @@ class SocketRedisController extends Controller {
     });
   }
 
-  getCurrentVideo(callback) {
+  getVideoData(callback) {
     this._get(this._redisVideoClient, this._videoKey).then(callback);
   }
 
