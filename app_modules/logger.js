@@ -12,7 +12,7 @@ class Logger {
   }
 
   logJSON(key, json) {
-    console.log('%s:[Log:%s] %j', this._getTime(), key, json);
+    console.log('%s:[LogJSON:%s] %j', this._getTime(), key, json);
   }
 
   error(message) {
