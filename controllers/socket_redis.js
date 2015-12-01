@@ -74,7 +74,8 @@ class SocketRedisController extends Controller {
 
       if (data['usersCount'] === 0 && !data['pendingWipeOut']) {
       // If no user left in the room, get ready to wipe out data.
-        this.logger.log('last user left for the room: ' + this._roomHash);
+        this.logger.log('last user left for the room: ' + this._roomHash
+                         + ' | wiping out if inactive after 1 minute');
 
         // Start wipe out process.
         data['pendingWipeOut'] = true;
@@ -99,7 +100,7 @@ class SocketRedisController extends Controller {
 
       if (data['usersCount'] === 0) {
       // Room has been inactive for 1 minute, so totally wipe out data.
-        this.logger.log('room has been inactive for 30 seconds'
+        this.logger.log('room has been inactive for 1 minute'
                          + ' | wiping out data for room: ' + this._roomHash);
         this._redisRoomsClient.del(this._roomKey);
         this._redisVideoClient.del(this._videoKey);
