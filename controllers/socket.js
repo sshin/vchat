@@ -64,18 +64,32 @@ class SocketController extends Controller {
       }
     }
 
-    // This is a reactivated room, so new user is the first user.
     if (!pingedClient) {
       this._redisCtrl.getVideoData((data) => {
         if (typeof data !== 'undefined' && data !== null) {
+          // This is a reactivated room, so new user is the first user.
           let newVideo = {
             videoId: data['currentVideo']['videoId'],
             message: 'You have reactivated the room.',
             messageType: 'info'
           };
           this._socket.emit('new-video-to-play', newVideo);
+        } else {
+          // This is a new room.
+          let message = {
+            message: 'Start vChat by searching for videos or copy and paste video links.',
+            messageType: 'info'
+          };
+          this._socket.emit('system-message', message);
         }
       });
+    } else {
+      // User entered an active room.
+      let message = {
+        message: 'You will be synced with the video.',
+        messageType: 'info'
+      };
+      this._socket.emit('system-message', message);
     }
   }
 
