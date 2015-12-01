@@ -90,7 +90,6 @@ class RoomController extends Controller {
             delete params['type'];
 
             if (params['password'] !== '') {
-              // TODO: Move bcrypt part to dedicated service.
               bcrypt.hash(params['password'], 10, (err, hashedPassword) => {
                 params['password'] = hashedPassword;
                 this._room.insert(params).then(() => {

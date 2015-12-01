@@ -49,8 +49,8 @@ class SocketController extends Controller {
     var pingedClient = false;
 
     for (let key in sockets) {
-      // Just sending one emit is fine enough.
       if (sockets[key] === true && key != this._socket.id) {
+      // Just sending one emit is fine enough.
         try {
           // It's possible that this user(socket) left the room,
           // right after we got the socket id.
@@ -67,7 +67,7 @@ class SocketController extends Controller {
     if (!pingedClient) {
       this._redisCtrl.getVideoData((data) => {
         if (typeof data !== 'undefined' && data !== null) {
-          // This is a reactivated room, so new user is the first user.
+        // This is a reactivated room, so new user is the first user.
           let newVideo = {
             videoId: data['currentVideo']['videoId'],
             message: 'You have reactivated the room.',
@@ -75,7 +75,7 @@ class SocketController extends Controller {
           };
           this._socket.emit('new-video-to-play', newVideo);
         } else {
-          // This is a new room.
+        // This is a new room.
           let message = {
             message: 'Start vChat by searching for videos or copy and paste video links.',
             messageType: 'info'
@@ -84,7 +84,7 @@ class SocketController extends Controller {
         }
       });
     } else {
-      // User entered an active room.
+    // User entered an active room.
       let message = {
         message: 'You will be synced with the video.',
         messageType: 'info'
@@ -99,7 +99,7 @@ class SocketController extends Controller {
 
     data['currentVideoForNewUser'] = true;
     if (data['isEnded']) {
-      // Roombeat is fired at every 3 seconds, so having a delay of 3 seconds is reasonable.
+    // Roombeat is fired at every 3 seconds, so having a delay of 3 seconds is reasonable.
       this._delayProcessCurrentVideoForNewUser(data, 3);
     } else {
       this._processCurrentVideoForNewUser(data);
@@ -205,20 +205,22 @@ class SocketController extends Controller {
       submitType = 'search';
     } else {
       submitType = 'link';
+
       // Check YouTube link.
       if (!data['link'].startsWith('https://www.youtube.com/watch?')
         && !data['link'].startsWith('https://youtu.be/')) {
         this.logger.log('Invalid video link: ' + data['link']);
         return;
       }
+
       if (data['link'].startsWith('https://youtu.be/')) {
-        // This link is provided by Share menu.
+      // This link is provided by Share menu.
         let link = data['link'].split('/');
         link = link[link.length - 1];
         let id = link;
 
         if (link.indexOf('?') >= 0) {
-          // This link contains additional parameters.
+        // This link contains additional parameters.
           link = link.split('?');
           id = link[0];
 
@@ -229,14 +231,14 @@ class SocketController extends Controller {
         }
         data['videoId'] = id;
       } else {
-        // Handle https://youtube.com/watch?. (v=id)
+      // Handle https://youtube.com/watch?. (v=id)
         let link = data['link'].split('/');
         link = link[link.length - 1].replace('watch?', '');
         link = link.split('&');
         let id = null;
 
         if (link.length > 1) {
-          // Parse link.
+        // Parse link.
           let parsedData = this._parseLink(link);
           if (parsedData['id'] !== null) id = parsedData['id'];
           if (parsedData['startAt'] !== null) data['startAt'] = parsedData['startAt'];
@@ -245,10 +247,12 @@ class SocketController extends Controller {
         }
         data['videoId'] = id;
       }
+
       if (data['videoId'] === null) {
         this.logger.log('Invalid video link: ' + data['link']);
         return;
       }
+
       delete data['link'];
     }
 
@@ -285,7 +289,7 @@ class SocketController extends Controller {
     if (typeof time !== 'undefined') {
       let startAt = time.split('m');
       if (startAt.length > 1) {
-        // Format of t=1m33s..
+      // Format of t=1m33s..
         let min = startAt[0];
         let sec = startAt[1].replace('s', '');
         data['startAt'] = {

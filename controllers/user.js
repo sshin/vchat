@@ -27,7 +27,7 @@ class UserController extends Controller {
         resolve(data);
       } else {
         co(function* () {
-          // Check if username or email or nickname already exist.
+        // Check if username or email or nickname already exist.
           let exists = [];
           let usernameExist = yield this._user.checkUsernameExist(params['username']);
           let emailExist = yield this._user.checkEmailExist(params['email']);

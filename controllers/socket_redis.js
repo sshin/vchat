@@ -30,7 +30,7 @@ class SocketRedisController extends Controller {
   addUserToRoom(user) {
     this.getRoom((data) => {
       if (!data) {
-        // This user is the first user of the room.
+      // This user is the first user of the room.
         let room = new Room();
         room.select({
           where: {
@@ -47,12 +47,13 @@ class SocketRedisController extends Controller {
           });
         });
       } else if (data['usersCount'] === 0) {
-        // Room has been reactivated.
+      // Room has been reactivated.
         let roomData = data;
         roomData['users'][user['id']] = user;
         roomData['usersCount'] = 1;
         this.setRoom(roomData);
       } else {
+      // Adding user to an existing room.
         if (!data['users'].hasOwnProperty(user['id'])) {
           data['users'][user['id']] = user;
           data['usersCount'] = parseInt(data['usersCount']) + 1;
@@ -71,8 +72,8 @@ class SocketRedisController extends Controller {
       delete data['users'][user['id']];
       data['usersCount'] = parseInt(data['usersCount']) - 1;
 
-      // If no user left in the room, get ready to wipe out data.
       if (data['usersCount'] === 0 && !data['pendingWipeOut']) {
+      // If no user left in the room, get ready to wipe out data.
         this.logger.log('last user left for the room: ' + this._roomHash);
 
         // Start wipe out process.
@@ -91,11 +92,13 @@ class SocketRedisController extends Controller {
 
   _wipeOutRoom() {
     this.getRoom((data) => {
+      if (data === null) {
       // If room is already wiped out, then don't do anything.
-      if (data === null) return;
+        return;
+      }
 
       if (data['usersCount'] === 0) {
-        // Room has been inactive for 1 minute, so totally wipe out data.
+      // Room has been inactive for 1 minute, so totally wipe out data.
         this.logger.log('room has been inactive for 30 seconds'
                          + ' | wiping out data for room: ' + this._roomHash);
         this._redisRoomsClient.del(this._roomKey);
@@ -175,7 +178,7 @@ class SocketRedisController extends Controller {
   queueVideo(videoData, callback, playVideoCallback) {
     this._get(this._redisVideoClient, this._videoKey).then((data) => {
       if (data == null) {
-        // Very first video.
+      // Very first video.
         let newData = {
           currentVideo: null,
           queue: [videoData],
@@ -188,9 +191,10 @@ class SocketRedisController extends Controller {
           this.playNextVideo(playVideoCallback);
         });
       } else {
+      // Queue the video.
         data.queue.push(videoData);
         if (data['currentVideo'] == null && !data['searchingRelatedVideo']) {
-          // No video currently playing, so set and play the next video.
+        // No video currently playing, so set and play the next video.
           let nextVideo = data['queue'].shift();
           data['currentVideo'] = nextVideo;
           this._set(this._redisVideoClient, this._videoKey, data).then(() => {

@@ -27,8 +27,9 @@ class RoombeatController extends Controller {
         videoData = JSON.parse(videoData);
         if (videoData !== null) {
           if (videoData['queue'].length === 0) {
-            let maxRelatedVideos = 20;
-            // Queue is empty, so we get a related video from the last played video.
+          // Queue is empty, so we get a related video from the last played video.
+            let maxRelatedVideos = 50;
+
             // If roombeat controller is currently searching for a related video, don't do anything.
             if (videoData['searchingRelatedVideo']) return;
 
@@ -41,7 +42,7 @@ class RoombeatController extends Controller {
             this.logger.log('queue is empty, searching for a related video for the room: '
                              + data['roomHash']);
 
-            // We store maximum 10 related videos to avoid duplicated related videos.
+            // We store related videos to avoid duplicated related videos.
             request.get({
               url: 'https://www.googleapis.com/youtube/v3/search',
               qs: {
@@ -57,8 +58,8 @@ class RoombeatController extends Controller {
             }, (error, response, body) => {
               let items = JSON.parse(body)['items'];
               if (typeof items !== 'undefined' && items != null && items.length > 0) {
-                // Avoid duplicated related videos.
-                // Max length of items is 20..so it's okay for this tiny blocking code.
+              // Avoid duplicated related videos.
+                // Max length of items is 50..so it's okay for this tiny blocking code.
                 let nextVideo = {username: 'vChat'};
                 for (let i = 0; i < items.length; i++) {
                   let videoId = items[i]['id']['videoId'];
@@ -85,7 +86,6 @@ class RoombeatController extends Controller {
 
                 videoData['currentVideo'] = nextVideo;
                 videoData['searchingRelatedVideo'] = false;
-                // Set to redis ASAP.
                 this._redisClient.set(data['videoKey'], JSON.stringify(videoData));
 
                 // Notify users to play the related video.
@@ -109,7 +109,7 @@ class RoombeatController extends Controller {
               }
             });
           } else {
-            // There is/are video(s) in the queue, so play the next video.
+          // There is/are video(s) in the queue, so play the next video.
             let nextVideo = videoData['queue'].shift();
             videoData['currentVideo'] = nextVideo;
 
