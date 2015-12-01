@@ -41,6 +41,7 @@ class SocketRedisController extends Controller {
           roomData['users'] = {};
           roomData['users'][user['id']] = user;
           roomData['usersCount'] = 1;
+          roomData['pendingWipeOut'] = false;
           this.setRoom(roomData, () => {
             this._increaseRoomCount(roomData['private']);
           });
@@ -69,17 +70,22 @@ class SocketRedisController extends Controller {
     this.getRoom((data) => {
       delete data['users'][user['id']];
       data['usersCount'] = parseInt(data['usersCount']) - 1;
-      this.setRoom(data);
 
       // If no user left in the room, get ready to wipe out data.
-      if (data['usersCount'] === 0) {
+      if (data['usersCount'] === 0 && !data['pendingWipeOut']) {
         this.logger.log('last user left for the room: ' + this._roomHash);
+
+        // Start wipe out process.
+        data['pendingWipeOut'] = true;
+
         setTimeout(() => {
           this._wipeOutRoom();
-          // 30 seconds for re activating the room.
-        }, 30000);
+          // 1 minute for reactivating the room.
+        }, 60000);
       }
+
       this._decreaseUserCount();
+      this.setRoom(data);
     });
   }
 
@@ -88,8 +94,8 @@ class SocketRedisController extends Controller {
       // If room is already wiped out, then don't do anything.
       if (data === null) return;
 
-      // Room has been inactive for 30 seconds, so totally wipe out data.
       if (data['usersCount'] === 0) {
+        // Room has been inactive for 1 minute, so totally wipe out data.
         this.logger.log('room has been inactive for 30 seconds'
                          + ' | wiping out data for room: ' + this._roomHash);
         this._redisRoomsClient.del(this._roomKey);
@@ -100,6 +106,8 @@ class SocketRedisController extends Controller {
       } else {
         this.logger.log('room has been reactivated'
                          + ' | canceling wipe out data for room: ' + this._roomHash);
+        data['pendingWipeOut'] = false;
+        this.setRoom(data);
       }
     });
   }
