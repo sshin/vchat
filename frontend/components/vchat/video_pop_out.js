@@ -12,7 +12,7 @@ var VideoPopOut = React.createClass({
       <div id="video-pop-out-wrapper">
         <Button id="pop-out-video-only" text="Video Pop Out (video only)"
                 color="purple" onClick={this._popOutVideoOnly} />
-        <Button id="pop-out-regular" text="Video Pop Out (no video control & no chat)"
+        <Button id="pop-out-regular" text="Video Pop Out (video & system message)"
                 color="purple" onClick={this._popOutRegular} />
       </div>
     );

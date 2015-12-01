@@ -84,7 +84,7 @@ function App() {
 
   this.popOutRegular = function(type, room) {
     var url = this._getPopOutURL(type, room);
-    this._popOut(url, 831, 785);
+    this._popOut(url, 831, 670);
   };
 
   this.popOutWithControl = function(type, room) {

@@ -119,7 +119,7 @@ var SearchChatRoom = React.createClass({
                   onClick={this._entervChat} />
           <Button id="open-pop-out" color="purple" text="Open Pop Out (video only)"
                   onClick={this._popOutVideoOnly} />
-          <Button id="open-pop-out" color="purple" text="Open Pop Out (no control & no chat)"
+          <Button id="open-pop-out" color="purple" text="Open Pop Out (video & system message)"
                   onClick={this._popOutRegular} />
         </Dialog>
       </div>
