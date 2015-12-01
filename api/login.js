@@ -5,8 +5,11 @@ var UserController = require('../controllers/user').UserController;
 
 router.get('/', (req, res) => {
   if (req.session.loggedIn) {
-    res.send({username: req.session.user['username'],
-              email: req.session.user['email']});
+    res.send({
+      username: req.session.user['username'],
+      email: req.session.user['email'],
+      nickname: req.session.user['nickname']
+    });
   } else {
     res.status(401);
     res.send();
