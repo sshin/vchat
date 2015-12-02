@@ -28,7 +28,7 @@ class SocketRedisController extends Controller {
    * If this user is the first user of the room, create new Redis entries.
    */
   addUserToRoom(user) {
-    this.getRoom((data) => {
+    this.getRoom().then((data) => {
       if (!data) {
       // This user is the first user of the room.
         let room = new Room();
@@ -42,7 +42,7 @@ class SocketRedisController extends Controller {
           roomData['users'][user['id']] = user;
           roomData['usersCount'] = 1;
           roomData['pendingWipeOut'] = false;
-          this.setRoom(roomData, () => {
+          this.setRoom(roomData).then(() => {
             this._increaseRoomCount(roomData['private']);
           });
         });
@@ -68,7 +68,7 @@ class SocketRedisController extends Controller {
    * Remove user from room and update all associated Redis entries.
    */
   removeUserFromRoom(user) {
-    this.getRoom((data) => {
+    this.getRoom().then((data) => {
       delete data['users'][user['id']];
       data['usersCount'] = parseInt(data['usersCount']) - 1;
 
@@ -92,7 +92,7 @@ class SocketRedisController extends Controller {
   }
 
   _wipeOutRoom() {
-    this.getRoom((data) => {
+    this.getRoom().then((data) => {
       if (data === null) {
       // If room is already wiped out, then don't do anything.
         return;
@@ -116,18 +116,32 @@ class SocketRedisController extends Controller {
     });
   }
 
-  getRoom(callback) {
-    this._get(this._redisRoomsClient, this._roomKey).then(callback);
-  }
-
-  setRoom(data, callback) {
-    this._set(this._redisRoomsClient, this._roomKey, data).then(() => {
-      if (typeof callback !== 'undefined') callback();
+  getRoom() {
+    var promise = new Promise((resolve, reject) => {
+      this._get('room', this._roomKey).then(resolve);
     });
+    return promise;
   }
 
-  getVideoData(callback) {
-    this._get(this._redisVideoClient, this._videoKey).then(callback);
+  setRoom(data) {
+    var promise = new Promise((resolve, reject) => {
+      this._set('room', this._roomKey, data).then(resolve);
+    });
+    return promise;
+  }
+
+  getVideoData() {
+    var promise = new Promise((resolve, reject) => {
+      this._get('video', this._videoKey).then(resolve);
+    });
+    return promise;
+  }
+
+  setVideoData(data) {
+    var promise = new Promise((resolve, reject) => {
+      this._set('video', this._videoKey, data).then(resolve);
+    });
+    return promise;
   }
 
   _increaseRoomCount(isPrivate) {
@@ -149,28 +163,16 @@ class SocketRedisController extends Controller {
   }
 
   _updateCount(key, change) {
-    this._get(this._redisRoomsClient, key).then((data) => {
+    this._get('room', key).then((data) => {
       let count = parseInt(data);
       if (count == null || isNaN(count)) count = 0;
       count = count + (change);
       if (count < 0) count = 0;
-      this._redisRoomsClient.set(key, '' + count);
+      this._set('room', key, '' + count);
     });
   }
 
   /***** Video related methods *****/
-  /**
-   * See if there is a video currently playing, and return video id if so.
-   */
-  checkVideoPlaying(callback) {
-    this._get(this._redisVideoClient, this._videoKey).then((data) => {
-      if (data !== null && data['currentVideo'] !== null) {
-        callback(data['currentVideo']['videoId']);
-      }
-    });
-  }
-
-
   /**
    * Queue new video into Redis. If it is very first for the room,
    * create a new entry in Redis.
@@ -180,7 +182,7 @@ class SocketRedisController extends Controller {
     var promise  = new Promise((resolve, reject) => {
     // resolve param: boolean, if client should play the queued video.
     // reject: if submitted video is the same video with last queued video.
-      this._get(this._redisVideoClient, this._videoKey).then((data) => {
+      this.getVideoData().then((data) => {
         if (data == null) {
         // Very first video.
           let newData = {
@@ -189,7 +191,7 @@ class SocketRedisController extends Controller {
             searchingRelatedVideo: false,
             relatedVideos: {length: 0, videos: {}}
           };
-          this._set(this._redisVideoClient, this._videoKey, newData).then(() => {
+          this.setVideoData(newData).then(() => {
             resolve(true);
           });
         } else {
@@ -224,7 +226,7 @@ class SocketRedisController extends Controller {
               playVideo = true;
             }
 
-            this._set(this._redisVideoClient, this._videoKey, data).then(() => {
+            this.setVideoData(data).then(() => {
               resolve(playVideo);
             });
           }
@@ -236,12 +238,12 @@ class SocketRedisController extends Controller {
 
   /** Play the next video from the queue. **/
   playNextVideo(callback) {
-    this._get(this._redisVideoClient, this._videoKey).then((data) => {
+    this.getVideoData().then((data) => {
       let videoData = data;
       let nextVideo = videoData['queue'].shift();
       if (nextVideo) {
         videoData['currentVideo'] = nextVideo;
-        this._set(this._redisVideoClient, this._videoKey, videoData).then(() => {
+        this.setVideoData(videoData).then(() => {
           callback(nextVideo)
         });
       } else {
@@ -251,8 +253,9 @@ class SocketRedisController extends Controller {
   }
 
   /***** Wrapper methods to abstract error handling *****/
-  _get(client, key) {
+  _get(type, key) {
     var promise = new Promise((resolve, reject) => {
+      let client = type === 'room' ? this._redisRoomsClient : this._redisVideoClient;
       client.get(key, (err, data) => {
         if (err) {
           this.logger.redisError('Cannot get on RedisController');
@@ -271,12 +274,13 @@ class SocketRedisController extends Controller {
     return promise;
   }
 
-  _set(client, key, data) {
+  _set(type, key, data) {
     if (typeof data !== 'string') {
       data = JSON.stringify(data);
     }
 
     var promise = new Promise((resolve, reject) => {
+      let client = type === 'room' ? this._redisRoomsClient : this._redisVideoClient;
       client.set(key, data, () => resolve());
     });
     return promise;

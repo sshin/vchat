@@ -8,7 +8,7 @@ var SocketRedisController = require('../controllers/socket_redis').SocketRedisCo
 class SocketController extends Controller {
   /**
    * SocketController for vchat-socket server.
-   * Never throw errros in this controller because we don't want to restart socket server.
+   * Never throw errors in this controller because we don't want to restart socket server.
    * Find a way to handle errors.
    *
    * NOTE: This controller is socket & room specific, and binded with SicketRedisController.
@@ -65,7 +65,7 @@ class SocketController extends Controller {
     }
 
     if (!pingedClient) {
-      this._redisCtrl.getVideoData((data) => {
+      this._redisCtrl.getVideoData().then((data) => {
         if (typeof data !== 'undefined' && data !== null) {
         // This is a reactivated room, so new user is the first user.
           let newVideo = {
@@ -94,7 +94,7 @@ class SocketController extends Controller {
   }
 
   playCurrentVideoForNewUser(data) {
-    this.logger.log('playCurrentVideoForNewUser for logJSON key: ' + data['socketId']);
+    this.logger.log('playCurrentVideoForNewUser for LogJSON key: ' + data['socketId']);
     this.logger.logJSON(data['socketId'], data);
 
     data['currentVideoForNewUser'] = true;
@@ -121,7 +121,7 @@ class SocketController extends Controller {
   }
 
   _processCurrentVideoForNewUser(data) {
-    this._redisCtrl.getVideoData((videoData) => {
+    this._redisCtrl.getVideoData().then((videoData) => {
       if (videoData['searchingRelatedVideo']) {
         this._delayProcessCurrentVideoForNewUser(data, 1);
       } else {
