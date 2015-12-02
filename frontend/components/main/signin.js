@@ -14,7 +14,7 @@ var SignIn = React.createClass({
       success: function(data) {
         app.user = data;
         this.refs['loginDialog'].closeDialog();
-        app.showUserSettings();
+        app.userLoggedIn();
       }.bind(this),
       error: function() {
         this._alertBar('login').alert('Invalid login information');

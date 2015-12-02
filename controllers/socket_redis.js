@@ -109,7 +109,7 @@ class SocketRedisController extends Controller {
         room.deleteRoom(this._roomHash);
       } else {
         this.logger.log('room has been reactivated'
-                         + ' | canceling wipe out data for room: ' + this._roomHash);
+                         + ' | canceling wipe out for room: ' + this._roomHash);
         data['pendingWipeOut'] = false;
         this.setRoom(data);
       }

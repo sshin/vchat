@@ -12,6 +12,7 @@ var childProcess = require('child_process');
 var RoombeatController = require('./controllers/roombeat').RoombeatController;
 var io = require('socket.io').listen(server);
 
+
 /** Whatever... **/
 app.get('/', (req, res) => {
   res.send('vChat socket server.');
@@ -49,10 +50,15 @@ child.on('message', (message) => {
 
 
 /*** Clear Redis entries during testing ***/
-var Constants = require('./app_modules/constants');
-console.log('[Warm up Log] Clearing up Redis key/values on socket server start.');
-socketCtrlRedisRoomClient.flushdb();
-socketCtrlRedisVideoClient.flushdb();
+for (var i = 0; i < process.argv.length; i++) {
+  switch(process.argv[i]) {
+   case 'clear':
+     console.log('[Warm up Log] Clearing up Redis key/values on socket server start.');
+     socketCtrlRedisRoomClient.flushdb();
+     socketCtrlRedisVideoClient.flushdb();
+     break;
+  }
+}
 
 
 var SocketController = require('./controllers/socket').SocketController;

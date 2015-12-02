@@ -62,6 +62,10 @@ function _onChatInputSubmit(e) {
 }
 
 function _setRoomInfo() {
+  updateChat({
+    message: 'Welcome to vChat!',
+    messageType: 'info'
+  });
   var path = window.location.pathname;
   if (path.startsWith('/popout')) {
     isPopOut = true;
@@ -73,11 +77,6 @@ function _setRoomInfo() {
   path = path.replace('/vChat/', '').split('/');
   roomInfo['type'] = path[0];
   roomInfo['name'] = path[1];
-
-  updateChat({
-    message: 'Welcome to vChat room ' + roomInfo['name'] + '!',
-    messageType: 'info'
-  });
 }
 
 function _onVideoSubmit(e) {
@@ -372,7 +371,7 @@ function onYouTubePlayerAPIReady() {
 
 function onPlayerReady() {
   /* Play video if video_id has value. */
-  console.log('Youtube Player is ready.');
+  app.log('Youtube Player is ready.');
 
   if (player.getVideoData().video_id !== null) {
     player.playVideo();

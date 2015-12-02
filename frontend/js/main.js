@@ -1,6 +1,5 @@
 $(document).ready(function () {
   _setCategories();
-  //_getRandomPublicRooms();
   _getCounts();
 });
 
@@ -14,15 +13,6 @@ function _setCategories() {
         var category = categories[i];
         $create.append('<option value="' + category['type'] + '">' + category['name'] + '</option>');
       }
-    }
-  });
-}
-
-function _getRandomPublicRooms() {
-  app.get('room', {
-    data: {get: 'randomRooms'},
-    success: function(rooms) {
-      console.log(rooms);
     }
   });
 }

@@ -107,23 +107,25 @@ function App() {
   this.get('login', {
     success: function(data) {
       this.user = data;
-      this.showUserSettings();
+      this.userLoggedIn();
+      this.log('user is logged in');
     }.bind(this),
     error: function() {
-      this.showLogin();
-      this.log('user not logged in');
+      this.userNotLoggedIn();
+      this.log('user is not logged in');
     }.bind(this)
   });
 
-  this.showLogin = function() {
+  this.userNotLoggedIn = function() {
     $('#comp-sign-in').removeClass('hide');
     $('#comp-user-settings').addClass('hide');
   };
 
-  this.showUserSettings = function() {
+  this.userLoggedIn = function() {
     $('#user-settings-welcome-nickname').text(this.user['nickname']);
     $('#comp-sign-in').addClass('hide');
     $('#comp-user-settings').removeClass('hide');
+    $('#comp-user-video-list').removeClass('hide');
   };
 
 

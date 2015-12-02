@@ -35,8 +35,8 @@ class SocketController extends Controller {
     this._socket.emit('username-update', {username: this._user['name']});
     this._redisCtrl.addUserToRoom(this._user);
     this._broadcastToRoom('system-message', {
-      messageType: 'info',
-      message: '[' + this._user['name'] + '] entered the vChat room.'
+      message: '[' + this._user['name'] + '] entered the vChat room.',
+      messageType: 'info'
     });
   }
 

@@ -264,3 +264,18 @@ select {
 .no-pointer-events {
   pointer-events: none;
 }
+
+.success-text,
+.error-text {
+  font-weight: bold;
+  font-size: 18px;
+  display: inline-block;
+}
+
+.success-text {
+  color: #009688;
+}
+
+.error-text {
+  color: #f4511e;
+}

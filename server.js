@@ -26,12 +26,28 @@ var server = app.listen(20000, () => {
 
 
 /** database and redis initiate **/
-var pool = require('./models/db_pool');
-var Room = require('./models/room').Room;
-var room = new Room();
 /** Clear Room table on server start. **/
-console.log('[Warm up Log] Clearing up Room table on server start.');
-room.clearRoom();
+for (var i = 0; i < process.argv.length; i++) {
+  switch(process.argv[i]) {
+   case 'clear-room':
+      let Room = require('./models/room').Room;
+      let room = new Room();
+      console.log('[Warm up Log] Clearing up Room table on server start.');
+      room.clearRoom();
+      break;
+    case 'clear-user':
+      let User = require('./models/user').User;
+      let user = new User();
+      console.log('[Warm up Log] Clearing up User table on server start.');
+      user.runQuery('DELETE FROM User');
+    case 'clear-uvl':
+      let UserVideoList = require('./models/user_video_list').UserVideoList;
+      let uvl = new UserVideoList();
+      console.log('[Warm up Log] Clearing up UserVideoTable table on server start.');
+      uvl.runQuery('DELETE FROM UserVideoList');
+      break;
+  }
+}
 
 
 /** Router **/

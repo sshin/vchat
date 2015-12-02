@@ -1,7 +1,7 @@
 var UserSettings = React.createClass({
   _logout: function() {
     app.post('logout', {
-      success: app.showLogin
+      success: app.userNotLoggedIn
     });
   },
 
