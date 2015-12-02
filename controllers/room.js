@@ -93,13 +93,13 @@ class RoomController extends Controller {
               bcrypt.hash(params['password'], 10, (err, hashedPassword) => {
                 params['password'] = hashedPassword;
                 this._room.insert(params).then(() => {
-                  this.logger.log('Private room created: ' + params['hash']);
+                  this.logger.log('private room created: ' + params['hash']);
                   resolve(params);
                 });
               });
             } else {
               this._room.insert(params).then(() => {
-                this.logger.log('Public room created: ' + params['hash']);
+                this.logger.log('public room created: ' + params['hash']);
                 resolve(params);
               });
             }
