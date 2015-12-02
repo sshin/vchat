@@ -98,25 +98,25 @@ class Model extends Redis {
     var sql = 'SELECT ';
     var params = [];
 
-    if (typeof options.select === 'undefined') {
+    if (typeof options['select'] === 'undefined') {
       sql += '* ';
     } else {
-      for (var i = 0; i < options.select.length; i++) {
-        options.select[i] = this.table + '.' + options.select[i];
+      for (let i = 0; i < options['select'].length; i++) {
+        options['select'][i] = this.table + '.' + options['select'][i];
       }
-      let select = options.select.join(', ');
+      let select = options['select'].join(', ');
       sql += select + ' ';
     }
 
     var join;
     if (typeof options.join !== 'undefined') {
       join = {};
-      join['join'] = options.join['type'] + ' JOIN ' + options.join['table'];
-      join['join'] += ' ON (' + options.join['condition'] + ') ';
-      for (var i = 0; i < options.join.select.length; i++) {
-        options.join.select[i] = options.join['table'] + '.' + options.join.select[i];
+      join['join'] = options['join']['type'] + ' JOIN ' + options['join']['table'];
+      join['join'] += ' ON (' + options['join']['condition'] + ') ';
+      for (let i = 0; i < options['join']['select'].length; i++) {
+        options['join']['select'][i] = options['join']['table'] + '.' + options['join']['elect'][i];
       }
-      let select = options.join.select.join(', ');
+      let select = options['join']['select'].join(', ');
       sql += ', ' + select + ' ';
     }
 
@@ -125,36 +125,36 @@ class Model extends Redis {
     if (typeof join !== 'undefined') sql += join['join'];
 
     var where;
-    if (typeof options.where !== 'undefined') {
+    if (typeof options['where'] !== 'undefined') {
       where = '';
       let count = 0;
-      for (var key in options.where) {
+      for (let key in options['where']) {
         if (count >= 1) where += ' AND ';
         where += key + ' = ? ';
-        params.push(options.where[key]);
+        params.push(options['where'][key]);
         count++;
       }
     }
 
-    if (typeof options.like !== 'undefined') {
+    if (typeof options['like'] !== 'undefined') {
       if (typeof where === 'undefined') {
         where = '';
       } else {
         where += ' AND ';
       }
       let count = 0;
-      for (var key in options.like) {
+      for (let key in options['like']) {
         if (count >= 1) where += ' AND ';
         where += key + ' LIKE  ? ';
-        params.push(options.like[key]);
+        params.push(options['like'][key]);
         count++;
       }
     }
 
     if (typeof where !== 'undefined') sql += 'WHERE ' + where;
 
-    if (typeof options.order !== 'undefined') {
-      sql += ' ORDER BY ' + options.order['column'] + ' ' + options.order['direction'];
+    if (typeof options['order'] !== 'undefined') {
+      sql += ' ORDER BY ' + options['order']['column'] + ' ' + options['order']['direction'];
     }
 
     if (typeof options['limit'] !== 'undefined') {

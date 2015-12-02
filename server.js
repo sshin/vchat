@@ -27,7 +27,7 @@ var server = app.listen(20000, () => {
 
 /** database and redis initiate **/
 /** Clear Room table on server start. **/
-for (var i = 0; i < process.argv.length; i++) {
+for (let i = 0; i < process.argv.length; i++) {
   switch(process.argv[i]) {
    case 'clear-room':
       let Room = require('./models/room').Room;

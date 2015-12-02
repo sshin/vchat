@@ -278,7 +278,7 @@ class SocketController extends Controller {
   _parseLink(link) {
     var time, id;
     var data = {id: null, startAt: null};
-    for (var i = 0; i < link.length; i++) {
+    for (let i = 0; i < link.length; i++) {
       if (link[i].startsWith('v=')) {
         id = link[i].replace('v=', '');
       } else if (link[i].startsWith('t=')) {

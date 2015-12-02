@@ -62,7 +62,7 @@ function _getRoomHash(socket) {
 
   let rooms = io.sockets['adapter']['rooms'];
   let count = 0;
-  for (var key in rooms) {
+  for (let key in rooms) {
     // Skip individual socket rooms.
     if (!key.startsWith(Constants.redisRoomKeyPrefix)) continue;
     count++;

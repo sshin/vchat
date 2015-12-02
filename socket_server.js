@@ -50,7 +50,7 @@ child.on('message', (message) => {
 
 
 /*** Clear Redis entries during testing ***/
-for (var i = 0; i < process.argv.length; i++) {
+for (let i = 0; i < process.argv.length; i++) {
   switch(process.argv[i]) {
    case 'clear':
      console.log('[Warm up Log] Clearing up Redis key/values on socket server start.');
