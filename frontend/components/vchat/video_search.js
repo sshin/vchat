@@ -88,7 +88,8 @@ var VideoSearch = React.createClass({
     $('.video-search-result-item').off().on('click', function() {
       var data = {
         username: $('#user-name').val(),
-        videoId: $(this).attr('data-videoId')
+        videoId: $(this).attr('data-videoId'),
+        submitType: 'search'
       };
 
       socket.emit('new-video-submit', data);

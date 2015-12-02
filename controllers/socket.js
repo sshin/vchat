@@ -200,13 +200,10 @@ class SocketController extends Controller {
    * Validate youtube video, and add it to queue.
    */
   newVideoSubmit(data) {
-    var submitType = '';
     if (typeof data['videoId'] !== 'undefined') {
-      submitType = 'search';
+      // Video is submitted via search or video list.
     } else {
-      submitType = 'link';
-
-      // Check YouTube link.
+    // Check YouTube link.
       if (!data['link'].startsWith('https://www.youtube.com/watch?')
         && !data['link'].startsWith('https://youtu.be/')) {
         this.logger.log('Invalid video link: ' + data['link']);
@@ -256,19 +253,25 @@ class SocketController extends Controller {
       delete data['link'];
     }
 
-    this.logger.log('queuing a video | submit type: ' + submitType
-                    + ' | videoId: ' + data['videoId'] + ' | room: ' + this._roomHash);
-    // TODO: And probably verify given link is a real youtube video?
-    this._redisCtrl.queueVideo(data, () => {
+    this._redisCtrl.queueVideo(data).then((playVideo) => {
       // Callback for when queueing is done.
       data['message'] = 'queued new video!';
       data['messageType'] = 'info';
-      this._broadcastInRoom('new-video-queued', data)
-    }, (nextVideo) => {
-      // This will be executed if there is no video currently playing.
-      nextVideo['message'] = 'Playing a video from the queue.';
-      nextVideo['messageType'] = 'info';
-      this._broadcastInRoom('new-video-to-play', nextVideo);
+      this._broadcastInRoom('new-video-queued', data);
+
+      if (playVideo) {
+      // Client should play the queued video.
+        this._redisCtrl.playNextVideo((nextVideo) => {
+          nextVideo['message'] = 'Playing a video from the queue.';
+          nextVideo['messageType'] = 'info';
+          this._broadcastInRoom('new-video-to-play', nextVideo);
+        });
+      }
+    }).catch(() => {
+      this._socket.emit('system-message', {
+        message: 'Cannot queue same videos in a row.',
+        messageType: 'warning'
+      });
     });
   }
 

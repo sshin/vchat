@@ -176,39 +176,62 @@ class SocketRedisController extends Controller {
    * create a new entry in Redis.
    * If there is no video currently playing, then play the first one in queue.
    */
-  queueVideo(videoData, callback, playVideoCallback) {
-    this._get(this._redisVideoClient, this._videoKey).then((data) => {
-      if (data == null) {
-      // Very first video.
-        let newData = {
-          currentVideo: null,
-          queue: [videoData],
-          searchingRelatedVideo: false,
-          relatedVideos: {length: 0, videos: {}}
-        };
-        this._set(this._redisVideoClient, this._videoKey, newData).then(() => {
-          // Since this is the very first video, it must playNextVideo.
-          callback();
-          this.playNextVideo(playVideoCallback);
-        });
-      } else {
-      // Queue the video.
-        data.queue.push(videoData);
-        if (data['currentVideo'] == null && !data['searchingRelatedVideo']) {
-        // No video currently playing, so set and play the next video.
-          let nextVideo = data['queue'].shift();
-          data['currentVideo'] = nextVideo;
-          this._set(this._redisVideoClient, this._videoKey, data).then(() => {
-            callback();
-            this.playNextVideo(playVideoCallback);
+  queueVideo(videoData) {
+    var promise  = new Promise((resolve, reject) => {
+    // resolve param: boolean, if client should play the queued video.
+    // reject: if submitted video is the same video with last queued video.
+      this._get(this._redisVideoClient, this._videoKey).then((data) => {
+        if (data == null) {
+        // Very first video.
+          let newData = {
+            currentVideo: null,
+            queue: [videoData],
+            searchingRelatedVideo: false,
+            relatedVideos: {length: 0, videos: {}}
+          };
+          this._set(this._redisVideoClient, this._videoKey, newData).then(() => {
+            resolve(true);
           });
         } else {
-          this._set(this._redisVideoClient, this._videoKey, data).then(() => {
-            callback();
-          });
+        // Not a first video for the room.
+          let queueLength = data['queue'].length;
+          let lastQueued = false;
+
+          if (queueLength > 0) {
+          // Check if submitted video is the same with last queued.
+            lastQueued = data['queue'][queueLength - 1]['videoId'] === videoData['videoId'];
+          } else {
+          // Queue is empty. See if the submitted video is same with the currently playing video.
+            lastQueued = data['currentVideo'] !== null &&
+                         data['currentVideo']['videoId'] === videoData['videoId'];
+          }
+
+          if (lastQueued) {
+            this.logger.log('submitted same video with the last queued video | canceling queue |'
+                            + ' submit type: ' + videoData['submitType']
+                            + ' | videoId: ' + videoData['videoId'] + ' | room: ' + this._roomHash);
+            reject();
+          } else {
+          // Queue the video.
+            let playVideo = false;
+            this.logger.log('queuing a video | submit type: ' + videoData['submitType']
+                            + ' | videoId: ' + videoData['videoId'] + ' | room: ' + this._roomHash);
+            data.queue.push(videoData);
+            if (data['currentVideo'] === null && !data['searchingRelatedVideo']) {
+            // No video currently playing, so set and play the next video.
+              let nextVideo = data['queue'].shift();
+              data['currentVideo'] = nextVideo;
+              playVideo = true;
+            }
+
+            this._set(this._redisVideoClient, this._videoKey, data).then(() => {
+              resolve(playVideo);
+            });
+          }
         }
-      }
+      });
     });
+    return promise;
   }
 
   /** Play the next video from the queue. **/

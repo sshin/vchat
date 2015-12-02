@@ -84,7 +84,8 @@ function _onVideoSubmit(e) {
   if (e.which == 13) {
     var data = {
       username: _getUserName(),
-      link: $videoInput.val()
+      link: $videoInput.val(),
+      submitType: 'link'
     };
 
     socket.emit('new-video-submit', data);

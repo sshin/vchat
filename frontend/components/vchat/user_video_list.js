@@ -104,7 +104,8 @@ var UserVideoList = React.createClass({
     $('.video-list-item').off().on('click', function() {
       var data = {
         username: $('#user-name').val(),
-        videoId: $(this).attr('data-videoId')
+        videoId: $(this).attr('data-videoId'),
+        submitType: 'list'
       };
 
       socket.emit('new-video-submit', data);
