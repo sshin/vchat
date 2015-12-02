@@ -503,3 +503,5 @@ function respondRoombeat() {
   }
 }
 
+/** heartbeat to server **/
+app.START_HEARTBEAT();

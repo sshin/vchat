@@ -34,6 +34,7 @@ module.exports = (app) => {
   app.use('/', require('./api/main'));
   app.use('/vChat', require('./api/vchat'));
   app.use('/popout', require('./api/video_pop_out'));
+  app.use('/heartbeat', require('./api/heartbeat'));
 
   /** api routing **/
   // TODO: Singup/Login should be handled in it's own service.
