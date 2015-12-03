@@ -62,6 +62,11 @@ var UserVideoList = React.createClass({
                       + 'Your memorized video list is full' +
                      '</div>');
         break;
+      case 'invalid':
+        $text.append('<div class="error-text full-width center-text">'
+                      + 'Invalid video' +
+                     '</div>');
+        break;
     }
 
     dialog.openDialog();

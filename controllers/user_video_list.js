@@ -13,7 +13,10 @@ class UserVideoListController extends Controller {
 
   addVideoToList(params) {
     var promise = new Promise((resolve, reject) => {
-      if (!this._isValidInputs(params)) reject();
+      if (!this._isValidInputs(params)) {
+        reject('invalid');
+        return;
+      }
 
       this._uvl.checkVideoInList(params).then((exist) => {
         if (exist) {
