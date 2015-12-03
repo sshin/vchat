@@ -94,8 +94,8 @@ class SocketController extends Controller {
   }
 
   playCurrentVideoForNewUser(data) {
-    this.logger.log('playCurrentVideoForNewUser for LogJSON key: ' + data['socketId']);
-    this.logger.logJSON(data['socketId'], data);
+    this.logger.log('play current video for new user socket: ' + data['socketId']
+                    + ' | for room: ' + this._roomHash);
 
     data['currentVideoForNewUser'] = true;
     if (data['isEnded']) {
