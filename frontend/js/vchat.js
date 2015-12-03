@@ -1,4 +1,5 @@
 var roomInfo = {};
+var readyForRoombeat = false;
 var isPopOut = false;
 var player;
 var socket;
@@ -24,6 +25,7 @@ $(document).ready(function () {
 
   /***** Roombeat *****/
   roombeat.on('roombeat', respondRoombeat);
+  socket.on('ready-for-roombeat', listenToRoombeat);
 
   /***** Socket events *****/
   socket.on('system-message', updateChat);
@@ -493,7 +495,23 @@ function hasVideo() {
  * Responds to roombeat if this socket is selected for roombeat :).
  * Will only respond if current video is ended for now.
  */
+function listenToRoombeat() {
+  setTimeout(function() {
+    readyForRoombeat = true;
+  }, 1000);
+}
+
 function respondRoombeat() {
+  if (!readyForRoombeat) {
+    setTimeout(function() {
+      respondRoombeat();
+    }, 500);
+    return;
+  }
+
+  app.log('Responding to roombeat');
+  app.log('Player is ended: ' + isPlayerEnded());
+
   if (isPlayerEnded()) {
     var data = {
       videoId: player.getVideoData()['video_id'],

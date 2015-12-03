@@ -54,7 +54,7 @@ class SocketController extends Controller {
         try {
           // It's possible that this user(socket) left the room,
           // right after we got the socket id.
-          let data = {socketId: this._socket.id}
+          let data = {socketId: this._socket.id};
           this._io.sockets['connected'][key].emit('get-current-play-time-for-new-user', data);
           pingedClient = true;
           break;
@@ -83,6 +83,7 @@ class SocketController extends Controller {
           this._socket.emit('system-message', message);
         }
       });
+      this._socket.emit('ready-for-roombeat');
     } else {
     // User entered an active room.
       let message = {
@@ -144,6 +145,7 @@ class SocketController extends Controller {
     try {
       // Make sure new user is still connected.
       this._io.sockets['connected'][data['socketId']].emit('new-video-to-play', data);
+      this._io.sockets['connected'][data['socketId']].emit('ready-for-roombeat');
     } catch (err) {
       // New user left the room so don't do anything..
     }
