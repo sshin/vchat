@@ -117,31 +117,19 @@ class SocketRedisController extends Controller {
   }
 
   getRoom() {
-    var promise = new Promise((resolve, reject) => {
-      this._get('room', this._roomKey).then(resolve);
-    });
-    return promise;
+    return this._get('room', this._roomKey);
   }
 
   setRoom(data) {
-    var promise = new Promise((resolve, reject) => {
-      this._set('room', this._roomKey, data).then(resolve);
-    });
-    return promise;
+    return this._set('room', this._roomKey, data);
   }
 
   getVideoData() {
-    var promise = new Promise((resolve, reject) => {
-      this._get('video', this._videoKey).then(resolve);
-    });
-    return promise;
+    return this._get('video', this._videoKey);
   }
 
   setVideoData(data) {
-    var promise = new Promise((resolve, reject) => {
-      this._set('video', this._videoKey, data).then(resolve);
-    });
-    return promise;
+    return this._set('video', this._videoKey, data);
   }
 
   _increaseRoomCount(isPrivate) {
