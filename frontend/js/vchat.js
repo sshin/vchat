@@ -497,6 +497,7 @@ function hasVideo() {
  */
 function listenToRoombeat() {
   setTimeout(function() {
+    app.log('Ready to respond to Roombeat');
     readyForRoombeat = true;
   }, 1000);
 }
@@ -505,14 +506,14 @@ function respondRoombeat() {
   if (!readyForRoombeat) {
     setTimeout(function() {
       respondRoombeat();
-    }, 500);
+    }, 100);
     return;
   }
 
-  app.log('Responding to roombeat');
-  app.log('Player is ended: ' + isPlayerEnded());
+  var playerEnded = isPlayerEnded();
+  app.log('Responding to Roombeat | Player ended: ' + playerEnded);
 
-  if (isPlayerEnded()) {
+  if (playerEnded) {
     var data = {
       videoId: player.getVideoData()['video_id'],
       isVideoEnded: true
