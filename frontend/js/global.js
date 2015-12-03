@@ -103,30 +103,50 @@ function App() {
 
 
   /** user info **/
-  this.user = {};
+  this.user = null;
   this.get('login', {
     success: function(data) {
       this.user = data;
-      this.userLoggedIn();
       this.log('user is logged in');
+      $(document).trigger('loginCheck');
     }.bind(this),
     error: function() {
-      this.userNotLoggedIn();
+      this.user = {};
       this.log('user is not logged in');
     }.bind(this)
   });
 
-  this.userNotLoggedIn = function() {
-    $('#comp-sign-in').removeClass('hide');
-    $('#comp-user-settings').addClass('hide');
+  // TODO: Lame implementation. Fix this when refactoring frontend.
+  this.logout = function() {
+    this.post('logout', {
+      success: function() {
+        this.user = {};
+        $(document).trigger('loginCheck');
+      }.bind(this)
+    });
   };
 
-  this.userLoggedIn = function() {
-    $('#user-settings-welcome-nickname').text(this.user['nickname']);
-    $('#comp-sign-in').addClass('hide');
-    $('#comp-user-settings').removeClass('hide');
-    $('#comp-user-video-list').removeClass('hide');
+  // TODO: Lame implementation. Fix this when refactoring frontend.
+  this.userLoggedIn = function(callback) {
+    if (this.user === null) {
+      setTimeout(function() {
+        this.userLoggedIn(callback)
+      }.bind(this), 500);
+    } else {
+      callback(!$.isEmptyObject(this.user));
+    }
   };
+
+  //this.userNotLoggedIn = function() {
+  //  $('#comp-sign-in').removeClass('hide');
+  //  $('#comp-user-settings').addClass('hide');
+  //};
+  //
+  //this.userLoggedIn = function() {
+  //  $('#user-settings-welcome-nickname').text(this.user['nickname']);
+  //  $('#comp-sign-in').addClass('hide');
+  //  $('#comp-user-settings').removeClass('hide');
+  //};
 
 
   /** heartbeat **/

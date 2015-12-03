@@ -1,6 +1,22 @@
 var UserVideoList = React.createClass({
   componentWillMount: function() {
     this._videoList = null;
+    $(document).on('loginCheck', this._render);
+  },
+
+  componentDidMount: function() {
+    this._$wrapper = $($(this.refs['wrapper'].getDOMNode())[0]);
+    this._render();
+  },
+
+  _render: function() {
+    app.userLoggedIn(function(loggedIn) {
+      if (loggedIn) {
+        this._$wrapper.removeClass('hide');
+      } else {
+        this._$wrapper.addClass('hide');
+      }
+    }.bind(this));
   },
 
   _addToList: function () {
@@ -115,7 +131,7 @@ var UserVideoList = React.createClass({
 
   render: function() {
     return (
-      <div id="user-video-list-wrapper">
+      <div id="user-video-list-wrapper" className="hide" ref="wrapper">
         <Button id="add-video-to-list" text="Add current video to your memorized video list"
                 color="green" onClick={this._addToList} />
         <Button id="view-video-list" text="View your memorized video list"

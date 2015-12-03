@@ -1,13 +1,27 @@
 var UserSettings = React.createClass({
+  componentDidMount: function() {
+    this._$wrapper = $($(this.refs['wrapper'].getDOMNode())[0]);
+    this._render();
+    $(document).on('loginCheck', this._render);
+  },
+
   _logout: function() {
-    app.post('logout', {
-      success: app.userNotLoggedIn
-    });
+    app.logout();
+  },
+
+  _render: function() {
+    app.userLoggedIn(function(loggedIn) {
+      if (loggedIn) {
+        this._$wrapper.removeClass('hide');
+      } else {
+        this._$wrapper.addClass('hide');
+      }
+    }.bind(this));
   },
 
   render: function() {
     return (
-      <div id="user-settings-wrapper" className="white-background card-item">
+      <div id="user-settings-wrapper" className="white-background card-item hide" ref="wrapper">
         <div className="center-text card-item-title">
           Welcome to vChat <span id="user-settings-welcome-nickname"></span>!
         </div>

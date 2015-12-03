@@ -1,4 +1,21 @@
 var SignIn = React.createClass({
+  componentDidMount: function() {
+    this._$wrapper = $($(this.refs['wrapper'].getDOMNode())[0]);
+    this._render();
+    $(document).on('loginCheck', this._render);
+  },
+
+  _render: function() {
+    this._$wrapper = $($(this.refs['wrapper'].getDOMNode())[0]);
+    app.userLoggedIn(function(loggedIn) {
+      if (loggedIn) {
+        this._$wrapper.addClass('hide');
+      } else {
+        this._$wrapper.removeClass('hide');
+      }
+    }.bind(this));
+  },
+
   _alertBar: function(func) {
     return this.refs[func + 'AlertBar'];
   },
@@ -14,7 +31,7 @@ var SignIn = React.createClass({
       success: function(data) {
         app.user = data;
         this.refs['loginDialog'].closeDialog();
-        app.userLoggedIn();
+        $(document).trigger('loginCheck');
       }.bind(this),
       error: function() {
         this._alertBar('login').alert('Invalid login information');
@@ -68,7 +85,7 @@ var SignIn = React.createClass({
 
   render: function() {
     return (
-      <div id="login-wrapper" className="white-background card-item">
+      <div id="login-wrapper" className="white-background card-item" ref="wrapper">
         <Dialog id="login-dialog" buttonText="Login to vChat" header="Login" color="purple"
                 ref="loginDialog">
           <div id="login-form-wrapper" ref="loginForm">
