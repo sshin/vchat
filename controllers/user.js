@@ -92,12 +92,15 @@ class UserController extends Controller {
     return errors;
   }
   
-  createUser(params, callback) {
-    bcrypt.hash(params['password'], 10, (err, hash) => {
-      params['password'] = hash;
-      delete params['passwordVerify'];
-      this._user.insert(params).then(callback);
+  createUser(params) {
+    var promise = new Promise((resolve, reject) => {
+      bcrypt.hash(params['password'], 10, (err, hash) => {
+        params['password'] = hash;
+        delete params['passwordVerify'];
+        this._user.insert(params).then(resolve);
+      });
     });
+    return promise;
   }
 
   login(params) {

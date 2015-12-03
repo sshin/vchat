@@ -57,11 +57,7 @@ class UserVideoList extends Model {
   }
 
   addVideoToList(params) {
-    var promise = new Promise((resolve, reject) => {
-      this.insert(params).then(resolve);
-    });
-
-    return promise;
+    return this.insert(params);
   }
 
 }

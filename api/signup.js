@@ -8,7 +8,7 @@ router.post('/', (req, res) => {
   var params = req.body;
   userCtrl.validateSignUp(params).then((result) => {
     if (result['type'] === 'valid') {
-      userCtrl.createUser(params, () => res.send('okay'));
+      userCtrl.createUser(params).then(() => res.send('okay'));
     } else {
       res.status(400);
       res.send({errors: result['errors'], type: result['errorType']});
