@@ -4,22 +4,24 @@
 var express = require('express');
 var app = express();
 var cookieParser = require('cookie-parser');
-var session = require('express-session'), RedisStore = require('connect-redis')(session);
+var Session = require('express-session'), RedisStore = require('connect-redis')(Session);
 var connect = require('connect');
 var credentials = require('credentials');
 var bodyParser = require('body-parser');
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(session({
+var session = Session({
   store: new RedisStore({
     host: 'localhost', port: 6379, db: 10, ttl: 3600, secret: credentials.redisSecret
   }),
   secret: credentials.sessionSecret,
+  cookie: {path: '/', domain: 'nullcannull-dev.net'},
   key: credentials.sessionKey,
   resave: true,
   saveUninitialized: true
-}));
+});
+app.use(session);
 var server = app.listen(20000, () => {
   console.log('[Warm up Log] Server started on port %d', server.address().port);
 });
