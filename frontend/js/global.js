@@ -137,17 +137,6 @@ function App() {
     }
   };
 
-  //this.userNotLoggedIn = function() {
-  //  $('#comp-sign-in').removeClass('hide');
-  //  $('#comp-user-settings').addClass('hide');
-  //};
-  //
-  //this.userLoggedIn = function() {
-  //  $('#user-settings-welcome-nickname').text(this.user['nickname']);
-  //  $('#comp-sign-in').addClass('hide');
-  //  $('#comp-user-settings').removeClass('hide');
-  //};
-
 
   /** heartbeat **/
   this.START_HEARTBEAT = function() {
@@ -156,9 +145,10 @@ function App() {
         url: CONFIG['baseUrl'] + 'heartbeat',
         success: function() {
           setTimeout(__heartBeat, 1800000);
+          console.log('Server is alive. Continue heartbeat.');
         }.bind(this),
         error: function() {
-          console.log('Server is down. Stopping heartbeat');
+          console.error('Server is down. Stopping heartbeat.');
         }.bind(this)
       });
     })();
