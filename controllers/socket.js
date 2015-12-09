@@ -18,7 +18,7 @@ class SocketController extends Controller {
   constructor(io, redisSessionClient, redisRoomClient, redisVideoClient, socket) {
     super();
     let sessionKey = 'sess:' + socket['handshake']['sessionID'];
-    this._sessionCtrl = new SocketSessionController(io, redisSessionClient,
+    this._socketSessionCtrl = new SocketSessionController(io, redisSessionClient,
                                                      sessionKey, socket['id']);
     this._io = io;
     this._roomHash = this._getRoomHash(socket);
@@ -35,7 +35,7 @@ class SocketController extends Controller {
    */
   _init() {
     this.logger.log('initiating new user ' + this._socket['id'] + ' | room: ' + this._roomHash);
-    this._sessionCtrl.get('user').then((userData) => {
+    this._socketSessionCtrl.get('user').then((userData) => {
       if (userData !== null) {
         Object.assign(this._user, userData);
       } else {
