@@ -39,14 +39,14 @@ router.post('/', (req, res) => {
   switch (params['type']) {
     case 'searchPrivateRoom':
       roomCtrl.searchPrivateRoom(params).then((hash) => {
-        if (typeof req.session.privateRooms === 'undefined') {
-          req.session.privateRooms = {};
+        if (typeof req.session['privateRooms'] === 'undefined') {
+          req.session['privateRooms'] = {};
         }
         if (hash === null) {
           res.status(404);
           res.send();
         } else {
-          req.session.privateRooms[hash] = true;
+          req.session['privateRooms'][hash] = true;
           res.send({
             type: 'private',
             room: hash
@@ -71,10 +71,10 @@ router.post('/', (req, res) => {
         let hash = data['hash'];
         let path = 'vChat/';
         if (data['private'] === 1) {
-          if (typeof req.session.privateRooms === 'undefined') {
-            req.session.privateRooms = {};
+          if (typeof req.session['privateRooms'] === 'undefined') {
+            req.session['privateRooms'] = {};
           }
-          req.session.privateRooms[hash] = true;
+          req.session['privateRooms'][hash] = true;
           path += 'private/';
         } else {
           path += 'public/';

@@ -59,12 +59,12 @@ class SocketController extends Controller {
     var pingedClient = false;
 
     for (let key in sockets) {
-      if (sockets[key] === true && key != this._socket.id) {
+      if (sockets[key] === true && key != this._socket['id']) {
       // Just sending one emit is fine enough.
         try {
           // It's possible that this user(socket) left the room,
           // right after we got the socket id.
-          let data = {socketId: this._socket.id};
+          let data = {socketId: this._socket['id']};
           this._io['sockets']['connected'][key].emit('get-current-play-time-for-new-user', data);
           pingedClient = true;
           break;
