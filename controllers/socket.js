@@ -23,7 +23,7 @@ class SocketController extends Controller {
     this._io = io;
     this._roomHash = this._getRoomHash(socket);
     this._roomKey = Constants.redisRoomKeyPrefix + this._roomHash;
-    this._redisCtrl = new SocketRedisController(redisRoomClient, redisVideoClient, this._roomHash);
+    this._socketRedisCtrl = new SocketRedisController(redisRoomClient, redisVideoClient, this._roomHash);
     this._user = {socketId: socket['id']};
     this._socket = socket;
     this._socket.join(this._roomKey);
@@ -43,7 +43,9 @@ class SocketController extends Controller {
       }
       this._socket.emit('username-update', {username: this._user['nickname']});
     });
-    this._redisCtrl.addUserToRoom(this._user);
+    this._socketRedisCtrl.addUserToRoom(this._user).then(() => {
+      this._socketSessionCtrl.init();
+    });
     this._broadcastToRoom('system-message', {
       message: '[' + this._user['name'] + '] entered the vChat room.',
       messageType: 'info'
@@ -75,7 +77,7 @@ class SocketController extends Controller {
     }
 
     if (!pingedClient) {
-      this._redisCtrl.getVideoData().then((data) => {
+      this._socketRedisCtrl.getVideoData().then((data) => {
         if (typeof data !== 'undefined' && data !== null) {
         // This is a reactivated room, so new user is the first user.
           let newVideo = {
@@ -132,7 +134,7 @@ class SocketController extends Controller {
   }
 
   _processCurrentVideoForNewUser(data) {
-    this._redisCtrl.getVideoData().then((videoData) => {
+    this._socketRedisCtrl.getVideoData().then((videoData) => {
       if (videoData['searchingRelatedVideo']) {
         this._delayProcessCurrentVideoForNewUser(data, 1);
       } else {
@@ -181,7 +183,7 @@ class SocketController extends Controller {
     //  message: '[' + this._user['name'] + '] has left the vChat room.',
     //  messageType: 'warning'
     //});
-    this._redisCtrl.removeUserFromRoom(this._user);
+    this._socketRedisCtrl.removeUserFromRoom(this._user);
   }
   /**
    * Parse room hash from socket object.
@@ -265,7 +267,7 @@ class SocketController extends Controller {
       delete data['link'];
     }
 
-    this._redisCtrl.queueVideo(data).then((playVideo) => {
+    this._socketRedisCtrl.queueVideo(data).then((playVideo) => {
       // Callback for when queueing is done.
       data['message'] = 'queued new video!';
       data['messageType'] = 'info';
@@ -273,7 +275,7 @@ class SocketController extends Controller {
 
       if (playVideo) {
       // Client should play the queued video.
-        this._redisCtrl.playNextVideo((nextVideo) => {
+        this._socketRedisCtrl.playNextVideo((nextVideo) => {
           nextVideo['message'] = 'Playing a video from the queue.';
           nextVideo['messageType'] = 'info';
           this._broadcastInRoom('new-video-to-play', nextVideo);
@@ -329,7 +331,7 @@ class SocketController extends Controller {
   controlVideo(data) {
     data['messageType'] = 'action';
     if (data['action'] == 'playNext') {
-      this._redisCtrl.playNextVideo((nextVideo) => {
+      this._socketRedisCtrl.playNextVideo((nextVideo) => {
         if (nextVideo !== null) {
           data['nextVideo'] = nextVideo;
           this._broadcastInRoom('control-video', data);

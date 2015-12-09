@@ -11,18 +11,17 @@ class SocketSessionController extends Controller {
     this._redisClient = redisClient;
     this._key = sessionKey;
     this._socketId = socketId;
-    this._init();
   }
 
   /**
    * Check if there is a connection already from the same client, and if there is, force disconnect
    * the old connection.
    */
-  _init() {
+  init() {
     this.get('socketId').then((oldSocketId) => {
       if (oldSocketId !== null && this._io['sockets']['connected'].hasOwnProperty(oldSocketId)) {
         this.logger.log('detected a new connection from the same client'
-                         + ' | disconnect old connection of socket id: ' + this._socketId);
+                         + ' | disconnecting the old connection of socket id: ' + this._socketId);
         try {
           this._io['sockets']['connected'][oldSocketId].emit('force-disconnect');
         } catch (err) {

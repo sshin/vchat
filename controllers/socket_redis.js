@@ -28,40 +28,44 @@ class SocketRedisController extends Controller {
    * If this user is the first user of the room, create new Redis entries.
    */
   addUserToRoom(user) {
-    this.getRoom().then((data) => {
-      if (!data) {
-      // This user is the first user of the room.
-        let room = new Room();
-        room.select({
-          where: {
-            hash: this._roomHash
-          }
-        }).then((data) => {
-          let roomData = data[0];
-          roomData['users'] = {};
-          roomData['users'][user['id']] = user;
-          roomData['usersCount'] = 1;
-          roomData['pendingWipeOut'] = false;
-          this.setRoom(roomData).then(() => {
-            this._increaseRoomCount(roomData['private']);
+    var promise = new Promise((resolve, reject) => {
+      this.getRoom().then((data) => {
+        if (!data) {
+        // This user is the first user of the room.
+          let room = new Room();
+          room.select({
+            where: {
+              hash: this._roomHash
+            }
+          }).then((data) => {
+            let roomData = data[0];
+            roomData['users'] = {};
+            roomData['users'][user['socketId']] = user;
+            roomData['usersCount'] = 1;
+            roomData['pendingWipeOut'] = false;
+            this.setRoom(roomData).then(() => {
+              this._increaseRoomCount(roomData['private']);
+              resolve();
+            });
           });
-        });
-      } else if (data['usersCount'] === 0) {
-      // Room has been reactivated.
-        let roomData = data;
-        roomData['users'][user['id']] = user;
-        roomData['usersCount'] = 1;
-        this.setRoom(roomData);
-      } else {
-      // Adding user to an existing room.
-        if (!data['users'].hasOwnProperty(user['id'])) {
-          data['users'][user['id']] = user;
-          data['usersCount'] = parseInt(data['usersCount']) + 1;
+        } else if (data['usersCount'] === 0) {
+        // Room has been reactivated.
+          let roomData = data;
+          roomData['users'][user['socketId']] = user;
+          roomData['usersCount'] = 1;
+          this.setRoom(roomData).then(resolve);
+        } else {
+        // Adding user to an existing room.
+          if (!data['users'].hasOwnProperty(user['socketId'])) {
+            data['users'][user['socketId']] = user;
+            data['usersCount'] = parseInt(data['usersCount']) + 1;
+          }
+          this.setRoom(data).then(resolve);
         }
-        this.setRoom(data);
-      }
-      this._increaseUserCount();
+        this._increaseUserCount();
+      });
     });
+    return promise;
   }
 
   /**
@@ -69,7 +73,7 @@ class SocketRedisController extends Controller {
    */
   removeUserFromRoom(user) {
     this.getRoom().then((data) => {
-      delete data['users'][user['id']];
+      delete data['users'][user['socketId']];
       data['usersCount'] = parseInt(data['usersCount']) - 1;
 
       if (data['usersCount'] === 0 && !data['pendingWipeOut']) {
