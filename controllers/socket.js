@@ -3,6 +3,7 @@
 var Controller = require('./controller').Controller;
 var Constants = require('../app_modules/constants');
 var SocketRedisController = require('../controllers/socket_redis').SocketRedisController;
+var SocketSessionController = require('../controllers/socket_session').SocketSessionController;
 
 
 class SocketController extends Controller {
@@ -14,13 +15,16 @@ class SocketController extends Controller {
    * NOTE: This controller is socket & room specific, and binded with SicketRedisController.
    */
 
-  constructor(io, redisClient, redisClient2, socket) {
+  constructor(io, redisSessionClient, redisRoomClient, redisVideoClient, socket) {
     super();
+    let sessionKey = 'sess:' + socket['handshake']['sessionID'];
+    this._sessionCtrl = new SocketSessionController(io, redisSessionClient,
+                                                     sessionKey, socket['id']);
     this._io = io;
     this._roomHash = this._getRoomHash(socket);
     this._roomKey = Constants.redisRoomKeyPrefix + this._roomHash;
-    this._redisCtrl = new SocketRedisController(redisClient, redisClient2, this._roomHash);
-    this._user = {id: socket['id']};
+    this._redisCtrl = new SocketRedisController(redisRoomClient, redisVideoClient, this._roomHash);
+    this._user = {socketId: socket['id']};
     this._socket = socket;
     this._socket.join(this._roomKey);
     this._init();
@@ -31,8 +35,14 @@ class SocketController extends Controller {
    */
   _init() {
     this.logger.log('initiating new user ' + this._socket['id'] + ' | room: ' + this._roomHash);
-    this._user['name'] = this._socket['id'];
-    this._socket.emit('username-update', {username: this._user['name']});
+    this._sessionCtrl.get('user').then((userData) => {
+      if (userData !== null) {
+        Object.assign(this._user, userData);
+      } else {
+        this._user['nickname'] = this._socket['id'];
+      }
+      this._socket.emit('username-update', {username: this._user['nickname']});
+    });
     this._redisCtrl.addUserToRoom(this._user);
     this._broadcastToRoom('system-message', {
       message: '[' + this._user['name'] + '] entered the vChat room.',
@@ -45,7 +55,7 @@ class SocketController extends Controller {
    * then get the play time from one of the sockets in room.
    */
   getCurrentPlayTimeForNewUser() {
-    var sockets = this._io.sockets['adapter']['rooms'][this._roomKey];
+    var sockets = this._io['sockets']['adapter']['rooms'][this._roomKey];
     var pingedClient = false;
 
     for (let key in sockets) {
@@ -55,7 +65,7 @@ class SocketController extends Controller {
           // It's possible that this user(socket) left the room,
           // right after we got the socket id.
           let data = {socketId: this._socket.id};
-          this._io.sockets['connected'][key].emit('get-current-play-time-for-new-user', data);
+          this._io['sockets']['connected'][key].emit('get-current-play-time-for-new-user', data);
           pingedClient = true;
           break;
         } catch (err) {
@@ -167,10 +177,10 @@ class SocketController extends Controller {
    * Romove from room and update all associated data.
    */
   leave() {
-    this._broadcastToRoom('system-message', {
-      message: '[' + this._user['name'] + '] has left the vChat room.',
-      messageType: 'warning'
-    });
+    //this._broadcastToRoom('system-message', {
+    //  message: '[' + this._user['name'] + '] has left the vChat room.',
+    //  messageType: 'warning'
+    //});
     this._redisCtrl.removeUserFromRoom(this._user);
   }
   /**

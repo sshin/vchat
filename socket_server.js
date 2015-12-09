@@ -44,6 +44,11 @@ app.get('/', (req, res) => {
 
 /** Socket Handler **/
 var redis = require('redis');
+// For session related works.
+var socketCtrlRedisSessionClient = redis.createClient();
+socketCtrlRedisSessionClient.select(10, () => {
+  console.log('[Warm up Log] Selecting Redis database 10 for vChat: socket session client');
+});
 // For room related works.
 var socketCtrlRedisRoomClient = redis.createClient();
 socketCtrlRedisRoomClient.select(11, () => {
@@ -89,14 +94,14 @@ var SocketController = require('./controllers/socket').SocketController;
 /**
  * Main socket handler.
  *
- * NOTE: For current socket's specefic events, declare a function inside closure,
+ * NOTE: For current socket's specific events, declare a function inside closure,
  * and use that function instead of declaring a method in SocketController.
  * And remove listeners for all socket specific functions on disconnect.
  *
  */
-io.sockets.on('connection', function (socket) {
+io['sockets'].on('connection', function (socket) {
 
-  var socketCtrl = new SocketController(io,
+  var socketCtrl = new SocketController(io, socketCtrlRedisSessionClient,
       socketCtrlRedisRoomClient, socketCtrlRedisVideoClient, socket);
 
   socket.on('client-chat-send', (data) => {

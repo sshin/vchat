@@ -36,6 +36,7 @@ $(document).ready(function () {
   socket.on('control-video', controlVideo);
   socket.on('get-current-play-time-for-new-user', getCurrentPlayTimeForNewUser);
   socket.on('no-more-video', noMoreVideo);
+  socket.on('force-disconnect', forceDisconnect);
 
 
   /***** Regular events *****/
@@ -340,13 +341,24 @@ function _appendToChatBox(data) {
 
 function getCurrentPlayTimeForNewUser(data) {
   data['startAt'] = parseInt(player.getCurrentTime());
-  // Don'y rely on player state. Use client variable to determine if video is playing or not.
+  // Don't rely on player state. Use client variable to determine if video is playing or not.
   data['isPlaying'] = !actionPause && !pauseAfterLoad;
   data['isEnded'] = isPlayerEnded();
   data['timestamp'] = new Date().getTime();
   data['currentVideoId'] = player.getVideoData().video_id;
   socket.emit('current-play-time-for-new-user', data);
 }
+
+function forceDisconnect() {
+  // V1, just force close or redirect.
+  // TODO: alert dialog saying detected new connection, closing current tab / pop out.
+  if (isPopOut) {
+    window.self.close();
+  } else {
+    window.location.href = CONFIG['baseUrl'];
+  }
+}
+
 
 /***** Youtube API Handlers *****/
 function onYouTubePlayerAPIReady() {

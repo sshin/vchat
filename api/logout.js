@@ -4,7 +4,7 @@ var router = require('express').Router();
 
 router.post('/', (req, res) => {
   req.session.loggedIn = false;
-  req.session.user = {};
+  req.session.user = null;
   res.send();
 });
 
