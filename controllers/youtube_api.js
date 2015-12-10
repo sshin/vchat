@@ -29,7 +29,11 @@ class YouTubeAPIController extends Controller {
           'Referer': credentials.APIReferer
         }
       }, (error, response, body) => {
-        resolve(body);
+        if (body.hasOwnProperty('error')) {
+          reject();
+        } else {
+          resolve(body);
+        }
       });
     });
     return promise;
@@ -61,7 +65,11 @@ class YouTubeAPIController extends Controller {
       if (typeof query['pageToken'] !== 'undefined') data['qs']['pageToken'] = query['pageToken'];
 
       request.get(data, (error, response, body) => {
-        resolve(body);
+        if (body.hasOwnProperty('error')) {
+          reject();
+        } else {
+          resolve(body);
+        }
       });
     });
     return promise;

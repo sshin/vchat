@@ -99,6 +99,8 @@ class RoombeatController extends Controller {
                   };
                   this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
                 }
+              }).catch(() => {
+                // TODO: handle situation when exceeded youtube api request limit
               });
             }
           } else {
