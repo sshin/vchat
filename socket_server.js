@@ -44,26 +44,31 @@ app.get('/', (req, res) => {
 
 /** Socket Handler **/
 var redis = require('redis');
+var redisClients = {};
 // For session related works.
-var socketCtrlRedisSessionClient = redis.createClient();
-socketCtrlRedisSessionClient.select(10, () => {
+redisClients['session'] = redis.createClient();
+redisClients['session'].select(10, () => {
   console.log('[Warm up Log] Selecting Redis database 10 for vChat: socket session client');
 });
 // For room related works.
-var socketCtrlRedisRoomClient = redis.createClient();
-socketCtrlRedisRoomClient.select(11, () => {
+redisClients['room'] = redis.createClient();
+redisClients['room'].select(11, () => {
   console.log('[Warm up Log] Selecting Redis database 11 for vChat: socket room client');
 });
-socketCtrlRedisRoomClient.on('error', (err) => {
-  console.log('[[Warm up Log Redis Error]] ' + err);
-});
 // For video related works.
-var socketCtrlRedisVideoClient = redis.createClient();
-socketCtrlRedisVideoClient.select(12, () => {
+redisClients['video'] = redis.createClient();
+redisClients['video'].select(12, () => {
   console.log('[Warm up Log] Selecting Redis database 12 for vChat: socket video client');
 });
-socketCtrlRedisVideoClient.on('error', (err) => {
-  console.log('[[Warm up Log Redis Error]] ' + err);
+// For video queue.
+redisClients['videoQueue'] = redis.createClient();
+redisClients['videoQueue'].select(13, () => {
+  console.log('[Warm up Log] Selecting Redis database 13 for vChat: socket video queue client');
+});
+// For task queue.
+redisClients['taskQueue'] = redis.createClient();
+redisClients['taskQueue'].select(14, () => {
+  console.log('[Warm up Log] Selecting Redis database 14 for vChat: socket task queue client');
 });
 
 
@@ -71,7 +76,7 @@ socketCtrlRedisVideoClient.on('error', (err) => {
  * Roombeat!!
  */
 var child = childProcess.fork('./roombeat.js');
-var roombeatCtrl = new RoombeatController(socketCtrlRedisVideoClient, io);
+var roombeatCtrl = new RoombeatController(redisClients, io);
 child.on('message', (message) => {
   roombeatCtrl.currentVideoEnded(message)
 });
@@ -82,8 +87,10 @@ for (let i = 0; i < process.argv.length; i++) {
   switch(process.argv[i]) {
    case 'clear':
      console.log('[Warm up Log] Clearing up Redis key/values on socket server start.');
-     socketCtrlRedisRoomClient.flushdb();
-     socketCtrlRedisVideoClient.flushdb();
+     redisClients['room'].flushdb();
+     redisClients['video'].flushdb();
+     redisClients['videoQueue'].flushdb();
+     redisClients['taskQueue'].flushdb();
      break;
   }
 }
@@ -101,8 +108,7 @@ var SocketController = require('./controllers/socket').SocketController;
  */
 io['sockets'].on('connection', function (socket) {
 
-  var socketCtrl = new SocketController(io, socketCtrlRedisSessionClient,
-      socketCtrlRedisRoomClient, socketCtrlRedisVideoClient, socket);
+  var socketCtrl = new SocketController(io, redisClients, socket);
 
   socket.on('client-chat-send', (data) => {
     socketCtrl.chatFromClient(data);

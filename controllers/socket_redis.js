@@ -3,6 +3,8 @@
 var Controller = require('./controller').Controller;
 var Room = require('../models/room').Room;
 var Constants = require('../app_modules/constants');
+var SocketVideoQueueController = require('./socket_video_queue').SocketVideoQueueController;
+var co = require('co');
 
 
 class SocketRedisController extends Controller {
@@ -14,18 +16,24 @@ class SocketRedisController extends Controller {
    * NOTE: This controller is socket & room specific and it's binded with SocketController.
    */
 
-  constructor(redisClient, redisClient2, roomHash) {
+  constructor(redisClients, roomHash) {
     super();
-    this._redisRoomsClient = redisClient;
-    this._redisVideoClient = redisClient2;
+    this._redisRoomsClient = redisClients['room'];
+    this._redisVideoClient = redisClients['video'];
+    this._redisVideoQueueClient= redisClients['videoQueue'];
     this._roomHash = roomHash;
     this._roomKey = Constants.redisRoomKeyPrefix + roomHash;
     this._videoKey = Constants.redisVideoKeyPrefix + roomHash;
+    this._socketVideoQueueCtrl = new SocketVideoQueueController(redisClients['videoQueue'],
+                                                                 this._videoKey);
   }
 
   /**
    * Add user to the room, and update all associated Redis entries.
    * If this user is the first user of the room, create new Redis entries.
+   *
+   * Returns
+   *  resolve: empty.
    */
   addUserToRoom(user) {
     var promise = new Promise((resolve, reject) => {
@@ -108,6 +116,7 @@ class SocketRedisController extends Controller {
                          + ' | wiping out data for room: ' + this._roomHash);
         this._redisRoomsClient.del(this._roomKey);
         this._redisVideoClient.del(this._videoKey);
+        this._redisVideoQueueClient.del(this._videoKey);
         this._decreaseRoomCount(data['private']);
         let room = new Room();
         room.deleteRoom(this._roomHash);
@@ -166,85 +175,90 @@ class SocketRedisController extends Controller {
 
   /***** Video related methods *****/
   /**
-   * Queue new video into Redis. If it is very first for the room,
-   * create a new entry in Redis.
-   * If there is no video currently playing, then play the first one in queue.
+   * Queue new video into Redis.
+   * If it is the very first video for the room, play it right after queueing.
+   *
+   * Returns
+   *   resolve: boolean, if client should play the queued video.
+   *   reject: if submitted video is the same video with last queued video.
    */
   queueVideo(videoData) {
     var promise  = new Promise((resolve, reject) => {
-    // resolve param: boolean, if client should play the queued video.
-    // reject: if submitted video is the same video with last queued video.
       this.getVideoData().then((data) => {
         if (data == null) {
         // Very first video.
           let newData = {
             currentVideo: null,
-            queue: [videoData],
             searchingRelatedVideo: false,
             relatedVideos: {length: 0, videos: {}}
           };
-          this.setVideoData(newData).then(() => {
-            resolve(true);
-          });
+          this.setVideoData(newData);
+          this._socketVideoQueueCtrl.queue(videoData).then(() => resolve(true));
         } else {
         // Not a first video for the room.
-          let queueLength = data['queue'].length;
-          let lastQueued = false;
+          this._socketVideoQueueCtrl.peek().then((lastQueuedVideo) => {
+            let lastQueued = false;
 
-          if (queueLength > 0) {
-          // Check if submitted video is the same with last queued.
-            lastQueued = data['queue'][queueLength - 1]['videoId'] === videoData['videoId'];
-          } else {
-          // Queue is empty. See if the submitted video is same with the currently playing video.
-            lastQueued = data['currentVideo'] !== null &&
-                         data['currentVideo']['videoId'] === videoData['videoId'];
-          }
-
-          if (lastQueued) {
-            this.logger.log('submitted same video with the last queued video | canceling queue |'
-                            + ' submit type: ' + videoData['submitType']
-                            + ' | videoId: ' + videoData['videoId'] + ' | room: ' + this._roomHash);
-            reject();
-          } else {
-          // Queue the video.
-            let playVideo = false;
-            this.logger.log('queuing a video | submit type: ' + videoData['submitType']
-                            + ' | videoId: ' + videoData['videoId'] + ' | room: ' + this._roomHash);
-            data.queue.push(videoData);
-            if (data['currentVideo'] === null && !data['searchingRelatedVideo']) {
-            // No video currently playing, so set and play the next video.
-              let nextVideo = data['queue'].shift();
-              data['currentVideo'] = nextVideo;
-              playVideo = true;
+            if (lastQueuedVideo === null) {
+            // Queue is empty, so check if submitted video is same as the current playing one.
+              lastQueued = data['currentVideo'] !== null &&
+                           data['currentVideo']['videoId'] === videoData['videoId'];
+            } else {
+              lastQueued = videoData['videoId'] === lastQueuedVideo['videoId'];
             }
 
-            this.setVideoData(data).then(() => {
-              resolve(playVideo);
-            });
-          }
+            if (lastQueued) {
+              this.logger.log('submitted same video with the last queued video | canceling queue |'
+                              + ' submit type: ' + videoData['submitType']
+                              + ' | videoId: ' + videoData['videoId']
+                              + ' | room: ' + this._roomHash);
+              reject();
+            } else {
+            // Queue the video.
+              this.logger.log('queuing a video | submit type: ' + videoData['submitType']
+                              + ' | videoId: ' + videoData['videoId']
+                              + ' | room: ' + this._roomHash);
+              this._socketVideoQueueCtrl.queue(videoData);
+              resolve();
+            }
+          });
         }
       });
     });
     return promise;
   }
 
-  /** Play the next video from the queue. **/
-  playNextVideo(callback) {
-    this.getVideoData().then((data) => {
-      let videoData = data;
-      let nextVideo = videoData['queue'].shift();
-      if (nextVideo) {
-        videoData['currentVideo'] = nextVideo;
-        this.setVideoData(videoData).then(() => {
-          callback(nextVideo)
-        });
-      } else {
-        callback(null);
-      }
+  /**
+   * Play the next video from the queue.
+   *
+   * Returns
+   *  resolve: next video from the queue or null.
+   */
+  getNextVideo() {
+    var promise = new Promise((resolve, reject) => {
+      this._socketVideoQueueCtrl.pop().then((nextVideo) => {
+        if (nextVideo !== null) {
+          // Set the next video to current video.
+          this.getVideoData().then((videoData) => {
+            videoData['currentVideo'] = nextVideo;
+            this.setVideoData(videoData);
+          });
+        }
+
+        // No need to wait for updating the video data.
+        resolve(nextVideo);
+      });
     });
+    return promise;
   }
 
   /***** Wrapper methods to abstract error handling *****/
+  /**
+   * Get data from Redis.
+   *
+   * Returns
+   *  resolve: null or json parsed data.
+   */
   _get(type, key) {
     var promise = new Promise((resolve, reject) => {
       let client = type === 'room' ? this._redisRoomsClient : this._redisVideoClient;
@@ -266,6 +280,12 @@ class SocketRedisController extends Controller {
     return promise;
   }
 
+  /**
+   * Set data to Redis.
+   *
+   * Returns
+   *  resolve: empty.
+   */
   _set(type, key, data) {
     if (typeof data !== 'string') {
       data = JSON.stringify(data);

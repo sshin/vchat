@@ -15,15 +15,15 @@ class SocketController extends Controller {
    * NOTE: This controller is socket & room specific, and binded with SicketRedisController.
    */
 
-  constructor(io, redisSessionClient, redisRoomClient, redisVideoClient, socket) {
+  constructor(io, redisClients, socket) {
     super();
     let sessionKey = 'sess:' + socket['handshake']['sessionID'];
-    this._socketSessionCtrl = new SocketSessionController(io, redisSessionClient,
-                                                     sessionKey, socket['id']);
+    this._socketSessionCtrl = new SocketSessionController(io, redisClients['session'],
+                                                           sessionKey, socket['id']);
     this._io = io;
     this._roomHash = this._getRoomHash(socket);
     this._roomKey = Constants.redisRoomKeyPrefix + this._roomHash;
-    this._socketRedisCtrl = new SocketRedisController(redisRoomClient, redisVideoClient, this._roomHash);
+    this._socketRedisCtrl = new SocketRedisController(redisClients, this._roomHash);
     this._user = {socketId: socket['id']};
     this._socket = socket;
     this._socket.join(this._roomKey);
@@ -268,14 +268,14 @@ class SocketController extends Controller {
     }
 
     this._socketRedisCtrl.queueVideo(data).then((playVideo) => {
-      // Callback for when queueing is done.
+      // Notify users that video is queued.
       data['message'] = 'queued new video!';
       data['messageType'] = 'info';
       this._broadcastInRoom('new-video-queued', data);
 
       if (playVideo) {
       // Client should play the queued video.
-        this._socketRedisCtrl.playNextVideo((nextVideo) => {
+        this._socketRedisCtrl.getNextVideo().then((nextVideo) => {
           nextVideo['message'] = 'Playing a video from the queue.';
           nextVideo['messageType'] = 'info';
           this._broadcastInRoom('new-video-to-play', nextVideo);
@@ -331,7 +331,7 @@ class SocketController extends Controller {
   controlVideo(data) {
     data['messageType'] = 'action';
     if (data['action'] == 'playNext') {
-      this._socketRedisCtrl.playNextVideo((nextVideo) => {
+      this._socketRedisCtrl.getNextVideo().then((nextVideo) => {
         if (nextVideo !== null) {
           data['nextVideo'] = nextVideo;
           this._broadcastInRoom('control-video', data);
