@@ -1,10 +1,9 @@
 "use strict";
 
 var Controller = require('./controller').Controller;
-var request = require('request');
-var credentials = require('credentials');
 var SocketRedisController = require('../controllers/socket_redis').SocketRedisController;
 var SocketVideoQueueController = require('./socket_video_queue').SocketVideoQueueController;
+var YouTubeAPIController = require('./youtube_api').YouTubeAPIController;
 var co = require('co');
 
 
@@ -47,20 +46,8 @@ class RoombeatController extends Controller {
               this.logger.log('queue is empty, searching for a related video for the room: '
                               + data['roomHash']);
 
-              // We store related videos to avoid duplicated related videos.
-              request.get({
-                url: 'https://www.googleapis.com/youtube/v3/search',
-                qs: {
-                  part: 'snippet',
-                  relatedToVideoId: data['videoId'],
-                  type: 'video',
-                  maxResults: maxRelatedVideos,
-                  key: credentials.youtubeAPIKey
-                },
-                headers: {
-                  'Referer': credentials.APIReferer
-                }
-              }, (error, response, body) => {
+              YouTubeAPIController.getRelatedVideos(data['videoId'], maxRelatedVideos)
+                                  .then((body) => {
                 let items = JSON.parse(body)['items'];
                 if (typeof items !== 'undefined' && items != null && items.length > 0) {
                   // Avoid duplicated related videos.
