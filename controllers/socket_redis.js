@@ -196,7 +196,7 @@ class SocketRedisController extends Controller {
           this._socketVideoQueueCtrl.queue(videoData).then(() => resolve(true));
         } else {
         // Not a first video for the room.
-          this._socketVideoQueueCtrl.peek().then((lastQueuedVideo) => {
+          this._socketVideoQueueCtrl.tpeek().then((lastQueuedVideo) => {
             let lastQueued = false;
 
             if (lastQueuedVideo === null) {
