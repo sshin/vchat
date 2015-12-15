@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 var session = Session({
   store: new RedisStore({
-    host: 'localhost', port: 6379, db: 10, ttl: 3600, secret: credentials.redisSecret
+    host: 'localhost', port: 6379, db: 10, disableTTL: true, secret: credentials.redisSecret
   }),
   secret: credentials.sessionSecret,
   cookie: {path: '/', domain: 'nullcannull-dev.net'},

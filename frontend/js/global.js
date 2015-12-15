@@ -138,23 +138,6 @@ function App() {
   };
 
 
-  /** heartbeat **/
-  this.START_HEARTBEAT = function() {
-    (function __heartBeat() {
-      $.ajax({
-        url: CONFIG['baseUrl'] + 'heartbeat',
-        success: function() {
-          setTimeout(__heartBeat, 1800000);
-          console.log('Server is alive. Continue heartbeat.');
-        }.bind(this),
-        error: function() {
-          console.error('Server is down. Stopping heartbeat.');
-        }.bind(this)
-      });
-    })();
-  };
-
-
   /** loggers **/
   this.log = function(message) {
     console.log('[Log] ' + message);

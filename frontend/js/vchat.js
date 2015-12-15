@@ -559,6 +559,3 @@ function respondRoombeat() {
     roombeat.emit('roombeat', data);
   }
 }
-
-/** heartbeat to server **/
-app.START_HEARTBEAT();
