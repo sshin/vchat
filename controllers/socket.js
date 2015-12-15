@@ -42,13 +42,13 @@ class SocketController extends Controller {
         this._user['nickname'] = this._socket['id'];
       }
       this._socket.emit('username-update', {username: this._user['nickname']});
+      this._broadcastToRoom('system-message', {
+        message: '[' + this._user['nickname'] + '] entered the vChat room.',
+        messageType: 'info'
+      });
     });
     this._socketRedisCtrl.addUserToRoom(this._user).then(() => {
       this._socketSessionCtrl.init();
-    });
-    this._broadcastToRoom('system-message', {
-      message: '[' + this._user['name'] + '] entered the vChat room.',
-      messageType: 'info'
     });
   }
 
@@ -76,8 +76,8 @@ class SocketController extends Controller {
       }
     }
 
-    if (!pingedClient) {
-      this._socketRedisCtrl.getVideoData().then((data) => {
+    this._socketRedisCtrl.getVideoData().then((data) => {
+      if (!pingedClient) {
         if (typeof data !== 'undefined' && data !== null) {
         // This is a reactivated room, so new user is the first user.
           let newVideo = {
@@ -94,16 +94,19 @@ class SocketController extends Controller {
           };
           this._socket.emit('system-message', message);
         }
-      });
-      this._socket.emit('ready-for-roombeat');
-    } else {
-    // User entered an active room.
-      let message = {
-        message: 'You will be synced with the video.',
-        messageType: 'info'
-      };
-      this._socket.emit('system-message', message);
-    }
+        this._socket.emit('ready-for-roombeat');
+      } else {
+      // User entered an active room.
+        let message = {
+          message: 'You will be synced with the video.',
+          messageType: 'info'
+        };
+        this._socket.emit('system-message', message);
+        if (typeof data === 'undefined' || data === null) {
+          this._socket.emit('ready-for-roombeat');
+        }
+      }
+    });
   }
 
   playCurrentVideoForNewUser(data) {
@@ -156,8 +159,8 @@ class SocketController extends Controller {
   _playCurrentVideoForNewUser(data) {
     try {
       // Make sure new user is still connected.
-      this._io.sockets['connected'][data['socketId']].emit('new-video-to-play', data);
-      this._io.sockets['connected'][data['socketId']].emit('ready-for-roombeat');
+      this._io['sockets']['connected'][data['socketId']].emit('new-video-to-play', data);
+      this._io['sockets']['connected'][data['socketId']].emit('ready-for-roombeat');
     } catch (err) {
       // New user left the room so don't do anything..
     }
@@ -183,6 +186,8 @@ class SocketController extends Controller {
     //  message: '[' + this._user['name'] + '] has left the vChat room.',
     //  messageType: 'warning'
     //});
+    this.logger.log('user left the room: ' + this._roomHash
+                     + ' | user: ' + this._user['socketId'])
     this._socketRedisCtrl.removeUserFromRoom(this._user);
   }
   /**

@@ -99,6 +99,28 @@
       <div id="comp-video-search"></div>
     </div>
   </div>
+  <div id="connection-lost-dialog" class="dialog-overlay hide">
+    <div class="dialog-inner-wrapper center-div">
+      <div class="dialog-content-header-wrapper">
+        <div class="full-width dialog-content-header">
+          Connection Lost
+        </div>
+      </div>
+      <div class="dialog-content form-item">
+        <div class="connection-lost-message center-text full-width">
+          <div id="connection-lost">
+            Connection Lost. Trying to reconnect..
+            <div class="connection-lost-image-wrapper">
+              <img src="/assets/images/reconnecting.gif">
+            </div>
+          </div>
+          <div id="reconnect" class="hide">
+            Successfully reconnected! Syncing with the video.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <script src="/frontend/js/components/global/alertbar.js"></script>
 <script src="/frontend/js/components/global/button.js"></script>

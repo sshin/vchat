@@ -30,7 +30,11 @@ var server = app.listen(21000, () => {
 /** Socket specific **/
 var childProcess = require('child_process');
 var RoombeatController = require('./controllers/roombeat').RoombeatController;
-var io = require('socket.io').listen(server);
+var socketio = require('socket.io');
+var io = socketio(server, {
+  pingInterval: 10000,
+  pingTimeout: 2000
+});
 io.use((socket, next) => {
   session(socket.handshake, {}, next);
 });

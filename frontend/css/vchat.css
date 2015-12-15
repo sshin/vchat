@@ -207,3 +207,25 @@
 #view-video-list {
   margin-left: 30px;
 }
+
+#connection-lost,
+#reconnect {
+  margin-top: 25px;
+  font-size: 18px;
+}
+
+.connection-lost-message {
+  margin-bottom: 20px;
+}
+
+#connection-lost {
+  color: #f4511e;
+}
+
+#reconnect {
+  color: #009688;
+}
+
+.connection-lost-image-wrapper {
+  margin-top: 25px;
+}

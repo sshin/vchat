@@ -10,6 +10,8 @@ var pauseAfterLoad = false;
 var actionPause = false;
 // Whether video resumed/played via controller or not.
 var actionResume = false;
+// Whether socket connection was disconnected.
+var wasDisconnected = false;
 var $currentPlayTime, timer;
 var MESSAGE_TYPES = {
   info: 'system-message-info',
@@ -37,6 +39,8 @@ $(document).ready(function () {
   socket.on('get-current-play-time-for-new-user', getCurrentPlayTimeForNewUser);
   socket.on('no-more-video', noMoreVideo);
   socket.on('force-disconnect', forceDisconnect);
+  socket.on('disconnect', onDisconnect);
+  socket.on('connect', onConnect);
 
 
   /***** Regular events *****/
@@ -44,6 +48,28 @@ $(document).ready(function () {
   $('#video-input').on('keypress', _onVideoSubmit);
   $('.video-control-button').on('click', _onVideoControl);
 });
+
+function onDisconnect() {
+  $('#connection-lost-dialog').removeClass('hide');
+  wasDisconnected = true;
+  player.stopVideo();
+}
+
+function onConnect() {
+  var $connectionLost = $('#connection-lost');
+  var $reconnect = $('#reconnect');
+  if (wasDisconnected) {
+    $connectionLost.addClass('hide');
+    $reconnect.removeClass('hide');
+    socket.emit('get-current-play-time-for-new-user');
+    wasDisconnected = false;
+    setTimeout(function() {
+      $('#connection-lost-dialog').addClass('hide');
+      $connectionLost.removeClass('hide');
+      $reconnect.addClass('hide');
+    }, 3000);
+  }
+}
 
 function _onChatInputSubmit(e) {
   var $chatInput = $('#chat-input');

@@ -11,7 +11,11 @@ var server = app.listen(21500, () => {
   console.log('[Warm up Log] Socket roombeat server started and listening on port %d',
                server.address().port);
 });
-var io = require('socket.io').listen(server);
+var socketio = require('socket.io');
+var io = socketio(server, {
+  pingInterval: 3000,
+  pingTimeout: 1000
+});
 
 /** Whatever... **/
 app.get('/', (req, res) => {
@@ -68,7 +72,7 @@ function _getRoomHash(socket) {
     count++;
     let sockets = io['sockets']['adapter']['rooms'][key];
     for (let socketKey in sockets) {
-      if (sockets[socketKey] === true) {
+      if (io['sockets']['connected'].hasOwnProperty(socketKey)) {
         try {
           // Just in case if this socket left the room in like 10ms...
           io['sockets']['connected'][socketKey].emit('roombeat');
