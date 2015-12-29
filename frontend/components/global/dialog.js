@@ -8,25 +8,28 @@
  *  header: Dialog header text.
  *  children: React children. This is used for content.
  *  noButton: boolean.
+ *  onOpenDialog: callback function after dialog is opened. (optional)
  */
 var Dialog = React.createClass({
+  componentDidMount: function() {
+    this._$el = $(this.refs['overlayWrapper'].getDOMNode());
+  },
   /**
    * Open dialog and automatically focus first input.
    */
   openDialog: function() {
-    var $el = $(this.refs['overlayWrapper'].getDOMNode());
-
-    if ($el.hasClass('hide')) {
-      $el.removeClass('hide');
-      if (!this.props.noAutoFocus) $($el.find('.dialog-content :input:first')[0]).focus();
+    if (this._$el.hasClass('hide')) {
+      this._$el.removeClass('hide');
+      if (!this.props.noAutoFocus) $(this._$el.find('.dialog-content :input:first')[0]).focus();
     } else {
-      $el.addClass('hide');
+      this._$el.addClass('hide');
     }
+
+    if (this.props.onOpenDialog) this.props.onOpenDialog();
   },
 
   closeDialog: function() {
-    var $el = $(this.refs['overlayWrapper'].getDOMNode());
-    $el.addClass('hide');
+    this._$el.addClass('hide');
   },
 
   render: function() {

@@ -4,10 +4,6 @@ var SearchChatRoom = React.createClass({
     this._room = '';
   },
 
-  _alertBar: function() {
-    return this.refs['alertBar'];
-  },
-
   _searchPublicRoom: function() {
     var data = {
       name: this.refs['publicName'].getVal(),
@@ -24,7 +20,7 @@ var SearchChatRoom = React.createClass({
       }.bind(this),
       error: function(data) {
         if (!data['response']) {
-          this._alertBar().alert('Room not found');
+          this.refs['alertBar'].alert('Room not found');
         }
       }.bind(this)
     });
@@ -47,10 +43,10 @@ var SearchChatRoom = React.createClass({
       }.bind(this),
       error: function(data) {
         if (data['status'] == 401) {
-          this._alertBar().alert('Room name or password is incorrect');
+          this.refs['alertBar'].alert('Room name or password is incorrect');
         } else {
           if (!data['response']) {
-            this._alertBar().alert('Room not found')
+            this.refs['alertBar'].alert('Room not found')
           }
         }
       }.bind(this)

@@ -58,6 +58,7 @@ var UserSettings = React.createClass({
       if (loggedIn) {
         this._$wrapper.removeClass('hide');
         this.refs['nickname'].setVal(app.user['nickname']);
+        this.refs['userInfo'].unSelect();
         if (app.user['settings']['allowControl'] == 1) {
           this.refs['allowControl'].select()
         } else {
@@ -81,25 +82,35 @@ var UserSettings = React.createClass({
           Welcome to vChat <span id="user-settings-welcome-nickname"></span>!
         </div>
         <Dialog id="user-settings-dialog" buttonText="Your vChat settings"
-                noAutoFocus="true" header="User Settings">
+                noAutoFocus="true" header="User Settings"
+                onOpenDialog={this._render}>
                 <AlertBar ref="alertBar" />
                 <AlertBar alertType="info" ref="infoBar" />
-                <InputField id="user-settings-nickname" label="Nickname" disabled="true"
-                            required="true" ref="nickname" />
-                <CheckBox id="user-settings-change-user-info"
-                          selectedText="Change user information"
-                          notSelectedText="Do not change user information"
-                          onClickEvent={this._changeUserInfo}
-                          ref="userInfo" />
-                <CheckBox id="user-settings-allow-user-control"
-                          selectedText="Users are allowed to control videos"
-                          notSelectedText="Users are not allowed to control videos"
-                          ref="allowControl" />
-                <CheckBox id="user-settings-allow-user-queue"
-                          selectedText="Users are allowed to queue videos"
-                          notSelectedText="Users are not allowed to queue videos"
-                          ref="allowQueue" />
+                <div>
+                  <div className="group-header">User Information</div>
+                  <InputField id="user-settings-nickname" label="Nickname" disabled="true"
+                              required="true" ref="nickname" />
+                  <CheckBox id="user-settings-change-user-info"
+                            selectedText="Change user information"
+                            notSelectedText="Do not change user information"
+                            onClickEvent={this._changeUserInfo}
+                            ref="userInfo" />
+                </div>
+                <div className="user-settings-video-control-wrapper">
+                  <div className="group-header">vChat room settings</div>
+                  <CheckBox id="user-settings-allow-user-control"
+                            selectedText="Users are allowed to control videos"
+                            notSelectedText="Users are not allowed to control videos"
+                            ref="allowControl" />
+                  <CheckBox id="user-settings-allow-user-queue"
+                            selectedText="Users are allowed to queue videos"
+                            notSelectedText="Users are not allowed to queue videos"
+                            ref="allowQueue" />
+                </div>
                 <Button id="user-settings-button" color="green" text="Update" onClick={this._updateSettings} />
+        </Dialog>
+        <Dialog id="create-user-room" buttonText="Create your vChat"
+                header="Create vChat">
         </Dialog>
         <Button id="logout" color="red" text="Logout" onClick={this._logout} />
       </div>

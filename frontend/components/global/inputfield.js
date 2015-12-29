@@ -8,35 +8,39 @@
  *  placeholder: Html input placeholder.
  *  type: Html input type.
  *  onKeyDown: Detect keydown event.
+ *  disabled: Input field is initially disabled. (optional)
  */
 var InputField = React.createClass({
+  componentDidMount: function() {
+    this._$el = $(this.refs['input'].getDOMNode());
+    if (this.props.disabled) this.disableInput();
+  },
+
   disableInput: function() {
-    var $el = this.getInputElement()
-    $el.attr('disabled', 'true');
+    this._$el.attr('disabled', 'true');
   },
 
   enableInput: function() {
-    var $el = this.getInputElement()
-    $el.removeAttr('disabled');
-    $el.focus();
+    this._$el.removeAttr('disabled');
+    this._$el.focus();
   },
 
   getInputElement: function() {
-    return $(this.refs['input'].getDOMNode());
+    return this._$el;
   },
 
   setVal: function(val) {
-    this.getInputElement().val(val);
+    this._$el.val(val);
   },
 
   getVal: function() {
-    return this.getInputElement().val();
+    return this._$el.val();
   },
 
   highlight: function(color) {
     if (typeof color === 'undefined') color = 'red';
     var className = color + '-border';
-    this.getInputElement().addClass(className);
+    this._$el.addClass(className);
   },
 
   render: function() {
@@ -50,8 +54,7 @@ var InputField = React.createClass({
         <label htmlFor={this.props.id} dangerouslySetInnerHTML={{__html: label}}></label>
         <input id={this.props.id} maxLength={this.props.maxLength}
                placeholder={this.props.placeholder} type={this.props.type}
-               value={this.props.value} disabled={this.props.disabled}
-               onKeyDown={this.props.onKeyDown} ref="input"></input>
+               value={this.props.value} onKeyDown={this.props.onKeyDown} ref="input"></input>
       </div>
     );
   }

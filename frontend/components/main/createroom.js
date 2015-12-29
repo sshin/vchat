@@ -1,8 +1,4 @@
 var CreateNewChatRoom = React.createClass({
-  _alertBar: function() {
-    return this.refs['alertBar'];
-  },
-
   _createRoom: function() {
     var prefix = '#new-chat-room-';
     var data = {
@@ -45,7 +41,7 @@ var CreateNewChatRoom = React.createClass({
           }
         }
         message = message.join(' / ');
-        this._alertBar().alert(message);
+        this.refs['alertBar'].alert(message);
       }.bind(this)
     });
   },
