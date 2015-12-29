@@ -126,20 +126,32 @@ class SocketController extends Controller {
    * If current video is ended, server is playing the next video from the queue
    * or getting a related video, so we give a short delay here.
    */
-  _delayProcessCurrentVideoForNewUser(data, delay) {
+  _delayProcessCurrentVideoForNewUser(data, delay, retry) {
+    if (typeof retry !== 'undefined' && retry >= 5) {
+      this.logger.log('retried 5 times to get next video for new user'
+                      + ' | terminating the loop for socket: ' + data['socketId']);
+      this._socket.emit('system-message', {
+        message: 'Failed to sync with current video.',
+        messageType: 'warning'
+      });
+      return;
+    }
+
     this.logger.log('getting next video from the queue or searching for a related video'
                     + ' | delaying process for socket: ' + data['socketId']
                     + ' | for room: ' + this._roomHash);
     data['startAt'] = parseInt(data['startAt']) + delay;
-    setTimeout(() => {
-      this._processCurrentVideoForNewUser(data);
+    var timeoutId = setTimeout(() => {
+      this._processCurrentVideoForNewUser(data, timeoutId, retry);
     }, 1000 * delay);
   }
 
-  _processCurrentVideoForNewUser(data) {
+  _processCurrentVideoForNewUser(data, timeoutId, retry) {
+    if (typeof timeoutId !== 'undefined') clearTimeout(timeoutId);
+    if (typeof retry === 'undefined') retry = 0;
     this._socketRedisCtrl.getVideoData().then((videoData) => {
       if (videoData['searchingRelatedVideo']) {
-        this._delayProcessCurrentVideoForNewUser(data, 1);
+        this._delayProcessCurrentVideoForNewUser(data, 1, retry+1);
       } else {
         if (videoData['currentVideo']['videoId'] != data['currentVideoId']) {
           data['startAt'] = videoData['startAt'];
