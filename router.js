@@ -45,6 +45,7 @@ module.exports = (app) => {
   app.use('/api/category', require('./api/category'));
   app.use('/api/videosearch', require('./api/video_search'));
   app.use('/api/uservideolist', require('./api/user_video_list'));
+  app.use('/api/usersettings', require('./api/user_settings'));
 };
 
 /**

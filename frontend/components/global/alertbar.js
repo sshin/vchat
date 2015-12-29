@@ -5,17 +5,21 @@
  *  alertType: alert(default) | info.
  */
 var AlertBar = React.createClass({
-  alert: function(message, seconds) {
-    var $bar = $(this.refs['alertBar'].getDOMNode());
-    var $text = $(this.refs['alertBarText'].getDOMNode());
-    $text.text(message);
-    $bar.removeClass('hide');
-    var time = 2000;
-    if (typeof seconds !== 'undefined') time = seconds;
-    //setTimeout(function() {
-    //  $bar.addClass('hide');
-    //  $text.text('');
-    //}, time);
+  componentDidMount: function() {
+    this._$bar = $(this.refs['alertBar'].getDOMNode());
+    this._$text = $(this.refs['alertBarText'].getDOMNode());
+  },
+
+  alert: function(message) {
+    this._$text.text(message);
+    this._$bar.removeClass('hide');
+    setTimeout(function() {
+      this.hide();
+    }.bind(this), 1500);
+  },
+
+  hide: function() {
+    this._$bar.addClass('hide');
   },
 
   render: function() {

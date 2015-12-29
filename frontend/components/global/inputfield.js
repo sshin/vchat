@@ -25,6 +25,10 @@ var InputField = React.createClass({
     return $(this.refs['input'].getDOMNode());
   },
 
+  setVal: function(val) {
+    this.getInputElement().val(val);
+  },
+
   getVal: function() {
     return this.getInputElement().val();
   },
@@ -46,6 +50,7 @@ var InputField = React.createClass({
         <label htmlFor={this.props.id} dangerouslySetInnerHTML={{__html: label}}></label>
         <input id={this.props.id} maxLength={this.props.maxLength}
                placeholder={this.props.placeholder} type={this.props.type}
+               value={this.props.value} disabled={this.props.disabled}
                onKeyDown={this.props.onKeyDown} ref="input"></input>
       </div>
     );

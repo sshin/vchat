@@ -196,6 +196,18 @@ select {
 }
 
 
+/** CheckBox **/
+.checkbox-wrapper.not-selected > button {
+  border-color: #263238;
+  background-color: #ffffff;
+  color: #263238;
+}
+
+.checkbox-wrapper.not-selected > button:hover {
+  background-color: #ECEFF1;
+}
+
+
 /** Buttons **/
 .btn {
   border-radius: 8px;

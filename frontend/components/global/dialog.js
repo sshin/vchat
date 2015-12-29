@@ -18,7 +18,7 @@ var Dialog = React.createClass({
 
     if ($el.hasClass('hide')) {
       $el.removeClass('hide');
-      $($el.find('.dialog-content :input:first')[0]).focus();
+      if (!this.props.noAutoFocus) $($el.find('.dialog-content :input:first')[0]).focus();
     } else {
       $el.addClass('hide');
     }

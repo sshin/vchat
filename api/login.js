@@ -5,11 +5,7 @@ var UserController = require('../controllers/user').UserController;
 
 router.get('/', (req, res) => {
   if (req.session['loggedIn']) {
-    res.send({
-      username: req.session['user']['username'],
-      email: req.session['user']['email'],
-      nickname: req.session['user']['nickname']
-    });
+    res.send(UserController.toJSON(req.session['user']));
   } else {
     res.status(401);
     res.send();
@@ -23,11 +19,7 @@ router.post('/', (req, res) => {
     if (result['authenticated']) {
       req.session['loggedIn'] = true;
       req.session['user'] = result['userData'];
-      res.send({
-        username: result['userData']['username'],
-        email: result['userData']['email'],
-        nickname: result['userData']['nickname']
-      });
+      res.send(UserController.toJSON(req.session['user']));
     } else {
       res.status(401);
       res.send();

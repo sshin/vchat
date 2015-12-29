@@ -196,6 +196,44 @@ class Model extends Redis {
     return promise;
   }
 
+  /**
+   * Build and execute UPDATE query.
+   * NOTE: params is required.
+   *
+   * Args:
+   *      where: js object {column: value}
+   *      set: js object {column: value}
+   *
+   * Returns:
+   *  Promise object.
+   */
+  update(params) {
+    var promise = new Promise((resolve, reject) => {
+      if (typeof params === 'undefined') {
+        this.logger.dbError('Missing params.');
+        reject();
+      } else {
+        let sql = "UPDATE " + this.table;
+        let values = [];
+        sql += ' SET ';
+        let setSql = [];
+        for (let key in params['set']) {
+          setSql.push(key + ' = ?');
+          values.push(params['set'][key]);
+        }
+        sql += setSql.join(', ') + ' WHERE ';
+        for (let key in params['where']) {
+          sql += key + ' = ? ';
+          values.push(params['where'][key]);
+        }
+        this.runQuery(sql, values, () => {
+          resolve();
+        });
+      }
+    });
+    return promise;
+  }
+
 }
 
 exports.Model = Model;

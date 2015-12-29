@@ -106,7 +106,8 @@ class UserController extends Controller {
   login(params) {
     var promise = new Promise((resolve, reject) => {
       this._user.select({
-        select: ['id', 'username', 'email', 'password', 'nickname'],
+        select: ['id', 'username', 'email', 'password', 'nickname', 
+                 'settings_allow_control', 'settings_allow_queue'],
         where: {
           username: params['username']
         }
@@ -132,6 +133,46 @@ class UserController extends Controller {
     return promise;
   }
 
+  updateUserSettings(params, userId) {
+    var promise = new Promise((resolve, reject) => {
+      let updateParams = {
+        where: {
+          id: userId
+        },
+        set: {
+          settings_allow_control: params['allowControl'],
+          settings_allow_queue: params['allowQueue']
+        }
+      };
+      if (typeof params['nickname'] !== 'undefined' && params['nickname'].length > 0) {
+        this._user.checkNicknameExist(params['nickname']).then((exist) => {
+          if (exist) {
+            reject(['nickname']);
+            return;
+          }
+          updateParams['set']['nickname'] = params['nickname'];
+          this._user.update(updateParams).then(() => resolve(updateParams['set']));
+        });
+      } else if (typeof params['nickname'] !== 'undefined' && params['nickname'].length === 0) {
+        reject(['invalid']);
+      } else {
+        this._user.update(updateParams).then(() => resolve(updateParams['set']));
+      }
+    });
+    return promise;
+  }
+
+  static toJSON(params) {
+    return {
+      username: params['username'],
+      email: params['email'],
+      nickname: params['nickname'],
+      settings: {
+        allowControl: params['settings_allow_control'],
+        allowQueue: params['settings_allow_queue']
+      }
+    };
+  }
 }
 
 exports.UserController = UserController;
