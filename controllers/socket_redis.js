@@ -16,14 +16,14 @@ class SocketRedisController extends Controller {
    * NOTE: This controller is socket & room specific and it's binded with SocketController.
    */
 
-  constructor(redisClients, roomHash) {
+  constructor(redisClients, roomHash, roomKey, videoKey) {
     super();
     this._redisRoomsClient = redisClients['room'];
     this._redisVideoClient = redisClients['video'];
     this._redisVideoQueueClient= redisClients['videoQueue'];
     this._roomHash = roomHash;
-    this._roomKey = Constants.redisRoomKeyPrefix + roomHash;
-    this._videoKey = Constants.redisVideoKeyPrefix + roomHash;
+    this._roomKey = roomKey;
+    this._videoKey = videoKey;
     this._socketVideoQueueCtrl = new SocketVideoQueueController(redisClients['videoQueue'],
                                                                  this._videoKey);
   }

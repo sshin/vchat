@@ -99,13 +99,21 @@ function _setRoomInfo() {
   if (path.startsWith('/popout')) {
     isPopOut = true;
     // Notify users that this user is a pop out view.
-    socket.emit('pop-out-user');
+    _notifyPopOutUser();
     return;
   }
 
   path = path.replace('/vChat/', '').split('/');
   roomInfo['type'] = path[0];
   roomInfo['name'] = path[1];
+}
+
+function _notifyPopOutUser() {
+  if (readyForRoombeat) {
+    socket.emit('pop-out-user');
+  } else {
+    setTimeout(_notifyPopOutUser, 500);
+  }
 }
 
 function _onVideoSubmit(e) {

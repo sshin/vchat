@@ -22,9 +22,10 @@ class RoombeatController extends Controller {
    */
   currentVideoEnded(message) {
     var data = JSON.parse(message);
-    var socketRedisCtrl = new SocketRedisController(this._redisClients, data['roomHash']);
+    var socketRedisCtrl = new SocketRedisController(this._redisClients, data['roomHash'],
+                                                     data['roomKey'], data['videoKey']);
     var socketVideoQueueCtrl = new SocketVideoQueueController(this._redisClients['videoQueue'],
-                                                         data['videoKey']);
+                                                               data['videoKey']);
     if (data['videoEnded']) {
       co(function* () {
         let videoData = yield socketRedisCtrl.getVideoData();

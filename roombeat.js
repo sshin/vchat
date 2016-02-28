@@ -26,8 +26,9 @@ app.get('/', (req, res) => {
 /** Socket Handler **/
 io.on('connection', function (socket) {
   var roomHash = _getRoomHash(socket);
-  var roomKey = Constants.redisRoomKeyPrefix + roomHash;
-  var videoKey = Constants.redisVideoKeyPrefix + roomHash;
+  var serverName = 'SERVER1';
+  var roomKey = Constants.redisRoomKeyPrefix + ':' + serverName + ':' + roomHash;
+  var videoKey = Constants.redisVideoKeyPrefix + ':' + serverName + ':' + roomHash;
   socket.join(roomKey);
 
   socket.on('roombeat', (data) => {

@@ -22,12 +22,23 @@ class SocketController extends Controller {
                                                            sessionKey, socket['id']);
     this._io = io;
     this._roomHash = this._getRoomHash(socket);
-    this._roomKey = Constants.redisRoomKeyPrefix + this._roomHash;
-    this._socketRedisCtrl = new SocketRedisController(redisClients, this._roomHash);
+    this._serverName = 'SERVER1'; // Hardcoded for now.
+    this._roomKey = this._generateRoomKey();
+    this._videoKey = this._generateVideoKey();
+    this._socketRedisCtrl = new SocketRedisController(redisClients, this._roomHash,
+                                                       this._roomKey, this._videoKey);
     this._user = {socketId: socket['id']};
     this._socket = socket;
     this._socket.join(this._roomKey);
     this._init();
+  }
+
+  _generateRoomKey() {
+    return Constants.redisRoomKeyPrefix + ':' + this._serverName + ':' + this._roomHash;
+  }
+
+  _generateVideoKey() {
+    return Constants.redisVideoKeyPrefix + ':' + this._serverName + ':' + this._roomHash;
   }
 
   /**
@@ -183,7 +194,7 @@ class SocketController extends Controller {
    */
   notifyPopOutUser() {
     this._broadcastToRoom('system-message', {
-      message: '[' + this._user['name'] + '] is a Video Pop Out user. '
+      message: '[' + this._user['nickname'] + '] is a Video Pop Out user. '
                + 'This user cannot see chat messages.',
       messageType: 'warning'
     });
@@ -194,10 +205,10 @@ class SocketController extends Controller {
    * Romove from room and update all associated data.
    */
   leave() {
-    //this._broadcastToRoom('system-message', {
-    //  message: '[' + this._user['name'] + '] has left the vChat room.',
-    //  messageType: 'warning'
-    //});
+    this._broadcastToRoom('system-message', {
+      message: '[' + this._user['nickname'] + '] has left the vChat room.',
+      messageType: 'warning'
+    });
     this.logger.log('user left the room: ' + this._roomHash
                      + ' | user: ' + this._user['socketId'])
     this._socketRedisCtrl.removeUserFromRoom(this._user);
