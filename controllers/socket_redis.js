@@ -70,7 +70,7 @@ class SocketRedisController extends Controller {
           }
           this.setRoom(data).then(resolve);
         }
-        this._increaseUserCount();
+        this._increaseTotalUserCount();
       });
     });
     return promise;
@@ -155,7 +155,7 @@ class SocketRedisController extends Controller {
     this._updateCount(key, -1);
   }
 
-  _increaseUserCount() {
+  _increaseTotalUserCount() {
     this._updateCount(Constants.userCount, 1);
   }
 
