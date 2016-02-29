@@ -18,6 +18,9 @@ var notifySoundOnMessage = true;
 var html5NotificationOnMessage = true;
 var messageOnBlur = 0;
 var notificationAudio;
+var lastNotified = 0;
+// Notify user every 2 + 1 = 3 messages.
+var NOTIFICATION_PERIOD = 2;
 var MESSAGE_TYPES = {
   info: 'system-message-info',
   warning: 'system-message-warning',
@@ -56,9 +59,12 @@ $(document).ready(function () {
 });
 
 function _initializeNotification() {
-  if (_html5NotificationSupported() && !_html5NotificationPermissionGranted()) {
+  if (!_html5NotificationSupported()) return;
+
+  if (!_html5NotificationPermissionGranted()) {
     Notification.requestPermission();
   }
+
   notificationAudio = $('#notification-sound');
   $(window).on('blur', _onWindowBlur);
   $(window).on('focus', _onWindowFocus);
@@ -247,20 +253,31 @@ function updateChat(data) {
  * NOTE: System message will not trigger play.
  */
 function _notifyNewMessage(message, isNotSystemMessage) {
-  var turnToNotify = messageOnBlur === 0;
+  var currentTime = new Date().getTime();
+  var turnToNotify = _isTurnToNotify(currentTime);
 
   if (!focusingOnApp && notifySoundOnMessage && isNotSystemMessage) {
     notificationAudio.volume = 1.0;
+
     if (turnToNotify) {
       notificationAudio.trigger('play');
-      messageOnBlur = 2;
+      messageOnBlur = NOTIFICATION_PERIOD;
+
       if (_html5NotificationSupported() && _html5NotificationPermissionGranted()) {
         _spawnNotification(message);
       }
+      lastNotified = currentTime;
     } else {
       messageOnBlur--;
     }
   }
+}
+
+/**
+ * It is turn to notify if messageOnBlur is 0 or last notified time was more than 30 seconds ago.
+ */
+function _isTurnToNotify(currentTime) {
+  return messageOnBlur === 0 || (currentTime - lastNotified > 30000);
 }
 
 function _spawnNotification(message) {
