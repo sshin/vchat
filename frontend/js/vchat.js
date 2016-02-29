@@ -13,6 +13,11 @@ var actionResume = false;
 // Whether socket connection was disconnected.
 var wasDisconnected = false;
 var $currentPlayTime, timer;
+var focusingOnApp = true;
+var notifySoundOnMessage = true;
+var html5NotificationOnMessage = true;
+var messageOnBlur = 0;
+var notificationAudio;
 var MESSAGE_TYPES = {
   info: 'system-message-info',
   warning: 'system-message-warning',
@@ -24,6 +29,7 @@ $(document).ready(function () {
   roombeat = io.connect(CONFIG['roombeatServer']);
   $currentPlayTime = $('#current-play-time');
   _setRoomInfo();
+  _initializeNotification();
 
   /***** Roombeat *****/
   roombeat.on('roombeat', respondRoombeat);
@@ -48,6 +54,32 @@ $(document).ready(function () {
   $('#video-input').on('keypress', _onVideoSubmit);
   $('.video-control-button').on('click', _onVideoControl);
 });
+
+function _initializeNotification() {
+  if (_html5NotificationSupported() && !_html5NotificationPermissionGranted()) {
+    Notification.requestPermission();
+  }
+  notificationAudio = $('#notification-sound');
+  $(window).on('blur', _onWindowBlur);
+  $(window).on('focus', _onWindowFocus);
+}
+
+function _html5NotificationSupported() {
+  return 'Notification' in window;
+}
+
+function _html5NotificationPermissionGranted() {
+  return Notification.permission === 'granted' && html5NotificationOnMessage === true;
+}
+
+function _onWindowBlur() {
+  focusingOnApp = false;
+  messageOnBlur = 0;
+}
+
+function _onWindowFocus() {
+  focusingOnApp = true;
+}
 
 function onDisconnect() {
   $('#connection-lost-dialog').removeClass('hide');
@@ -206,6 +238,38 @@ function updateChat(data) {
 
   data['message'] = message;
   _appendToChatBox(data);
+  _notifyNewMessage(message, typeof data['messageType'] === 'undefined');
+}
+
+/**
+ * Play a notification sound if user is not focusing on the app, and wants to be notified by messages.
+ *
+ * NOTE: System message will not trigger play.
+ */
+function _notifyNewMessage(message, isNotSystemMessage) {
+  var turnToNotify = messageOnBlur === 0;
+
+  if (!focusingOnApp && notifySoundOnMessage && isNotSystemMessage) {
+    notificationAudio.volume = 1.0;
+    if (turnToNotify) {
+      notificationAudio.trigger('play');
+      messageOnBlur = 2;
+      if (_html5NotificationSupported() && _html5NotificationPermissionGranted()) {
+        _spawnNotification(message);
+      }
+    } else {
+      messageOnBlur--;
+    }
+  }
+}
+
+function _spawnNotification(message) {
+  var options = {
+    body: message,
+    icon: '/assets/images/notification-icon.jpg'
+  };
+  var n = new Notification('New vChat Message', options);
+  setTimeout(n.close.bind(n), 2500);
 }
 
 function updateUserName(data) {
