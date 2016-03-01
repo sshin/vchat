@@ -14,10 +14,22 @@ var actionResume = false;
 var wasDisconnected = false;
 var $currentPlayTime, timer;
 var focusingOnApp = true;
-var notifySoundOnMessage = true;
-var html5NotificationOnMessage = true;
 var notificationAudio;
-var lastNotified = 0;
+var notificationSettings = {
+  sounds: {
+    onMessage: true,
+    onVideoQueue: true,
+    onNextVideo: true,
+    onRelatedVideo: true
+  },
+  html5Notifications: {
+    onMessage: true,
+    onVideoQueue: true,
+    onNextVideo: true,
+    onRelatedVideo: true
+  },
+  lastNotified: 0
+};
 var MESSAGE_TYPES = {
   info: 'system-message-info',
   warning: 'system-message-warning',
@@ -72,7 +84,11 @@ function _html5NotificationSupported() {
 }
 
 function _html5NotificationPermissionGranted() {
-  return Notification.permission === 'granted' && html5NotificationOnMessage === true;
+  return Notification.permission === 'granted';
+}
+
+function _useHtml5Notification() {
+  return _html5NotificationSupported() && _html5NotificationPermissionGranted();
 }
 
 function _onWindowBlur() {
@@ -240,7 +256,7 @@ function updateChat(data) {
 
   data['message'] = message;
   _appendToChatBox(data);
-  _notifyNewMessage(message, typeof data['messageType'] === 'undefined');
+  _notifyNewMessage(message, data);
 }
 
 /**
@@ -248,34 +264,63 @@ function updateChat(data) {
  *
  * NOTE: System message will not trigger play.
  */
-function _notifyNewMessage(message, isNotSystemMessage) {
+function _notifyNewMessage(message, data) {
+  var notificationType = _getNotificationType(data);
   var currentTime = new Date().getTime();
-  var turnToNotify = _isTurnToNotify(currentTime);
+  var turnToNotify = _isTurnToNotifyNewMessage(currentTime, notificationType);
 
-  if (!focusingOnApp && notifySoundOnMessage && isNotSystemMessage) {
-    notificationAudio.volume = 1.0;
-
-    if (turnToNotify) {
+  if (!focusingOnApp && notificationType && turnToNotify) {
+    if (notificationSettings['sounds'][notificationType]) {
+      notificationAudio.volume = 1.0;
       notificationAudio.trigger('play');
-
-      if (_html5NotificationSupported() && _html5NotificationPermissionGranted()) {
-        _spawnNotification(message);
-      }
-      lastNotified = currentTime;
     }
+
+    if (_useHtml5Notification() && notificationSettings['html5Notifications'][notificationType]) {
+      _spawnNotification(_getNotificationTitle(notificationType), message);
+    }
+    notificationSettings['lastNotified'] = currentTime;
   }
 }
 
-function _isTurnToNotify(currentTime) {
-  return currentTime - lastNotified > 4000;
+function _getNotificationType(data) {
+  if (typeof data['messageType'] === 'undefined') return 'onMessage';
+  if (data['message'].indexOf('queued new video!') >= 0) return 'onVideoQueue';
+  if (data['message'].indexOf('played next video!') >= 0) return 'onNextVideo';
+  if (data['message'].indexOf('Playing a related video') >= 0) return 'onRelatedVideo';
+
+  return null;
 }
 
-function _spawnNotification(message) {
+function _isTurnToNotifyNewMessage(currentTime, notificationType) {
+  return (notificationType !== 'onMessage' ||
+           currentTime - notificationSettings['lastNotified'] > 4000);
+}
+
+function _getNotificationTitle(notificationType) {
+  var message = 'vChat Notice';
+  switch(notificationType) {
+    case 'onMessage':
+      message = 'New vChat Message';
+      break;
+    case 'onVideoQueue':
+      message = 'New Video Queued';
+      break;
+    case 'onNextVideo':
+      message = 'Playing Next Video';
+      break;
+    case 'onRelatedVideo':
+      message = 'Playing Related Video';
+      break;
+  }
+  return message;
+}
+
+function _spawnNotification(title, message) {
   var options = {
     body: message,
     icon: '/assets/images/notification-icon.jpg'
   };
-  var n = new Notification('New vChat Message', options);
+  var n = new Notification(title, options);
   setTimeout(n.close.bind(n), 3500);
 }
 
