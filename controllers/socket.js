@@ -235,6 +235,7 @@ class SocketController extends Controller {
    * Broadcast chat message to all in the room.
    */
   chatFromClient(data) {
+    data['notificationType'] = Constants.NOTIFICATION_MESSAGE;
     this._broadcastInRoom('new-message', data);
   }
 
@@ -299,6 +300,7 @@ class SocketController extends Controller {
       // Notify users that video is queued.
       data['message'] = 'queued new video!';
       data['messageType'] = 'info';
+      data['notificationType'] = Constants.NOTIFICATION_NEW_VIDEO_QUEUED;
       this._broadcastInRoom('new-video-queued', data);
 
       if (playVideo) {
@@ -306,6 +308,7 @@ class SocketController extends Controller {
         this._socketRedisCtrl.getNextVideo().then((nextVideo) => {
           nextVideo['message'] = 'Playing a video from the queue.';
           nextVideo['messageType'] = 'info';
+          nextVideo['notificationType'] = Constants.NOTIFICATION_PLAY_QUEUED_VIDEO;
           this._broadcastInRoom('new-video-to-play', nextVideo);
         });
       }
@@ -362,6 +365,7 @@ class SocketController extends Controller {
       this._socketRedisCtrl.getNextVideo().then((nextVideo) => {
         if (nextVideo !== null) {
           data['nextVideo'] = nextVideo;
+          data['notificationType'] = Constants.NOTIFICATION_PLAY_NEXT_VIDEO;
           this._broadcastInRoom('control-video', data);
         } else {
           this._socket.emit('no-more-video', {

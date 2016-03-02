@@ -5,6 +5,7 @@ var SocketRedisController = require('../controllers/socket_redis').SocketRedisCo
 var SocketVideoQueueController = require('./socket_video_queue').SocketVideoQueueController;
 var YouTubeAPIController = require('./youtube_api').YouTubeAPIController;
 var co = require('co');
+var Constants = require('../app_modules/constants');
 
 
 class RoombeatController extends Controller {
@@ -85,7 +86,8 @@ class RoombeatController extends Controller {
                   let controlVideo = {
                     action: 'playRelatedVideo',
                     messageType: 'info',
-                    nextVideo: nextVideo
+                    nextVideo: nextVideo,
+                    notificationType: Constants.NOTIFICATION_PLAY_RELATED_VIDEO
                   };
                   this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
                   this.logger.log('automatically playing a related video '
@@ -116,7 +118,8 @@ class RoombeatController extends Controller {
             let controlVideo = {
               action: 'playNextFromQueue',
               messageType: 'info',
-              nextVideo: lastQueuedVideo
+              nextVideo: lastQueuedVideo,
+              notificationType: Constants.NOTIFICATION_PLAY_QUEUED_VIDEO
             };
             this._io.sockets.in(data['roomKey']).emit('control-video', controlVideo);
             this.logger.log('automatically playing the next video from'

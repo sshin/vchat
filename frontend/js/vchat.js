@@ -17,16 +17,18 @@ var focusingOnApp = true;
 var notificationAudio;
 var notificationSettings = {
   sounds: {
-    onMessage: true,
-    onVideoQueue: true,
-    onNextVideo: true,
-    onRelatedVideo: true
+    message: true,
+    newVideoQueued: true,
+    playNextVideo: true,
+    playRelatedVideo: true,
+    playQueuedVideo: true
   },
   html5Notifications: {
-    onMessage: true,
-    onVideoQueue: true,
-    onNextVideo: true,
-    onRelatedVideo: true
+    message: true,
+    newVideoQueued: true,
+    playNextVideo: true,
+    playRelatedVideo: true,
+    playQueuedVideo: true
   },
   lastNotified: 0
 };
@@ -265,7 +267,7 @@ function updateChat(data) {
  * NOTE: System message will not trigger play.
  */
 function _notifyNewMessage(message, data) {
-  var notificationType = _getNotificationType(data);
+  var notificationType = _getNotificationType(data['notificationType']);
   var currentTime = new Date().getTime();
   var turnToNotify = _isTurnToNotifyNewMessage(currentTime, notificationType);
 
@@ -282,13 +284,9 @@ function _notifyNewMessage(message, data) {
   }
 }
 
-function _getNotificationType(data) {
-  if (typeof data['messageType'] === 'undefined') return 'onMessage';
-  if (data['message'].indexOf('queued new video!') >= 0) return 'onVideoQueue';
-  if (data['message'].indexOf('played next video!') >= 0) return 'onNextVideo';
-  if (data['message'].indexOf('Playing a related video') >= 0) return 'onRelatedVideo';
-
-  return null;
+function _getNotificationType(notificationType) {
+  if (typeof notificationType === 'undefined') return null;
+  return notificationType;
 }
 
 function _isTurnToNotifyNewMessage(currentTime, notificationType) {
@@ -318,7 +316,8 @@ function _getNotificationTitle(notificationType) {
 function _spawnNotification(title, message) {
   var options = {
     body: message,
-    icon: '/assets/images/notification-icon.jpg'
+    icon: '/assets/images/notification-icon.jpg',
+    onClick: $(window).focus()
   };
   var n = new Notification(title, options);
   setTimeout(n.close.bind(n), 3500);
@@ -432,6 +431,10 @@ function controlVideo(data) {
 
   if (typeof data['messageType'] !== 'undefined') {
     chatData['messageType'] = data['messageType'];
+  }
+
+  if (typeof data['notificationType'] !== 'undefined') {
+    chatData['notificationType'] = data['notificationType'];
   }
 
   updateChat(chatData);
