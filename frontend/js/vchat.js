@@ -17,6 +17,7 @@ var focusingOnApp = true;
 var notificationAudio;
 var notificationSettings = {
   sounds: {
+    info: true,
     message: true,
     newVideoQueued: true,
     playNextVideo: true,
@@ -24,6 +25,7 @@ var notificationSettings = {
     playQueuedVideo: true
   },
   html5Notifications: {
+    info: true,
     message: true,
     newVideoQueued: true,
     playNextVideo: true,
@@ -278,7 +280,7 @@ function _notifyNewMessage(message, data) {
     }
 
     if (_useHtml5Notification() && notificationSettings['html5Notifications'][notificationType]) {
-      _spawnNotification(_getNotificationTitle(notificationType), message);
+      _spawnNotification(_getNotificationTitle(notificationType), message, notificationType);
     }
     notificationSettings['lastNotified'] = currentTime;
   }
@@ -317,14 +319,20 @@ function _getNotificationTitle(notificationType) {
   return title;
 }
 
-function _spawnNotification(title, message) {
+function _spawnNotification(title, message, notificationType) {
+  var icon = _getNotificationIcon(notificationType);
+
   var options = {
     body: message,
-    icon: '/assets/images/notification-icon.jpg',
-    onClick: $(window).focus()
+    icon: icon
   };
   var n = new Notification(title, options);
-  setTimeout(n.close.bind(n), 3500);
+  setTimeout(n.close.bind(n), 3700);
+}
+
+function _getNotificationIcon(notificationType) {
+  var prefix = '/assets/images/notification-icon-';
+  return prefix + notificationType + '.png';
 }
 
 function updateUserName(data) {

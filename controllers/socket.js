@@ -361,6 +361,7 @@ class SocketController extends Controller {
    */
   controlVideo(data) {
     data['messageType'] = 'action';
+    data['notificationType'] = 'info';
     if (data['action'] == 'playNext') {
       this._socketRedisCtrl.getNextVideo().then((nextVideo) => {
         if (nextVideo !== null) {
