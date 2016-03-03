@@ -290,27 +290,31 @@ function _getNotificationType(notificationType) {
 }
 
 function _isTurnToNotifyNewMessage(currentTime, notificationType) {
-  return (notificationType !== 'onMessage' ||
+  return (notificationType !== 'message' ||
            currentTime - notificationSettings['lastNotified'] > 4000);
 }
 
 function _getNotificationTitle(notificationType) {
-  var message = 'vChat Notice';
+  var title = 'vChat Notice';
+
   switch(notificationType) {
-    case 'onMessage':
-      message = 'New vChat Message';
+    case 'message':
+      title = 'New vChat Message';
       break;
-    case 'onVideoQueue':
-      message = 'New Video Queued';
+    case 'newVideoQueued':
+      title = 'New Video Queued';
       break;
-    case 'onNextVideo':
-      message = 'Playing Next Video';
+    case 'playNextVideo':
+      title = 'Playing Next Video';
       break;
-    case 'onRelatedVideo':
-      message = 'Playing Related Video';
+    case 'playRelatedVideo':
+      title = 'Playing Related Video';
       break;
+    case 'playQueuedVideo':
+      title = 'Playing Queued Video';
   }
-  return message;
+
+  return title;
 }
 
 function _spawnNotification(title, message) {
