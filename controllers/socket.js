@@ -4,6 +4,7 @@ var Controller = require('./controller').Controller;
 var Constants = require('../app_modules/constants');
 var SocketRedisController = require('../controllers/socket_redis').SocketRedisController;
 var SocketSessionController = require('../controllers/socket_session').SocketSessionController;
+var YouTubeAPIController = require('./youtube_api').YouTubeAPIController;
 
 
 class SocketController extends Controller {
@@ -370,7 +371,52 @@ class SocketController extends Controller {
           this._broadcastInRoom('control-video', data);
         } else {
           this._socket.emit('no-more-video', {
+            message: 'No more videos in queue. Searching for a related video.',
             messageType: 'warning'
+          });
+          this._socketRedisCtrl.getVideoData().then((videoData) => {
+            if (videoData['searchingRelatedVideo']) {
+              this._socket.emit('new-message', {
+                message: 'Currently searching for a related video.',
+                messageType: 'info'
+              });
+            } else {
+            // Search for a related video.
+              let youtubeCtrl = new YouTubeAPIController();
+              videoData['searchingRelatedVideo'] = true;
+              // Set the last played videoId into related videos, so we won't play it again.
+              videoData['relatedVideos']['videos'][videoData['currentVideo']['videoId']] = 1;
+              this._socketRedisCtrl.setVideoData(videoData);
+
+              this._socket.emit('new-message', {
+                message: 'Queue is empty. Searching for a related video.',
+                messageType: 'info'
+              });
+              this.logger.log('queue is empty, searching for a related video for the room: '
+                              + this._roomHash);
+
+              youtubeCtrl.getRelatedVideos(videoData, Constants.MAX_RELATED_VIDEOS, this._roomHash)
+                         .then((updatedVideoData) => {
+                // Short delay to avoid playNext request right after getting a related video.
+                setTimeout(() => {
+                  updatedVideoData['searchingRelatedVideo'] = false;
+                  this._socketRedisCtrl.setVideoData(updatedVideoData);
+                }, 1000);
+
+                // Notify users to play the related video.
+                data['action'] = 'playNextRelatedVideo';
+                data['nextVideo'] = updatedVideoData['currentVideo'];
+                data['notificationType'] = Constants.NOTIFICATION_PLAY_NEXT_VIDEO;
+                this._broadcastInRoom('control-video', data);
+                this.logger.log('Playing a related video due to empty queue when playNextVideo '
+                                  + 'was requested for the room: ' + this._roomHash);
+              }).catch(() => {
+                this._socket.emit('new-message', {
+                  message: 'Failed to get a related video.',
+                  messageType: 'warning'
+                });
+              });
+            }
           });
         }
       });

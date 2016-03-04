@@ -3,6 +3,7 @@
 var Controller = require('./controller').Controller;
 var request = require('request');
 var credentials = require('credentials');
+var Constants = require('../app_modules/constants');
 
 
 class YouTubeAPIController extends Controller {
@@ -14,7 +15,46 @@ class YouTubeAPIController extends Controller {
    *  resolve: related videos.
    *  reject: if api request limit is exceed.
    */
-  static getRelatedVideos(videoId, maxRelatedVideos) {
+  getRelatedVideos(videoData, maxRelatedVideos, roomHash) {
+    var promise = new Promise((resolve, reject) => {
+      let videoId = videoData['currentVideo']['videoId'];
+      this._getRelatedVideosFromYoutube(videoId, maxRelatedVideos).then((body) => {
+        let items = JSON.parse(body)['items'];
+        if (typeof items !== 'undefined' && items != null && items.length > 0) {
+          // Avoid duplicated related videos.
+          let nextVideo = {username: 'vChat'};
+          for (let i = 0; i < items.length; i++) {
+            let videoId = items[i]['id']['videoId'];
+            if (!videoData['relatedVideos']['videos'].hasOwnProperty(videoId)) {
+              nextVideo['videoId'] = videoId;
+              videoData['relatedVideos']['videos'][videoId] = 1;
+              let length = parseInt(videoData['relatedVideos']['length']);
+              videoData['relatedVideos']['length'] = length + 1;
+              break;
+            }
+          }
+
+          // Reset related videos if over limit.
+          if (videoData['relatedVideos']['length'] >= Constants.MAX_RELATED_VIDEOS) {
+            this.logger.log('reached maximum related videos for the room: '
+                             + roomHash + ' | resetting related videos');
+            videoData['relatedVideos'] = {length: 0, videos: {}};
+          }
+
+          // Just play the first related video if search results were all played before.
+          if (!nextVideo.hasOwnProperty('videoId')) {
+            nextVideo['videoId'] = items[0]['id']['videoId'];
+          }
+
+          videoData['currentVideo'] = nextVideo;
+          resolve(videoData);
+        }
+      }).catch(reject);
+    });
+    return promise;
+  }
+
+  _getRelatedVideosFromYoutube(videoId, maxRelatedVideos) {
     var promise = new Promise((resolve, reject) => {
       request.get({
         url: 'https://www.googleapis.com/youtube/v3/search',

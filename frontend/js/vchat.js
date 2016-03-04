@@ -419,6 +419,10 @@ function controlVideo(data) {
       message = 'played next video!';
       loadVideo(data['nextVideo']);
       break;
+    case 'playNextRelatedVideo':
+      message = 'played a related video!';
+      loadVideo(data['nextVideo']);
+      break;
     case 'playNextFromQueue':
       message = 'Playing next video from the queue.';
       setTimeout(function () {
