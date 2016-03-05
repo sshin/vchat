@@ -231,6 +231,11 @@
   margin-top: 25px;
 }
 
+#user-stickers-inner-wrapper {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
 .sticker-image-wrapper {
   cursor: pointer;
 }

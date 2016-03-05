@@ -57,16 +57,16 @@ var UserStickers = React.createClass({
   _buildStickers: function(item) {
     var html = '';
     for (var i = 0; i < parseInt(item['num']); i++) {
-      html += '<span class="sticker-image-wrapper" data-name="' + item['name'] + '" data-num="' + (i+1) + '">' +
+      html += '<span class="sticker-image-wrapper" data-name="' + item['name'] + '" data-num="' + (i+1) + '" data-extension="' + item['extension'] + '">' +
                  '<img class="sticker-image" src="'
-                      + this._buildStickerUrl(item['name'], i+1) + '">' +
+                      + this._buildStickerUrl(item['name'], i+1, item['extension']) + '">' +
                '</span>';
     }
     return html;
   },
 
-  _buildStickerUrl: function(name, num) {
-    return '/assets/stickers/' + name + '/' + num + '.jpg';
+  _buildStickerUrl: function(name, num, extension) {
+    return '/assets/stickers/' + name + '/' + num + '.' + extension;
   },
 
   _addOnClickAction: function() {
@@ -77,7 +77,8 @@ var UserStickers = React.createClass({
         type: 'sticker',
         username: $('#user-name').val(),
         stickerName: $(this).attr('data-name'),
-        stickerNum: $(this).attr('data-num')
+        stickerNum: $(this).attr('data-num'),
+        extension: $(this).attr('data-extension')
       };
 
       socket.emit('client-chat-send', data);
@@ -92,7 +93,7 @@ var UserStickers = React.createClass({
                 color="green" onClick={this._viewList} />
         <Dialog id="user-stickers-dialog" header="Stickers" ref="stickersDialog"
                 noButton="true">
-          <div id="user-stickers-inner-wrapper" ref="stickersList"></div>
+          <div id="user-stickers-inner-wrapper" className="full-width" ref="stickersList"></div>
         </Dialog>
       </div>
     );

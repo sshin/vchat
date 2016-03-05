@@ -280,7 +280,7 @@ function _buildMessage(data) {
 
 function _buildSticker(data) {
   var prefix = '[' + data['username'] + '] ';
-  return prefix + '<img src="/assets/stickers/' + data['stickerName'] + '/' + data['stickerNum'] +'.jpg">';
+  return prefix + '<img src="/assets/stickers/' + data['stickerName'] + '/' + data['stickerNum'] +'.' + data['extension'] + '">';
 }
 
 /**

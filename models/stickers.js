@@ -15,7 +15,7 @@ class Stickers extends Model {
     var promise = new Promise((resolve, reject) => {
       var where = 'WHERE id = ' + stickerIds.join(' OR id = ');
 
-      this.runQuery('SELECT name, display_name, num FROM Stickers ' + where, [], (stickers) => {
+      this.runQuery('SELECT name, extension, display_name, num FROM Stickers ' + where, [], (stickers) => {
           resolve(stickers);
       });
     });
