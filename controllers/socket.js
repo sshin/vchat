@@ -268,7 +268,7 @@ class SocketController extends Controller {
 
           // Now lets see if this link contains start time.
           link = link[1].split('&');
-          let startAt = this._getStartAt(link);
+          let startAt = this._parseLink(link)['startAt'];
           if (startAt !== null) data['startAt'] = startAt;
         }
         data['videoId'] = id;
@@ -337,22 +337,29 @@ class SocketController extends Controller {
     }
 
     if (typeof time !== 'undefined') {
-      let startAt = time.split('m');
-      if (startAt.length > 1) {
-      // Format of t=1m33s..
-        let min = startAt[0];
-        let sec = startAt[1].replace('s', '');
-        data['startAt'] = {
-          min: min,
-          sec: sec
-        };
-      } else {
-        data['startAt'] = parseInt(startAt[0]);
-      }
+      data['startAt'] = this._getStartAt(time);
     }
 
     if (typeof id !== 'undefined') {
       data['id'] = id;
+    }
+
+    return data;
+  }
+
+  _getStartAt(time) {
+    var data = {};
+    var startAt = time.split('m');
+    if (startAt.length > 1) {
+    // Format of t=1m33s..
+      let min = startAt[0];
+      let sec = startAt[1].replace('s', '');
+      data['startAt'] = {
+        min: min,
+        sec: sec
+      };
+    } else {
+      data['startAt'] = parseInt(startAt[0]);
     }
 
     return data;
