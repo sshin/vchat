@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
   }
 
   var stickers = new Stickers();
-  stickers.getStickers(req.session['user']['stickers'].split(',')).then((data) => res.send(data));
+  stickers.getStickers(req.session['user']['id']).then((data) => res.send(data));
 });
 
 module.exports = router;

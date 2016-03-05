@@ -40,16 +40,24 @@ var UserStickers = React.createClass({
                    + 'You have no stickers' +
                  '</div>');
     } else {
-      for (var i = this._stickers.length - 1; i >= 0; i--) {
-        $el.append(this._renderItem(this._stickers[i]));
+      var selectHtml = '<select id="stickers-select">';
+      for (var i = 0; i < this._stickers.length; i++) {
+        var currSticker = this._stickers[i];
+        selectHtml += '<option value="' + currSticker['name'] + '">' + currSticker['display_name'] + '</option>';
+        $el.append(this._renderItem(currSticker, i !== 0));
       }
+      selectHtml += '</select>';
+      $el.prepend(selectHtml);
     }
 
-    this._addOnClickAction();
+    this._addAction();
   },
 
-  _renderItem: function(item) {
-    return '<div class="stickers-list-item">' +
+  _renderItem: function(item, hide) {
+    var className = 'stickers-list-item';
+    if (hide) className += ' hide';
+
+    return '<div class="' + className + '" data-name="' + item['name'] + '">' +
                this._buildStickers(item) +
             '</div>';
   },
@@ -69,7 +77,7 @@ var UserStickers = React.createClass({
     return '/assets/stickers/' + name + '/' + num + '.' + extension;
   },
 
-  _addOnClickAction: function() {
+  _addAction: function() {
     // Reset event handler and add new one...lame.
     var $Dialog = this.refs['stickersDialog'];
     $('.sticker-image-wrapper').off().on('click', function() {
@@ -83,6 +91,17 @@ var UserStickers = React.createClass({
 
       socket.emit('client-chat-send', data);
       $Dialog.closeDialog();
+    });
+
+    $('#stickers-select').off().on('change', function() {
+      var value = $(this).val();
+      $('.stickers-list-item').each(function() {
+        if ($(this).attr('data-name') === value) {
+          $(this).removeClass('hide');
+        } else {
+          $(this).addClass('hide');
+        }
+      });
     });
   },
 
