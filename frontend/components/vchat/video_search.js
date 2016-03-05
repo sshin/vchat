@@ -92,7 +92,7 @@ var VideoSearch = React.createClass({
         submitType: 'search'
       };
 
-      socket.emit('new-video-submit', data);
+      vChat.socket.emit('new-video-submit', data);
       $Dialog.closeDialog();
     });
   },

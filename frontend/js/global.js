@@ -146,6 +146,39 @@ function App() {
   this.error = function(message) {
     console.error('[[Error]] ' + message);
   };
+
+
+  /** notifications **/
+  this.notificationAudio = null;
+  this.notificationSettings = {
+    sounds: {
+      info: true,
+      message: true,
+      newVideoQueued: true,
+      playNextVideo: true,
+      playRelatedVideo: true,
+      playQueuedVideo: true
+    },
+    html5Notifications: {
+      info: true,
+      message: true,
+      newVideoQueued: true,
+      playNextVideo: true,
+      playRelatedVideo: true,
+      playQueuedVideo: true
+    },
+    lastNotified: 0
+  };
+
+
+  /** feature detections **/
+  this.html5NotificationSupported = function() {
+    return 'Notification' in window;
+  };
+
+  this.html5NotificationPermissionGranted = function() {
+    return Notification.permission === 'granted';
+  };
 }
 
 var app = new App();

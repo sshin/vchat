@@ -1,9 +1,4 @@
 var roomInfo = {};
-var readyForRoombeat = false;
-var isPopOut = false;
-var player;
-var socket;
-var roombeat;
 var numMessages = 0;
 var pauseAfterLoad = false;
 // Whether video paused via controller or not.
@@ -14,26 +9,6 @@ var actionResume = false;
 var wasDisconnected = false;
 var $currentPlayTime, timer;
 var focusingOnApp = true;
-var notificationAudio;
-var notificationSettings = {
-  sounds: {
-    info: true,
-    message: true,
-    newVideoQueued: true,
-    playNextVideo: true,
-    playRelatedVideo: true,
-    playQueuedVideo: true
-  },
-  html5Notifications: {
-    info: true,
-    message: true,
-    newVideoQueued: true,
-    playNextVideo: true,
-    playRelatedVideo: true,
-    playQueuedVideo: true
-  },
-  lastNotified: 0
-};
 var MESSAGE_TYPES = {
   info: 'system-message-info',
   warning: 'system-message-warning',
@@ -41,27 +16,27 @@ var MESSAGE_TYPES = {
 };
 
 $(document).ready(function () {
-  socket = io.connect(CONFIG['socketServer']);
-  roombeat = io.connect(CONFIG['roombeatServer']);
+  vChat.socket = io.connect(CONFIG['socketServer']);
+  vChat.roombeat = io.connect(CONFIG['roombeatServer']);
   $currentPlayTime = $('#current-play-time');
   _setRoomInfo();
   _initializeNotification();
 
   /***** Roombeat *****/
-  roombeat.on('roombeat', respondRoombeat);
-  socket.on('ready-for-roombeat', listenToRoombeat);
+  vChat.roombeat.on('roombeat', vChat.respondRoombeat);
+  vChat.socket.on('ready-for-roombeat', vChat.listenToRoombeat);
 
   /***** Socket events *****/
-  socket.on('system-message', updateChat);
-  socket.on('new-message', updateChat);
-  socket.on('username-update', updateUserName);
-  socket.on('new-video-queued', updateChat);
-  socket.on('new-video-to-play', loadVideo);
-  socket.on('control-video', controlVideo);
-  socket.on('get-current-play-time-for-new-user', getCurrentPlayTimeForNewUser);
-  socket.on('force-disconnect', forceDisconnect);
-  socket.on('disconnect', onDisconnect);
-  socket.on('connect', onConnect);
+  vChat.socket.on('system-message', updateChat);
+  vChat.socket.on('new-message', updateChat);
+  vChat.socket.on('username-update', updateUserName);
+  vChat.socket.on('new-video-queued', updateChat);
+  vChat.socket.on('new-video-to-play', loadVideo);
+  vChat.socket.on('control-video', controlVideo);
+  vChat.socket.on('get-current-play-time-for-new-user', getCurrentPlayTimeForNewUser);
+  vChat.socket.on('connect', onConnect);
+  vChat.socket.on('disconnect', onDisconnect);
+  vChat.socket.on('force-disconnect', vChat.forceDisconnect);
 
 
   /***** Regular events *****/
@@ -71,27 +46,19 @@ $(document).ready(function () {
 });
 
 function _initializeNotification() {
-  if (!_html5NotificationSupported()) return;
+  if (!app.html5NotificationSupported()) return;
 
-  if (!_html5NotificationPermissionGranted()) {
+  if (!app.html5NotificationPermissionGranted()) {
     Notification.requestPermission();
   }
 
-  notificationAudio = $('#notification-sound');
+  app.notificationAudio = $('#notification-sound');
   $(window).on('blur', _onWindowBlur);
   $(window).on('focus', _onWindowFocus);
 }
 
-function _html5NotificationSupported() {
-  return 'Notification' in window;
-}
-
-function _html5NotificationPermissionGranted() {
-  return Notification.permission === 'granted';
-}
-
 function _useHtml5Notification() {
-  return _html5NotificationSupported() && _html5NotificationPermissionGranted();
+  return app.html5NotificationSupported() && app.html5NotificationPermissionGranted();
 }
 
 function _onWindowBlur() {
@@ -105,7 +72,7 @@ function _onWindowFocus() {
 function onDisconnect() {
   $('#connection-lost-dialog').removeClass('hide');
   wasDisconnected = true;
-  player.stopVideo();
+  vChat.player.stopVideo();
 }
 
 function onConnect() {
@@ -114,7 +81,7 @@ function onConnect() {
   if (wasDisconnected) {
     $connectionLost.addClass('hide');
     $reconnect.removeClass('hide');
-    socket.emit('get-current-play-time-for-new-user');
+    vChat.socket.emit('get-current-play-time-for-new-user');
     wasDisconnected = false;
     setTimeout(function() {
       $('#connection-lost-dialog').addClass('hide');
@@ -138,7 +105,7 @@ function _onChatInputSubmit(e) {
         data['html'] = true;
         data['link'] = true;
       }
-      socket.emit('client-chat-send', data);
+      vChat.socket.emit('client-chat-send', data);
     }
     $chatInput.val('');
   }
@@ -151,23 +118,15 @@ function _setRoomInfo() {
   });
   var path = window.location.pathname;
   if (path.startsWith('/popout')) {
-    isPopOut = true;
+    vChat.isPopOut = true;
     // Notify users that this user is a pop out view.
-    _notifyPopOutUser();
+    vChat.notifyPopOutUser();
     return;
   }
 
   path = path.replace('/vChat/', '').split('/');
   roomInfo['type'] = path[0];
   roomInfo['name'] = path[1];
-}
-
-function _notifyPopOutUser() {
-  if (readyForRoombeat) {
-    socket.emit('pop-out-user');
-  } else {
-    setTimeout(_notifyPopOutUser, 500);
-  }
 }
 
 function _onVideoSubmit(e) {
@@ -179,7 +138,7 @@ function _onVideoSubmit(e) {
       submitType: 'link'
     };
 
-    socket.emit('new-video-submit', data);
+    vChat.socket.emit('new-video-submit', data);
     $videoInput.val('');
   }
 }
@@ -188,7 +147,7 @@ function _onVideoControl(e) {
   var id = $(e.currentTarget).attr('id');
   switch (id) {
     case 'video-controller-time':
-      var videoId = player.getVideoData().video_id;
+      var videoId = vChat.player.getVideoData().video_id;
       if (videoId !== null) {
         var min = $('#video-control-minutes').val();
         var sec = $('#video-control-seconds').val();
@@ -202,38 +161,38 @@ function _onVideoControl(e) {
             sec: sec
           }
         };
-        socket.emit('control-video', data);
+        vChat.socket.emit('control-video', data);
       }
       break;
     case 'video-controller-pause':
       // Only emit if video is currently playing.
-      if (isPlayerPlaying()) {
+      if (vChat.isPlayerPlaying()) {
         var data = {
           username: _getUserName(),
           action: 'pause'
         };
-        socket.emit('control-video', data);
+        vChat.socket.emit('control-video', data);
       }
       break;
     case 'video-controller-resume':
       // Only emit if video is currently paused.
-      if (isPlayerPaused()) {
+      if (vChat.isPlayerPaused()) {
         var data = {
           username: _getUserName(),
           action: 'resume'
         };
-        socket.emit('control-video', data);
+        vChat.socket.emit('control-video', data);
       }
       break;
     case 'video-controller-play-next':
       // Only emit when we have a video.
       // TODO: Change this emit to only happen for when queue.length > 0
-      if (hasVideo()) {
+      if (vChat.hasVideo()) {
         var data = {
           username: _getUserName(),
           action: 'playNext'
         };
-        socket.emit('control-video', data);
+        vChat.socket.emit('control-video', data);
       }
       break;
   }
@@ -280,7 +239,7 @@ function _buildMessage(data) {
 
 function _buildSticker(data) {
   var prefix = '[' + data['username'] + '] ';
-  return prefix + '<img src="/assets/stickers/' + data['stickerName'] + '/' + data['stickerNum'] +'.' + data['extension'] + '">';
+  return prefix + '<div><img src="/assets/stickers/' + data['stickerName'] + '/' + data['stickerNum'] +'.' + data['extension'] + '"></div>';
 }
 
 /**
@@ -294,18 +253,18 @@ function _notifyNewMessage(message, data) {
   var turnToNotify = _isTurnToNotifyNewMessage(currentTime, notificationType);
 
   if (!focusingOnApp && notificationType && turnToNotify) {
-    if (notificationSettings['sounds'][notificationType]) {
-      notificationAudio.volume = 1.0;
-      notificationAudio.trigger('play');
+    if (app.notificationSettings['sounds'][notificationType]) {
+      app.notificationAudio.volume = 1.0;
+      app.notificationAudio.trigger('play');
     }
 
-    if (_useHtml5Notification() && notificationSettings['html5Notifications'][notificationType]) {
+    if (_useHtml5Notification() && app.notificationSettings['html5Notifications'][notificationType]) {
       if (typeof data['type'] !== 'undefined' && data['type'] === 'sticker') {
         message = '[' + data['username'] + '] sent a sticker!';
       }
       _spawnNotification(_getNotificationTitle(notificationType), message, notificationType);
     }
-    notificationSettings['lastNotified'] = currentTime;
+    app.notificationSettings['lastNotified'] = currentTime;
   }
 }
 
@@ -316,7 +275,7 @@ function _getNotificationType(notificationType) {
 
 function _isTurnToNotifyNewMessage(currentTime, notificationType) {
   return (notificationType !== 'message' ||
-           currentTime - notificationSettings['lastNotified'] > 4000);
+           currentTime - app.notificationSettings['lastNotified'] > 4000);
 }
 
 function _getNotificationTitle(notificationType) {
@@ -403,7 +362,7 @@ function loadVideo(data) {
     videoData['startSeconds'] = data['startSeconds'];
   }
 
-  player.loadVideoById(videoData);
+  vChat.player.loadVideoById(videoData);
 
   // Current video play or stop for new user.
   if (typeof data['isPlaying'] !== 'undefined' && !data['isPlaying']) {
@@ -424,19 +383,19 @@ function controlVideo(data) {
       } else {
         startAt = (parseInt(data.startAt['min']) * 60) + parseInt(data.startAt['sec']);
       }
-      player.seekTo(startAt);
+      vChat.player.seekTo(startAt);
       break;
     case 'pause':
       message = 'paused video!';
       actionPause = true;
       actionResume = false;
-      player.pauseVideo();
+      vChat.player.pauseVideo();
       break;
     case 'resume':
       message = 'resumed video!';
       actionPause = false;
       actionResume = true;
-      player.playVideo();
+      vChat.player.playVideo();
       break;
     case 'playNext':
       message = 'played next video!';
@@ -485,7 +444,7 @@ function controlVideo(data) {
  */
 function _appendToChatBox(data) {
   // For pop out window, only append system message.
-  if (isPopOut && (typeof data['messageType'] === 'undefined' || data['messageType'] === null)) {
+  if (vChat.isPopOut && (typeof data['messageType'] === 'undefined' || data['messageType'] === null)) {
     return;
   }
   if (numMessages < 30) numMessages++;
@@ -516,7 +475,7 @@ function _appendToChatBox(data) {
   // Append to chat box.
   $chatBox.append('<div class="' + classes.join(' ') + '">' + data['message'] + '</div>');
 
-  if (isPopOut) {
+  if (vChat.isPopOut) {
     $('#pop-out-chat-box-wrapper').scrollTop($chatBox.height());
   } else {
     $('#chat-box-wrapper').scrollTop($chatBox.height());
@@ -529,30 +488,20 @@ function _appendToChatBox(data) {
 }
 
 function getCurrentPlayTimeForNewUser(data) {
-  data['startAt'] = parseInt(player.getCurrentTime());
+  data['startAt'] = parseInt(vChat.player.getCurrentTime());
   // Don't rely on player state. Use client variable to determine if video is playing or not.
   data['isPlaying'] = !actionPause && !pauseAfterLoad;
-  data['isEnded'] = isPlayerEnded();
+  data['isEnded'] = vChat.isPlayerEnded();
   data['timestamp'] = new Date().getTime();
-  data['currentVideoId'] = player.getVideoData().video_id;
-  socket.emit('current-play-time-for-new-user', data);
-}
-
-function forceDisconnect() {
-  // V1, just force close or redirect.
-  // TODO: alert dialog saying detected new connection, closing current tab / pop out.
-  if (isPopOut) {
-    window.self.close();
-  } else {
-    window.location.href = CONFIG['baseUrl'];
-  }
+  data['currentVideoId'] = vChat.player.getVideoData().video_id;
+  vChat.socket.emit('current-play-time-for-new-user', data);
 }
 
 
 /***** Youtube API Handlers *****/
 function onYouTubePlayerAPIReady() {
   /* API setup. */
-  player = new YT.Player('video-content', {
+  vChat.player = new YT.Player('video-content', {
     width: '800',
     height: '450',
     videoId: '',
@@ -577,16 +526,16 @@ function onPlayerReady() {
   /* Play video if video_id has value. */
   app.log('Youtube Player is ready.');
 
-  if (player.getVideoData().video_id !== null) {
-    player.playVideo();
+  if (vChat.player.getVideoData().video_id !== null) {
+    vChat.player.playVideo();
   }
 
-  socket.emit('get-current-play-time-for-new-user');
+  vChat.socket.emit('get-current-play-time-for-new-user');
 }
 
 function onPlayerStateChange(event) {
   var $videoWrapper;
-  if (isPopOut) {
+  if (vChat.isPopOut) {
     $videoWrapper = $('#pop-out-video-wrapper');
   } else {
     $videoWrapper = $('#video-wrapper');
@@ -603,34 +552,34 @@ function onPlayerStateChange(event) {
       $videoWrapper.removeClass('no-pointer-events');
       if (pauseAfterLoad) {
         actionPause = true;
-        player.pauseVideo();
+        vChat.player.pauseVideo();
         pauseAfterLoad = false;
       } else if (!actionResume) {
-        player.pauseVideo();
+        vChat.player.pauseVideo();
       }
       setVideoInformation();
       break;
     case 2: // Video paused.
       if (!actionPause) {
-        player.playVideo();
+        vChat.player.playVideo();
       }
       break;
   }
 }
 
-/*
+/**
  * Set video information and start timer.
  */
 function setVideoInformation() {
-  var videoData = player.getVideoData();
-  var durationText = _getFormattedTime(player.getDuration());
-  var url = player.getVideoUrl();
+  var videoData = vChat.player.getVideoData();
+  var durationText = _getFormattedTime(vChat.player.getDuration());
+  var url = vChat.player.getVideoUrl();
   var $videoName = $('#current-video-name');
   $videoName.text(videoData['title']);
   $videoName.attr('title', videoData['title']);
   $('#current-video-duration').text(durationText);
   $('#current-video-youtube-link').html('<a href="' + url + '" target="_blank">Watch at YouTube</a>');
-  var currentTime = player.getCurrentTime();
+  var currentTime = vChat.player.getCurrentTime();
   $currentPlayTime.attr('data-seconds', currentTime);
   _setTimer();
   timer = setInterval(_setTimer, 1000);
@@ -648,77 +597,4 @@ function _getFormattedTime(seconds) {
   var sec = parseInt(seconds - (min * 60));
   if (sec < 10) sec = '0' + sec;
   return '' + min + ':' + sec;
-}
-
-function isPlayerPlaying() {
-  return _getPlayerState() == 'playing';
-}
-
-function isPlayerPaused() {
-  var videoId = player.getVideoData()['video_id'];
-  return videoId !== null &&
-      (_getPlayerState() == 'paused' || _getPlayerState() == 'not_started');
-}
-
-function isPlayerEnded() {
-  return _getPlayerState() == 'ended';
-}
-
-function _getPlayerState() {
-  var state = '';
-  switch (player.getPlayerState()) {
-    case -1:
-      state = 'not_started';
-      break;
-    case 0:
-      state = 'ended';
-      break;
-    case 1:
-      state = 'playing';
-      break;
-    case 2:
-      state = 'paused';
-      break;
-    default:
-      state = 'not_started';
-      break;
-  }
-
-  return state;
-}
-
-function hasVideo() {
-  var videoData = player.getVideoData();
-  return videoData['video_id'] !== null;
-}
-
-/*
- * Responds to roombeat if this socket is selected for roombeat :).
- * Will only respond if current video is ended for now.
- */
-function listenToRoombeat() {
-  setTimeout(function() {
-    app.log('Ready to respond to Roombeat');
-    readyForRoombeat = true;
-  }, 1000);
-}
-
-function respondRoombeat() {
-  if (!readyForRoombeat) {
-    setTimeout(function() {
-      respondRoombeat();
-    }, 100);
-    return;
-  }
-
-  var playerEnded = isPlayerEnded();
-  app.log('Responding to Roombeat | Player ended: ' + playerEnded);
-
-  if (playerEnded) {
-    var data = {
-      videoId: player.getVideoData()['video_id'],
-      isVideoEnded: true
-    };
-    roombeat.emit('roombeat', data);
-  }
 }

@@ -20,7 +20,7 @@ var UserVideoList = React.createClass({
   },
 
   _addToList: function () {
-    var data = player.getVideoData()
+    var data = vChat.player.getVideoData()
     app.post('uservideolist', {
       data: data,
       success: function() {
@@ -129,7 +129,7 @@ var UserVideoList = React.createClass({
         submitType: 'list'
       };
 
-      socket.emit('new-video-submit', data);
+      vChat.socket.emit('new-video-submit', data);
       $Dialog.closeDialog();
     });
   },

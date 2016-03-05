@@ -89,7 +89,7 @@ var UserStickers = React.createClass({
         extension: $(this).attr('data-extension')
       };
 
-      socket.emit('client-chat-send', data);
+      vChat.socket.emit('client-chat-send', data);
       $Dialog.closeDialog();
     });
 
