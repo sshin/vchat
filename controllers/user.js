@@ -2,6 +2,7 @@
 
 var Controller = require('./controller').Controller;
 var User = require('../models/user').User;
+var UserInfo = require('../models/user_info').UserInfo;
 var bcrypt = require('bcryptjs');
 var co = require('co');
 
@@ -11,6 +12,7 @@ class UserController extends Controller {
   constructor() {
     super();
     this._user = new User();
+    this._userInfo = new UserInfo();
   }
 
   validateSignUp(params, callback) {
@@ -97,7 +99,11 @@ class UserController extends Controller {
       bcrypt.hash(params['password'], 10, (err, hash) => {
         params['password'] = hash;
         delete params['passwordVerify'];
-        this._user.insert(params).then(resolve);
+        this._user.insert(params).then(() => {
+          this._user.getByUserName(params['username']).then((userData) => {
+            this._userInfo.insert({user_id: userData['id']}).then(resolve);
+          });
+        });
       });
     });
     return promise;
@@ -105,13 +111,11 @@ class UserController extends Controller {
 
   login(params) {
     var promise = new Promise((resolve, reject) => {
-      this._user.select({
-        select: ['id', 'username', 'email', 'password', 'nickname', 
-                 'settings_allow_control', 'settings_allow_queue'],
-        where: {
-          username: params['username']
-        }
-      }).then((rows) => {
+      this._user.runQuery(
+        'SELECT user.id, user.username, user.email, user.password, user.nickname, userInfo.allow_control, userInfo.allow_queue, userInfo.stickers ' +
+        'FROM User as user ' +
+        'LEFT JOIN UserInfo as userInfo ON (user.id = userInfo.user_id) ' +
+        'WHERE username = ?', [params['username']], (rows) => {
         if (rows.length > 0) {
           let userData = rows[0];
           bcrypt.compare(params['password'], userData['password'], (err, matched) => {
@@ -137,13 +141,14 @@ class UserController extends Controller {
     var promise = new Promise((resolve, reject) => {
       let updateParams = {
         where: {
-          id: userId
+          user_id: userId
         },
         set: {
-          settings_allow_control: params['allowControl'],
-          settings_allow_queue: params['allowQueue']
+          allow_control: params['allowControl'],
+          allow_queue: params['allowQueue']
         }
       };
+      this._userInfo.update(updateParams).then(() => resolve(updateParams['set']));
       if (typeof params['nickname'] !== 'undefined' && params['nickname'].length > 0) {
         this._user.checkNicknameExist(params['nickname']).then((exist) => {
           if (exist) {
@@ -156,7 +161,7 @@ class UserController extends Controller {
       } else if (typeof params['nickname'] !== 'undefined' && params['nickname'].length === 0) {
         reject(['invalid']);
       } else {
-        this._user.update(updateParams).then(() => resolve(updateParams['set']));
+        resolve(updateParams['set']);
       }
     });
     return promise;
@@ -168,9 +173,10 @@ class UserController extends Controller {
       email: params['email'],
       nickname: params['nickname'],
       settings: {
-        allowControl: params['settings_allow_control'],
-        allowQueue: params['settings_allow_queue']
-      }
+        allowControl: params['allow_control'],
+        allowQueue: params['allow_queue']
+      },
+      hasStickers: params['stickers'].length > 0
     };
   }
 }

@@ -16,3 +16,4 @@ exports.NOTIFICATION_PLAY_NEXT_VIDEO = 'playNextVideo';
 exports.NOTIFICATION_PLAY_QUEUED_VIDEO = 'playQueuedVideo';
 exports.NOTIFICATION_PLAY_RELATED_VIDEO = 'playRelatedVideo';
 exports.NOTIFICATION_MESSAGE = 'message';
+exports.NOTIFICATION_INFO = 'info';

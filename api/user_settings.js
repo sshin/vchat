@@ -16,7 +16,7 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   if (req.session['loggedIn']) {
     let userCtrl = new UserController();
-    let keys = ['nickname', 'settings_allow_control', 'settings_allow_queue'];
+    let keys = ['nickname', 'allow_control', 'allow_queue'];
     userCtrl.updateUserSettings(req.body, req.session['user']['id']).then((updatedUser) => {
         for (let i = 0; i < keys.length; i++) {
           if (updatedUser.hasOwnProperty(keys[i])) {

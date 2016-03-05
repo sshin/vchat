@@ -128,6 +128,7 @@ function _onChatInputSubmit(e) {
   var $chatInput = $('#chat-input');
   if (e.which == 13) {
     var data = {
+      type: 'message',
       username: _getUserName(),
       message: $.trim($chatInput.val())
     };
@@ -246,6 +247,24 @@ function updateChat(data) {
   // Put message on chat box.
   var message = '';
 
+  switch(data['type']) {
+    case 'sticker':
+      data['html'] = true;
+      message = _buildSticker(data);
+      break;
+    default:
+      message = _buildMessage(data);
+      break;
+  }
+
+  data['message'] = message;
+  _appendToChatBox(data);
+  _notifyNewMessage(message, data);
+}
+
+function _buildMessage(data) {
+  var message = '';
+
   if (typeof data['link'] !== 'undefined' && data['link'] === true) {
     data['message'] = '<a href="' + data['message'] + '" target="_blank">' + data['message']
                       + '</a>';
@@ -256,10 +275,12 @@ function updateChat(data) {
   }
 
   message += data['message'];
+  return message;
+}
 
-  data['message'] = message;
-  _appendToChatBox(data);
-  _notifyNewMessage(message, data);
+function _buildSticker(data) {
+  var prefix = '[' + data['username'] + '] ';
+  return prefix + '<img src="/assets/stickers/' + data['stickerName'] + '/' + data['stickerNum'] +'.jpg">';
 }
 
 /**
@@ -279,6 +300,9 @@ function _notifyNewMessage(message, data) {
     }
 
     if (_useHtml5Notification() && notificationSettings['html5Notifications'][notificationType]) {
+      if (typeof data['type'] !== 'undefined' && data['type'] === 'sticker') {
+        message = '[' + data['username'] + '] sent a sticker!';
+      }
       _spawnNotification(_getNotificationTitle(notificationType), message, notificationType);
     }
     notificationSettings['lastNotified'] = currentTime;

@@ -56,7 +56,8 @@ class SocketController extends Controller {
       this._socket.emit('username-update', {username: this._user['nickname']});
       this._broadcastToRoom('system-message', {
         message: '[' + this._user['nickname'] + '] entered the vChat room.',
-        messageType: 'info'
+        messageType: 'info',
+        notificationType: Constants.NOTIFICATION_INFO
       });
     });
     this._socketRedisCtrl.addUserToRoom(this._user).then(() => {
@@ -362,7 +363,7 @@ class SocketController extends Controller {
    */
   controlVideo(data) {
     data['messageType'] = 'action';
-    data['notificationType'] = 'info';
+    data['notificationType'] = Constants.NOTIFICATION_INFO;
     if (data['action'] == 'playNext') {
       this._socketRedisCtrl.getNextVideo().then((nextVideo) => {
         if (nextVideo !== null) {

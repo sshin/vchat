@@ -47,6 +47,23 @@ class User extends Model {
     });
     return promise;
   }
+
+  getByUserName(username) {
+    var promise = new Promise((resolve, reject) => {
+      this.select({
+        where: {
+          username: username
+        }
+      }).then((rows) => {
+        if (rows.length > 0) {
+          resolve(rows[0]);
+        } else {
+          reject();
+        }
+      });
+    });
+    return promise;
+  }
 }
 
 exports.User = User;

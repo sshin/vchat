@@ -31,6 +31,7 @@
   height: 452px;
   border: 1px solid black;
   overflow-y: scroll;
+  background-color: #FDFDFD;
 }
 
 #pop-out-chat-box-wrapper {
@@ -155,7 +156,7 @@
 }
 
 .chat-self {
-  background-color: #CFD8DC;
+  border: 1px solid #30B3E8;
   padding: 5px;
 }
 
@@ -228,4 +229,8 @@
 
 .connection-lost-image-wrapper {
   margin-top: 25px;
+}
+
+.sticker-image-wrapper {
+  cursor: pointer;
 }

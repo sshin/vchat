@@ -15,6 +15,12 @@ module.exports = (app) => {
     _serveStaticFile(res, path);
   });
 
+  /** stickers **/
+  app.get('/assets/stickers/:name/:file', (req, res) => {
+    var path = 'assets/stickers/' + req.params.name + '/' + req.params.file;
+    _serveStaticFile(res, path);
+  });
+
   /** frontend **/
   app.get('/frontend/:type/:file', (req, res) => {
     var path = 'frontend/' + req.params.type + '/' + req.params.file;
@@ -46,6 +52,7 @@ module.exports = (app) => {
   app.use('/api/videosearch', require('./api/video_search'));
   app.use('/api/uservideolist', require('./api/user_video_list'));
   app.use('/api/usersettings', require('./api/user_settings'));
+  app.use('/api/userstickers', require('./api/user_stickers'));
 };
 
 /**
