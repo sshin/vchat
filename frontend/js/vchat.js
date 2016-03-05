@@ -503,7 +503,7 @@ function _appendToChatBox(data) {
   // If this chat message is by current user itself, add background color.
   if ((typeof data['username'] !== 'undefined') &&
        data['username'] === $('#user-name').val() &&
-        typeof data['notificationType'] !== 'undefined' && data['notificationType'] === 'message'){
+       typeof data['notificationType'] !== 'undefined' && data['notificationType'] === 'message'){
     classes.push('chat-self');
   }
 
