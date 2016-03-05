@@ -28,8 +28,6 @@ var UserStickers = React.createClass({
           this._renderVideoList();
         }.bind(this)
       });
-    } else {
-      this._renderVideoList();
     }
   },
 
