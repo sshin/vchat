@@ -148,21 +148,30 @@ class UserController extends Controller {
           allow_queue: params['allowQueue']
         }
       };
-      this._userInfo.update(updateParams).then(() => resolve(updateParams['set']));
-      if (typeof params['nickname'] !== 'undefined' && params['nickname'].length > 0) {
-        this._user.checkNicknameExist(params['nickname']).then((exist) => {
-          if (exist) {
-            reject(['nickname']);
-            return;
-          }
-          updateParams['set']['nickname'] = params['nickname'];
-          this._user.update(updateParams).then(() => resolve(updateParams['set']));
-        });
-      } else if (typeof params['nickname'] !== 'undefined' && params['nickname'].length === 0) {
-        reject(['invalid']);
-      } else {
-        resolve(updateParams['set']);
-      }
+      this._userInfo.update(updateParams).then(() => {
+        if (typeof params['nickname'] !== 'undefined' && params['nickname'].length > 0) {
+          this._user.checkNicknameExist(params['nickname']).then((exist) => {
+            if (exist) {
+              reject(['nickname']);
+              return;
+            }
+            let userUpdateParams = {
+              where: {
+                id: userId
+              },
+              set: {
+                nickname: params['nickname']
+              }
+            };
+            updateParams['set']['nickname'] = params['nickname'];
+            this._user.update(userUpdateParams).then(() => resolve(updateParams['set']));
+          });
+        } else if (typeof params['nickname'] !== 'undefined' && params['nickname'].length === 0) {
+          reject(['invalid']);
+        } else {
+          resolve(updateParams['set']);
+        }
+      });
     });
     return promise;
   }
