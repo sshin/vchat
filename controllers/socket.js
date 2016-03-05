@@ -370,8 +370,8 @@ class SocketController extends Controller {
           data['notificationType'] = Constants.NOTIFICATION_PLAY_NEXT_VIDEO;
           this._broadcastInRoom('control-video', data);
         } else {
-          this._socket.emit('no-more-video', {
-            message: 'No more videos in queue. Searching for a related video.',
+          this._socket.emit('new-message', {
+            message: 'No more videos in queue.',
             messageType: 'warning'
           });
           this._socketRedisCtrl.getVideoData().then((videoData) => {
@@ -389,7 +389,7 @@ class SocketController extends Controller {
               this._socketRedisCtrl.setVideoData(videoData);
 
               this._socket.emit('new-message', {
-                message: 'Queue is empty. Searching for a related video.',
+                message: 'Searching for a related video.',
                 messageType: 'info'
               });
               this.logger.log('queue is empty, searching for a related video for the room: '

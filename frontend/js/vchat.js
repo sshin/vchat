@@ -59,7 +59,6 @@ $(document).ready(function () {
   socket.on('new-video-to-play', loadVideo);
   socket.on('control-video', controlVideo);
   socket.on('get-current-play-time-for-new-user', getCurrentPlayTimeForNewUser);
-  socket.on('no-more-video', noMoreVideo);
   socket.on('force-disconnect', forceDisconnect);
   socket.on('disconnect', onDisconnect);
   socket.on('connect', onConnect);
@@ -454,11 +453,6 @@ function controlVideo(data) {
   }
 
   updateChat(chatData);
-}
-
-function noMoreVideo(data) {
-  data['message'] = 'No more videos to play.';
-  updateChat(data);
 }
 
 /*
