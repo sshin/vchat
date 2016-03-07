@@ -111,6 +111,7 @@ class YouTubeAPIController extends Controller {
           reject();
         } else {
           resolve(body);
+          TaskQueue.addVideos(JSON.parse(body));
         }
       });
     });
