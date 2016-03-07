@@ -27,7 +27,15 @@ redisRoomClient.select(11, () => {
 redisRoomClient.on('error', (err) => {
   console.log('[[Warm up Log Redis Error]] ' + err);
 });
+var redisTaskQueueClient = redis.createClient();
+redisTaskQueueClient.select(14, () => {
+  console.log('[Warm up Log] Selecting Redis database 14 for vChat: App task queue client');
+});
+redisTaskQueueClient.on('error', (err) => {
+  console.log('[[Warm up Log Redis Error]] ' + err);
+});
 
 exports.pool = pool;
 exports.redisClient = redisClient;
 exports.redisRoomClient = redisRoomClient;
+exports.redisTaskQueueClient = redisTaskQueueClient;

@@ -4,6 +4,7 @@ var Controller = require('./controller').Controller;
 var request = require('request');
 var credentials = require('credentials');
 var Constants = require('../app_modules/constants');
+var TaskQueue = require('../app_modules/taskqueue').TaskQueue;
 
 
 class YouTubeAPIController extends Controller {
@@ -48,6 +49,7 @@ class YouTubeAPIController extends Controller {
 
           videoData['currentVideo'] = nextVideo;
           resolve(videoData);
+          TaskQueue.addRelatedVideos(items, videoId);
         }
       }).catch(reject);
     });
@@ -86,7 +88,7 @@ class YouTubeAPIController extends Controller {
    *  resolve: related videos.
    *  reject: if api request limit is exceed.
    */
-  static searchVideos(query) {
+  searchVideos(query) {
     var promise = new Promise((resolve, reject) => {
       var data = {
         url: 'https://www.googleapis.com/youtube/v3/search',
