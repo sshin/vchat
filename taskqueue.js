@@ -8,13 +8,17 @@ var relatedVideo = new RelatedVideo();
 
 var relatedVideosSaved = 0;
 
-function monitorRedis() {
+function watchTaskQueue() {
   redisClient.blpop(Constants.TASK_QUEUE_VIDEO_KEY, 0, processData);
 }
 
+watchTaskQueue();
+
+
+
 function processData(err, rawData) {
   if (err) {
-    monitorRedis();
+    watchTaskQueue();
     return;
   }
 
@@ -34,7 +38,7 @@ function saveVideos(videos) {
   var i = 0;
   (function saveVideos(i) {
     if (i === videos.length) {
-      monitorRedis();
+      watchTaskQueue();
     } else {
       video.saveVideo(videos[i]).then(() => {
         saveVideos(i+1);
@@ -73,5 +77,3 @@ function processRelatedVideos(videos) {
     saveVideos(videos);
   }
 }
-
-monitorRedis();

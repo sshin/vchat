@@ -10,13 +10,13 @@ class TaskQueue {
    * Normalize the search result to match database column names, and queue it to task queue.
    */
   static addVideos(videos) {
-    var normalized = new TaskQueue()._getNormalizedVideos(videos);
+    var normalized = TaskQueue.getNormalizedVideos(videos['items']);
     var data = JSON.stringify({videos: normalized});
     TaskQueueClient.rpush(Constants.TASK_QUEUE_VIDEO_KEY, data);
   }
 
   static addRelatedVideos(videos, relatedToVideoId) {
-    var normalized = new TaskQueue()._getNormalizedVideos({items: videos});
+    var normalized = TaskQueue.getNormalizedVideos(videos);
     var data = JSON.stringify({
       videos: normalized,
       relatedToVideoId: relatedToVideoId
@@ -24,10 +24,10 @@ class TaskQueue {
     TaskQueueClient.rpush(Constants.TASK_QUEUE_VIDEO_KEY, data);
   }
 
-  _getNormalizedVideos(videos) {
+  static getNormalizedVideos(videos) {
     var normalized = [];
-    for (var i = 0; i < videos['items'].length; i++) {
-      let curr = videos['items'][i];
+    for (var i = 0; i < videos.length; i++) {
+      let curr = videos[i];
       normalized.push({
         video_id: curr['id']['videoId'],
         title: curr['snippet']['title'],
