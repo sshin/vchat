@@ -1,10 +1,10 @@
 var VideoPopOut = React.createClass({
    _popOutVideoOnly: function() {
-    app.popOutVideoOnly(roomInfo['type'], roomInfo['name']);
+    vChat.popOutVideoOnly(roomInfo['type'], roomInfo['name']);
   },
 
   _popOutRegular: function() {
-    app.popOutRegular(roomInfo['type'], roomInfo['name']);
+    vChat.popOutRegular(roomInfo['type'], roomInfo['name']);
   },
 
   render: function() {

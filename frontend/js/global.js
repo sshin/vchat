@@ -76,32 +76,6 @@ function App() {
   };
 
 
-  /** pop out **/
-  this.popOutVideoOnly = function(type, room) {
-    var url = this._getPopOutURL(type, room) + '?videoonly=1';
-    this._popOut(url, 831, 500);
-  };
-
-  this.popOutRegular = function(type, room) {
-    var url = this._getPopOutURL(type, room);
-    this._popOut(url, 831, 670);
-  };
-
-  this.popOutWithControl = function(type, room) {
-    var url = this._getPopOutURL(type, room) + '?testcontrol=1';
-    this._popOut(url, 831, 880);
-  };
-
-  this._getPopOutURL = function(type, room) {
-    return CONFIG['popOutUrl'] + type + '/' + room;
-  };
-
-  this._popOut = function(url, width, height) {
-    var size = 'width=' + width + ',height=' + height;
-    window.open(url, '', size);
-  };
-
-
   /** user info **/
   this.user = null;
   this.get('login', {
