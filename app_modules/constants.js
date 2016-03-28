@@ -10,6 +10,8 @@ exports.redisRoomKeyPrefix = 'ROOM';
 exports.userCount = 'APP total:users';
 exports.MAX_RELATED_VIDEOS = 50;
 exports.TASK_QUEUE_VIDEO_KEY = 'VIDEO';
+exports.RELATED_VIDEO_MIN_SCORE = 1;
+exports.USER_SELECTED_RELATED_VIDEO_SCORE = 10;
 
 /** Notification types **/
 exports.NOTIFICATION_NEW_VIDEO_QUEUED = 'newVideoQueued';

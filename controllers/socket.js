@@ -5,6 +5,7 @@ var Constants = require('../app_modules/constants');
 var SocketRedisController = require('../controllers/socket_redis').SocketRedisController;
 var SocketSessionController = require('../controllers/socket_session').SocketSessionController;
 var YouTubeAPIController = require('./youtube_api').YouTubeAPIController;
+var RelatedVideo = require('../models/related_video').RelatedVideo;
 
 
 class SocketController extends Controller {
@@ -390,6 +391,8 @@ class SocketController extends Controller {
               });
             } else {
             // Search for a related video.
+              let currentVideoId = videoData['currentVideo']['videoId'];
+              let nextVideoId = null;
               let youtubeCtrl = new YouTubeAPIController();
               videoData['searchingRelatedVideo'] = true;
               // Set the last played videoId into related videos, so we won't play it again.
@@ -418,6 +421,9 @@ class SocketController extends Controller {
                 this._broadcastInRoom('control-video', data);
                 this.logger.log('Playing a related video due to empty queue when playNextVideo '
                                   + 'was requested for the room: ' + this._roomHash);
+
+                nextVideoId = updatedVideoData['currentVideo']['videoId'];
+                RelatedVideo.saveRelatedVideo(currentVideoId, nextVideoId);
               }).catch(() => {
                 this._socket.emit('new-message', {
                   message: 'Failed to get a related video.',

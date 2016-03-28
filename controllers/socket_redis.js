@@ -2,6 +2,7 @@
 
 var Controller = require('./controller').Controller;
 var Room = require('../models/room').Room;
+var RelatedVideo = require('../models/related_video').RelatedVideo;
 var Constants = require('../app_modules/constants');
 var SocketVideoQueueController = require('./socket_video_queue').SocketVideoQueueController;
 var co = require('co');
@@ -192,8 +193,9 @@ class SocketRedisController extends Controller {
             searchingRelatedVideo: false,
             relatedVideos: {length: 0, videos: {}}
           };
-          this.setVideoData(newData);
-          this._socketVideoQueueCtrl.queue(videoData).then(() => resolve(true));
+          this.setVideoData(newData).then(() => {
+            this._socketVideoQueueCtrl.queue(videoData).then(() => resolve(true));
+          });
         } else {
         // Not a first video for the room.
           this._socketVideoQueueCtrl.tpeek().then((lastQueuedVideo) => {
@@ -236,10 +238,25 @@ class SocketRedisController extends Controller {
    */
   getNextVideo() {
     var promise = new Promise((resolve, reject) => {
+      let currentVideoId = null;
+      let nextVideoId = null;
       this._socketVideoQueueCtrl.pop().then((nextVideo) => {
         if (nextVideo !== null) {
+          nextVideoId = nextVideo['videoId'];
           // Set the next video to current video.
           this.getVideoData().then((videoData) => {
+            if (videoData['currentVideo'] !== null) {
+              let score = Constants.USER_SELECTED_RELATED_VIDEO_SCORE;
+
+              // Related videos are randomly selected videos from youtube's related videos search.
+              if (nextVideo.hasOwnProperty('isRelatedVideo') && nextVideo['isRelatedVideo']) {
+                score = Constants.RELATED_VIDEO_MIN_SCORE;
+              }
+
+              currentVideoId = videoData['currentVideo']['videoId'];
+              RelatedVideo.saveRelatedVideo(currentVideoId, nextVideoId, score);
+            }
+
             videoData['currentVideo'] = nextVideo;
             this.setVideoData(videoData);
           });

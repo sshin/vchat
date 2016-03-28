@@ -70,7 +70,7 @@ function processRelatedVideos(videos) {
   relatedVideosSaved++;
   if (relatedVideosSaved === 10) {
     relatedVideosSaved = 0;
-    relatedVideo.updateCounts().then(() => {
+    relatedVideo.updateScores().then(() => {
       relatedVideo.deleteDuplicates().then(() => saveVideos(videos));
     });
   } else {

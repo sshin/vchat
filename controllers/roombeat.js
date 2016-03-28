@@ -6,7 +6,7 @@ var SocketVideoQueueController = require('./socket_video_queue').SocketVideoQueu
 var YouTubeAPIController = require('./youtube_api').YouTubeAPIController;
 var co = require('co');
 var Constants = require('../app_modules/constants');
-
+var RelatedVideo = require('../models/related_video').RelatedVideo;
 
 class RoombeatController extends Controller {
 
@@ -34,6 +34,11 @@ class RoombeatController extends Controller {
         let videoData = yield socketRedisCtrl.getVideoData();
 
         if (videoData !== null) {
+          let currentVideoId = null;
+          if (typeof videoData['currentVideo'] !== 'undefined' && videoData['currentVideo'] !== null) {
+            currentVideoId = videoData['currentVideo']['videoId'];
+          }
+          let nextVideoId = null;
           let lastQueuedVideo = yield socketVideoQueueCtrl.pop();
 
           if (lastQueuedVideo === null) {
@@ -60,9 +65,13 @@ class RoombeatController extends Controller {
                     nextVideo: updatedVideoData['currentVideo'],
                     notificationType: Constants.NOTIFICATION_PLAY_RELATED_VIDEO
                   };
+
                   this._io['sockets'].in(data['roomKey']).emit('control-video', controlVideo);
                   this.logger.log('automatically playing a related video '
                                     + 'for the room: ' + data['roomHash']);
+
+                  nextVideoId = updatedVideoData['currentVideo']['videoId'];
+                  RelatedVideo.saveRelatedVideo(currentVideoId, nextVideoId);
               }).catch(() => {
                 this.logger.error('error when searching for a related video for room:'
                   + data['roomHash'] + ' | videoId: ' + data['videoId']);
@@ -89,14 +98,20 @@ class RoombeatController extends Controller {
               nextVideo: lastQueuedVideo,
               notificationType: Constants.NOTIFICATION_PLAY_QUEUED_VIDEO
             };
+
             this._io['sockets'].in(data['roomKey']).emit('control-video', controlVideo);
             this.logger.log('automatically playing the next video from'
                             + ' the queue for the room: ' + data['roomHash']);
+
+            nextVideoId = lastQueuedVideo['videoId'];
+            RelatedVideo.saveRelatedVideo(currentVideoId, nextVideoId,
+                                          Constants.USER_SELECTED_RELATED_VIDEO_SCORE);
           }
         }
       }.bind(this));
     }
   }
+
 }
 
 exports.RoombeatController = RoombeatController;

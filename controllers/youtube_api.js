@@ -23,7 +23,7 @@ class YouTubeAPIController extends Controller {
         let items = JSON.parse(body)['items'];
         if (typeof items !== 'undefined' && items != null && items.length > 0) {
           // Avoid duplicated related videos.
-          let nextVideo = {username: 'vChat'};
+          let nextVideo = {username: 'vChat', isRelatedVideo: true};
           for (let i = 0; i < items.length; i++) {
             let videoId = items[i]['id']['videoId'];
             if (!videoData['relatedVideos']['videos'].hasOwnProperty(videoId)) {
@@ -49,7 +49,7 @@ class YouTubeAPIController extends Controller {
 
           videoData['currentVideo'] = nextVideo;
           resolve(videoData);
-          TaskQueue.addRelatedVideos(items, videoId);
+          TaskQueue.addVideos(items, videoId);
         }
       }).catch(reject);
     });
