@@ -49,7 +49,7 @@ class YouTubeAPIController extends Controller {
 
           videoData['currentVideo'] = nextVideo;
           resolve(videoData);
-          TaskQueue.addVideos(items, videoId);
+          TaskQueue.addRelatedVideos(items, videoId);
         }
       }).catch(reject);
     });

@@ -9,14 +9,18 @@ class TaskQueue {
   /**
    * Normalize the search result to match database column names, and queue it to task queue.
    */
-  static addVideos(videos, relatedToVideoId) {
+  static addVideos(videos) {
     var normalized = TaskQueue.getNormalizedVideos(videos['items']);
     var data = JSON.stringify({videos: normalized});
+    TaskQueueClient.rpush(Constants.TASK_QUEUE_VIDEO_KEY, data);
+  }
 
-    if (typeof relatedToVideoId !== 'undefined') {
-      data['relatedToVideoId'] = relatedToVideoId;
-    }
-
+  static addRelatedVideos(videos, relatedToVideoId) {
+    var normalized = TaskQueue.getNormalizedVideos(videos);
+    var data = JSON.stringify({
+      videos: normalized,
+      relatedToVideoId: relatedToVideoId
+    });
     TaskQueueClient.rpush(Constants.TASK_QUEUE_VIDEO_KEY, data);
   }
 
