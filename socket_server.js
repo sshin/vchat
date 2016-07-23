@@ -139,7 +139,7 @@ io['sockets'].on('connection', function (socket) {
   });
 
 
-  socket.on('disconnect', () => {
+  socket.once('disconnect', () => {
     // Remove all listeners.
     socket.removeAllListeners('client-chat-send');
     socket.removeAllListeners('new-video-submit');
