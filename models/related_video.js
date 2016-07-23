@@ -62,7 +62,7 @@ class RelatedVideo extends Model {
       var sql =
           'DELETE RelatedVideo FROM RelatedVideo ' +
           'JOIN (' +
-          'SELECT video_id, related_video_id, MAX(score) AS val, score(video_id) AS appears ' +
+          'SELECT video_id, related_video_id, MAX(score) AS val, COUNT(video_id) AS appears ' +
           'FROM RelatedVideo ' +
           'GROUP BY related_video_id, video_id ' +
           'HAVING appears > 1' +
