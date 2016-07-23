@@ -41,6 +41,10 @@ class UserVideoList extends Model {
     return promise;
   }
 
+  /**
+   * Returns:
+   *  isListFull(boolean): whether user video list is full.
+   */
   checkCanAdd(params) {
     var promise = new Promise((resolve, reject) => {
       this.select({
@@ -48,8 +52,8 @@ class UserVideoList extends Model {
           user_id: params['user_id']
         }
       }).then((rows) => {
-        // User can memorize up to 20 videos.
-        resolve(rows.length >= 20);
+        // User can memorize up to 50 videos.
+        resolve(rows.length >= 50);
       });
     });
 
